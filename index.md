@@ -1,6 +1,6 @@
 # Linked Data Working Group
 
-Welcome to the homepage of the Linked Data Working Group at Vanderbilt. Our group meets weekly during the academic year and is sponsored by the [Digital Scholarship and Scholarly Communications Office](https://www.library.vanderbilt.edu/scholarly/) of the library. 
+Welcome to the homepage of the Linked Data Working Group at Vanderbilt. Our group meets weekly during the academic year and is sponsored by the [Digital Scholarship and Scholarly Communications Office](https://www.library.vanderbilt.edu/scholarly/) of the library.
 
 ![](http://linkeddata.org/static/images/lod-datasets_2009-07-14_cropped.png)
 Diagram from http://linkeddata.org/ (CC BY-SA)
@@ -56,7 +56,7 @@ One of our projects this semester was to look at how data in several spreadsheet
 
 Read a [blog post](http://baskauf.blogspot.com/2016/11/sparql-based-web-app-to-find-chinese.html) about the project.
 
-Play with a [web page built on the data](http://bioimages.vanderbilt.edu/tang-song.html).
+Play with a [web page built on the data](http://bioimages.vanderbilt.edu/http://bioimages.vanderbilt.edu/building-map.html).
 
 Play with the [raw data and graph model](https://github.com/HeardLibrary/semantic-web/blob/master/sparql/tcadrt.md) at our [SPARQL endpoint](https://sparql.vanderbilt.edu/).
 
