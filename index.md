@@ -15,7 +15,7 @@ Linked Open Data (LOD) is a subset of Linked Data where data are freely availabl
 
 ## About the group
 
-Anyone who is interested in Linked Data, graph databases, the Semantic Web, JSON-LD, or any other related topic is welcome to attend.  We also would love to have remote participants from outside Vanderbilt.  If you are interested in remoting in, or if you have any questions about the group, contact steve.baskauf@vanderbilt.edu
+Anyone who is interested in Linked Data, graph databases, the Semantic Web, JSON-LD, or any other related topic is welcome to attend.  We also would love to have remote participants from outside Vanderbilt.  If you are interested in remoting in, or if you have any questions about the group, contact <a href="mailto:steve.baskauf@vanderbilt.edu">Steve Baskauf</a>
 
 ## Venue and schedule
 
@@ -55,6 +55,8 @@ This semester we centered our sessions around the book ["Learning SPARQL" by Bob
 <img src="assets/owl-example.png" alt = "OWL example" /><br/>
 
 We learned about the Semantic Web by working through the book ["Semantic Web for the Working Ontologist" by Allemang and Hendler](http://workingontologist.org/).  Some random notes and PowerPoints are [here](https://github.com/HeardLibrary/semantic-web/tree/master/sw-4-working-ontologist). We also played around with the Stardog graph database and SPARQL endpoint.
+
+----
 
 ### Fall 2016. Turning spreadsheets into Linked Data: Traditional Chinese Architecture
 
