@@ -38,7 +38,7 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 
 ### Fall 2015. Learning SPARQL
 
-![](https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png | width=200)
+![](https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png)
 Graph diagram generated using LodLive (http://en.lodlive.it/)
 
 This semester we centered our sessions around the book ["Learning SPARQL" by Bob DuCharme](http://www.learningsparql.com/).  Some random notes and PowerPoints are [here](https://github.com/HeardLibrary/semantic-web/tree/master/learning-sparql).
@@ -49,7 +49,7 @@ We learned about the Semantic Web by working through the book ["Semantic Web for
 
 ### Fall 2016. Turning spreadsheets into Linked Data: Traditional Chinese Architecture
 
-![](http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg | width=200)
+![](http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg)
 (c) 2017 Tracy G. Miller CC BY-NC
 
 One of our projects this semester was to look at how data in several spreadsheets could be turned into Linked Data, then used to create an interactive web page built on queries of the data.
