@@ -31,8 +31,8 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 | Oct. 8 | Probably another session on syriaca.org |  |
 | Oct. 15 | No meeting (fall break week) |  |
 | Oct. 22 | Possibly look at the Slave Societies Digital Archive as LOD |  |
-| Oct. 29 | TBD |  |
-| Nov. 5 | TBD |  |
+| Oct. 29 | Steve might report on his attendance at the Amazon Neptune workshop if it actually happens |  |
+| Nov. 5 | Somewhere in here, we should do more stuff with Wikidata |  |
 | Nov. 12 | TBD |  |
 | Nov.19 | No meeting (Thanksgiving week) |  |
 | Nov. 26 | TBD |  |
