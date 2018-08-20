@@ -2,6 +2,7 @@
 
 Welcome to the homepage of the Linked Data Working Group at Vanderbilt. Our group meets weekly during the academic year and is sponsored by the [Digital Scholarship and Scholarly Communications Office](https://www.library.vanderbilt.edu/scholarly/) of the library.
 
+<img src="http://linkeddata.org/static/images/lod-datasets_2009-07-14_cropped.png" alt = "graph diagram" style="width:300px" /><br/>
 ![](http://linkeddata.org/static/images/lod-datasets_2009-07-14_cropped.png)
 Diagram from http://linkeddata.org/ (CC BY-SA)
 
@@ -15,7 +16,7 @@ Linked Open Data (LOD) is a subset of Linked Data where data are freely availabl
 
 ## About our group
 
-Our group meets on most Mondays from 11:10 AM to noon in the Training Room in the basement of the Eskind Biomedical Library (Room 0xx).  Here is the schedule of our fall meetings:
+Our group meets on most Mondays from 11:10 AM to noon in the Training Room in the basement of the Eskind Biomedical Library (Room 010).  Here is the schedule of our fall meetings:
 
 | Date | Topic | Notes |
 |------|-------|-------|
@@ -38,6 +39,7 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 
 ### Fall 2015. Learning SPARQL
 
+<img src="https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png" alt = "graph diagram" style="width:300px" /><br/>
 ![](https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png)
 Graph diagram generated using LodLive (http://en.lodlive.it/)
 
@@ -49,7 +51,7 @@ We learned about the Semantic Web by working through the book ["Semantic Web for
 
 ### Fall 2016. Turning spreadsheets into Linked Data: Traditional Chinese Architecture
 
-<img src="http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg" alt = "temple" style="width:200px" />
+<img src="http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg" alt = "temple" style="width:300px" /><br/>
 (c) 2017 Tracy G. Miller CC BY-NC
 
 One of our projects this semester was to look at how data in several spreadsheets could be turned into Linked Data, then used to create an interactive web page built on queries of the data.
@@ -62,6 +64,24 @@ Play with the [raw data and graph model](https://github.com/HeardLibrary/semanti
 
 ### Spring 2017. Modeling a cultural heritage dataset: Music and Vase-painting (and we set up a SPARQL endpoint!)
 
-### Fall 2017. Modeling people, works, and institutions: ULAN, the NY Public Library database, etc.
+<img src="assets/sparql-graphic.png" alt = "SPARQL diagram" style="width:300px" /><br/>
+
+[Links to notes](https://github.com/HeardLibrary/semantic-web/blob/master/vase/README.md) from the semester.
+
+[Notes](https://github.com/kopolzin/vuswwg-web-server) about how we set up the web server that hosts the SPARQL endpoint.
+
+Visit the [SPARQL endpoint](https://sparql.vanderbilt.edu/) and [view its user guide](https://github.com/HeardLibrary/semantic-web/blob/master/sparql/README.md).
+
+### Fall 2017. Modeling people, works, and institutions: ULAN, the NY Public Library database, Vanderbilt peopel and their publications.
+
+<img src="https://github.com/HeardLibrary/semantic-web/blob/master/2017-fall/constituent-address-graph.png?raw=true" alt = "graph model" style="width:300px" /><br/>
+Graph model based on the New York Public Library dataset.
+
+[Do-it-yourself exercise](https://github.com/baskaufs/guid-o-matic/blob/master/getting-started.md) to turn several CSV tables into Linked Data using [Guid-O-Matic](https://github.com/baskaufs/guid-o-matic/blob/master/README.md)
 
 ### Spring 2018. Wikidata, Vanderbilt people, etc.
+
+<img src="assets/wikidata-example.png" alt = "SPARQL diagram" style="width:300px" /><br/>
+Wikidata example query from https://query.wikidata.org/
+
+Some [notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-spring/vu-people/README.md), [more notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-spring/vu-people/README.md), and [various XQuery and Python scripts](https://github.com/HeardLibrary/semantic-web/tree/master/2018-spring/vu-people) we used.
