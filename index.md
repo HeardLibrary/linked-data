@@ -40,8 +40,6 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 ### Fall 2015. Learning SPARQL
 
 <img src="https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png" alt = "graph diagram" style="width:300px" /><br/>
-![](https://raw.githubusercontent.com/HeardLibrary/semantic-web/master/learning-sparql/media/lodlive-graph.png)
-Graph diagram generated using LodLive (http://en.lodlive.it/)
 
 This semester we centered our sessions around the book ["Learning SPARQL" by Bob DuCharme](http://www.learningsparql.com/).  Some random notes and PowerPoints are [here](https://github.com/HeardLibrary/semantic-web/tree/master/learning-sparql).
 
