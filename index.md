@@ -3,7 +3,6 @@
 Welcome to the homepage of the Linked Data Working Group at Vanderbilt. Our group meets weekly during the academic year and is sponsored by the [Digital Scholarship and Scholarly Communications Office](https://www.library.vanderbilt.edu/scholarly/) of the library.
 
 <img src="http://linkeddata.org/static/images/lod-datasets_2009-07-14_cropped.png" alt = "graph diagram" style="width:400px" /><br/>
-![](http://linkeddata.org/static/images/lod-datasets_2009-07-14_cropped.png)
 Diagram from http://linkeddata.org/ (CC BY-SA)
 
 ## What's Linked Data?
@@ -44,6 +43,8 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 This semester we centered our sessions around the book ["Learning SPARQL" by Bob DuCharme](http://www.learningsparql.com/).  Some random notes and PowerPoints are [here](https://github.com/HeardLibrary/semantic-web/tree/master/learning-sparql).
 
 ### Spring 2016. The Semantic Web
+
+<img src="assets/owl-example.png" alt = "OWL example" /><br/>
 
 We learned about the Semantic Web by working through the book ["Semantic Web for the Working Ontologist" by Allemang and Hendler](http://workingontologist.org/).  Some random notes and PowerPoints are [here](https://github.com/HeardLibrary/semantic-web/tree/master/sw-4-working-ontologist). We also played around with the Stardog graph database and SPARQL endpoint.
 
