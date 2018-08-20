@@ -49,7 +49,7 @@ We learned about the Semantic Web by working through the book ["Semantic Web for
 
 ### Fall 2016. Turning spreadsheets into Linked Data: Traditional Chinese Architecture
 
-![](http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg)
+<img src="http://hartsvr.cas.vanderbilt.edu/tangsong/dimli/images/medium/003109.jpg" alt = "temple" style="width:200px" />
 (c) 2017 Tracy G. Miller CC BY-NC
 
 One of our projects this semester was to look at how data in several spreadsheets could be turned into Linked Data, then used to create an interactive web page built on queries of the data.
