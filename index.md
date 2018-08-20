@@ -15,7 +15,7 @@ Linked Open Data (LOD) is a subset of Linked Data where data are freely availabl
 
 ## About the group
 
-Anyone who is interested in Linked Data, graph databases, the Semantic Web, JSON-LD, or any other related topic is welcome to attend.  We also would love to have remote participants from outside Vanderbilt.  If you are interested in remoting in, or if you have any questions about the group, contact <a href="mailto:steve.baskauf@vanderbilt.edu">Steve Baskauf</a>
+Anyone who is interested in Linked Data, graph databases, the Semantic Web, JSON-LD, or any other related topic is welcome to attend.  We also would love to have remote participants from outside Vanderbilt.  If you are interested in remoting in, or if you have any questions about the group, contact <a href="mailto:steve.baskauf@vanderbilt.edu">Steve Baskauf</a>.
 
 ## Venue and schedule
 
