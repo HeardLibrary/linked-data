@@ -1,3 +1,9 @@
+---
+layout: page
+title: Linked Data Working Group
+permalink: /about
+---
+
 # Linked Data Working Group
 
 Welcome to the homepage of the Linked Data Working Group at Vanderbilt. Our group meets weekly during the academic year and is sponsored by the [Digital Scholarship and Scholarly Communications Office](https://www.library.vanderbilt.edu/scholarly/) of the [Jean & Alexander Heard Libraries](https://www.library.vanderbilt.edu/).
