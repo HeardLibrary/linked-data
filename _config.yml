@@ -1,3 +1,3 @@
 title: Linked Data Working Group
 description: A working group of the Digital Scholarship and Scholarly Communications Office of the Vanderbilt Heard Libraries.
-remote_theme: joshgerdes/jekyll-uno
+theme: jekyll-theme-leap-day
