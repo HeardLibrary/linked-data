@@ -1,3 +1,48 @@
+# Site settings
 title: Linked Data Working Group
-description: A working group of the Digital Scholarship and Scholarly Communications Office of the Vanderbilt Heard Libraries.
-theme: jekyll-theme-leap-day
+description: 'A working group of the Digital Scholarship and Scholarly Communications Office of the Vanderbilt Heard Libraries.'
+url: 'https://heardlibrary.github.io/linked-data/'
+baseurl: '/'
+# google_analytics: 'UA-XXXXXX-X'
+# disqus_shortname: 'your-disqus-name'
+
+author:
+  name: 'Digital Scholarship and Scholarly Communications Office'
+  email: steve.baskauf@vanderbilt.edu
+  twitter_username: '@baskaufs'
+  github_username:  heardlibrary
+
+defaults:
+  -
+    scope:
+      path: ''
+      type: 'posts'
+    values:
+        layout: 'post'
+
+    scope:
+      path: ''
+      type: 'pages'
+    values:
+        layout: 'page'
+
+# Build settings
+destination: _site
+paginate: 10
+permalink: /:year/:title/
+markdown: kramdown
+highlighter: rouge
+
+sass:
+    sass_dir: _sass
+    style: compressed
+
+kramdown:
+  # use Github Flavored Markdown
+  input: GFM
+  # do not replace newlines by <br>s
+  hard_wrap: false
+
+gems: ['jekyll-paginate']
+exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']
+include: '_pages'
