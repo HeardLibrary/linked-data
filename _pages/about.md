@@ -23,5 +23,5 @@ Anyone who is interested in Linked Data, graph databases, the Semantic Web, JSON
 
 ## Venue
 
-Our group meets on most Mondays from 11:10 AM to noon in the Training Room in the basement of the Eskind Biomedical Library (Room 010).  [Click here](schedule.md) to view the schedule for the current semester.
+Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in the basement of the Eskind Biomedical Library (Room 010).  [Click here](schedule.md) to view the schedule for the current semester.
 

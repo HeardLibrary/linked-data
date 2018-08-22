@@ -5,7 +5,7 @@ permalink: /schedule
 ---
 
 
-Our group meets on most Mondays from 11:10 AM to noon in the Training Room in the basement of the Eskind Biomedical Library (Room 010).  Here is the schedule of our fall 2018 meetings:
+Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in the basement of the Eskind Biomedical Library (Room 010).  Here is the schedule of our fall 2018 meetings:
 
 | Date | Topic | Notes |
 |------|-------|-------|
