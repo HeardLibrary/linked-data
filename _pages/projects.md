@@ -1,7 +1,7 @@
 ---
 layout: page
 title: LDWG Projects
-permalink: /Projects
+permalink: /projects
 ---
 ## Past projects
 

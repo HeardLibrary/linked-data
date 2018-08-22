@@ -9,7 +9,7 @@ baseurl: '/'
 author:
   name: 'Digital Scholarship and Scholarly Communications Office'
   email: steve.baskauf@vanderbilt.edu
-  twitter_username: '@baskaufs'
+  twitter_username: '@VandyLibraries'
   github_username:  heardlibrary
 
 defaults:
