@@ -9,7 +9,7 @@ Our group meets on most Mondays from 11:10 AM to noon in the Training Room in th
 
 | Date | Topic | Notes |
 |------|-------|-------|
-| Aug. 3 | Introduction to Linked Data and Search Engine Optimization | (notes link will be here) |
+| Sep. 3 | Introduction to Linked Data and Search Engine Optimization | (notes link will be here) |
 | Sep. 10 | Guest speaker: Rod Page talking about his interactive LOD application linking authors, species, and publications |  |
 | Sep. 17 | Workshop: Using JSON-LD and schema.org to help Google understand your web page |  |
 | Sep. 24 | Followup on Using JSON-LD and schema.org: did it work? |  |
