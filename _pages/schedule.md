@@ -9,12 +9,12 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 
 | Date | Topic | Notes |
 |------|-------|-------|
-| Sep. 3 | Introduction to Linked Data and Search Engine Optimization | (notes link will be here) |
-| Sep. 10 | Guest speaker: Rod Page talking about his interactive LOD application linking authors, species, and publications |  |
-| Sep. 17 | Workshop: Using JSON-LD and schema.org to help Google understand your web page |  |
-| Sep. 24 | Followup on Using JSON-LD and schema.org: did it work? |  |
-| Oct. 1 | Somewhere in here we should look at syriaca.org with Dave Michelson |  |
-| Oct. 8 | Probably another session on syriaca.org |  |
+| Sep. 3 | Labor Day Holiday (no meeting) |  |
+| Sep. 10 | Guest speaker: Rod Page talking about his interactive LOD application linking authors, species, and publications | (notes link will be here) |
+| Sep. 17 | Introduction to Linked Data and Search Engine Optimization |  |
+| Sep. 24 | Workshop: Using JSON-LD and schema.org to help Google understand your web page |  |
+| Oct. 1 | Followup on Using JSON-LD and schema.org: did it work? |  |
+| Oct. 8 | Somewhere in here we should look at syriaca.org with Dave Michelson |  |
 | Oct. 15 | No meeting (fall break week) |  |
 | Oct. 22 | Possibly look at the Slave Societies Digital Archive as LOD |  |
 | Oct. 29 | Steve might report on his attendance at the Amazon Neptune workshop if it actually happens |  |
