@@ -10,7 +10,7 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Date | Topic | Notes |
 |------|-------|-------|
 | Sep. 3 | Labor Day Holiday (no meeting) |  |
-| Sep. 10 | Guest speaker: Rod Page talking about his interactive LOD application linking authors, species, and publications | [Presentation link](../assets/notes-2018-fall/page-rdm-2018-09-10.pdf) [Link to demo](https://ozymandias-demo.herokuapp.com/) |
+| Sep. 10 | Guest speaker: Rod Page talking about his interactive LOD application linking authors, species, and publications | [Presentation link](../assets/notes-2018-fall/page-rdm-2018-09-10.pdf) / [Link to demo](https://ozymandias-demo.herokuapp.com/) |
 | Sep. 17 | Introduction to Linked Data and Search Engine Optimization |  |
 | Sep. 24 | Workshop: Using JSON-LD and schema.org to help Google understand your web page |  |
 | Oct. 1 | Followup on Using JSON-LD and schema.org: did it work? |  |
