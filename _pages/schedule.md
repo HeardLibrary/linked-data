@@ -16,10 +16,10 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Oct. 1 | Wrap up structured data using JSON-LD and introduction to Wikidata | [Presentation Link](../assets/notes-2018-fall/wikidata-2018-10-01.pdf) |
 | Oct. 8 | Workshop: editing Wikidata and associating publications with a person |  |
 | Oct. 15 | No meeting (fall break week) |  |
-| Oct. 22 | Possibly look at the Slave Societies Digital Archive as LOD |  |
-| Oct. 29 | Steve might report on his attendance at the Amazon Neptune workshop if it actually happens |  |
+| Oct. 22 | Report on Amazon Neptune, Blazegraph, and Metaphactory |  |
+| Oct. 29 | TBD |  |
 | Nov. 5 | Somewhere in here, we should do more stuff with Wikidata |  |
-| Nov. 12 | TBD |  |
+| Nov. 12 | Possibly look at the Slave Societies Digital Archive as LOD |  |
 | Nov.19 | No meeting (Thanksgiving week) |  |
 | Nov. 26 | TBD |  |
 | Dec. 3 |  TBD|  |
