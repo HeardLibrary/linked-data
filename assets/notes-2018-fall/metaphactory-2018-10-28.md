@@ -24,19 +24,23 @@ group by ?film
 
 `STRDT(concat(str(?endYear), "-01-01"),xsd:date)` *turn a datatyped xsd:gYear into a datatyped xsd:date*
 
+## Link to Metaphactory free trial
+
+<https://www.metaphacts.com/trial>
+
 ## Template directions
 
-See https://help.metaphacts.com/resource/Help:HTML5Components for template instructions
+See <https://help.metaphacts.com/resource/Help:HTML5Components> for template instructions
 
 # Create visualizations based on Traditional Chinese Architecture
 
-All data can be downloaded from https://github.com/HeardLibrary/semantic-web/tree/master/2016-fall/tang-song/final-rdf
+All data can be downloaded from <https://github.com/HeardLibrary/semantic-web/tree/master/2016-fall/tang-song/final-rdf>
 
 Note: In some cases triples are available as both RDF/XML (.rdf) and RDF/Turtle (.ttl) files.  Only one needs to be loaded - they contain exactly the same information.  The temple-images-minimal files contain a subset of the triples in temple-images.rdf (which at 6.1 Mb caused trouble loading in the .small metaphactory instance; for comparison, temple-images-minimal.ttl is only 1.1 Mb).
 
-The graph model for sites and buildings is at https://github.com/HeardLibrary/semantic-web/blob/master/sparql/tcadrt.md 
+The graph model for sites and buildings is at <https://github.com/HeardLibrary/semantic-web/blob/master/sparql/tcadrt.md>
 
-All queries should run at the Working Group's SPARQL endpoint https://sparql.vanderbilt.edu/ although the visualizations won't happen there.
+All queries should run at the Working Group's SPARQL endpoint <https://sparql.vanderbilt.edu/> although the visualizations won't happen there.
 
 ## create a map showing the locations of buildings, labeled by site and building
 
@@ -187,7 +191,7 @@ SELECT DISTINCT ?start ?end ?subject WHERE {
 
 
 
-https://www.britannica.com/art/Chinese-architecture/Stylistic-and-historical-development-from-220-to-1206-ce
+<https://www.britannica.com/art/Chinese-architecture/Stylistic-and-historical-development-from-220-to-1206-ce>
 
 "The new Song style is characterized by a number of distinct features. The line of the eaves, which in Tang architecture of northern China was still straight, now curves up at the corners, and the roof has a pronounced sagging silhouette. The bracket cluster (dougong) has become more complex: not only is it continuous between the columns, often including doubled, or even false, cantilever arms (or “tail-rafters,” xia’ang), which slant down from the inner superstructure to the bracket, but also a great variety of bracket types may be used in the same building (56 different types are found in the five-story wooden pagoda built in 1056 at the Fogong Temple in Yingxian, Shanxi province)."
 
