@@ -6,7 +6,7 @@ Linked Data Working Group 2018-10-29
 
 `concat(?siteLabel, " ", ?buildingLabel` *concatenate strings*
 
-`BIND(concat(?siteLabel, " ", ?buildingLabel) AS ?description)` *bind a value to a variable
+`BIND(concat(?siteLabel, " ", ?buildingLabel) AS ?description)` *bind a value to a variable*
 
 `LANG(?siteLabel)` *find the language label of a literal*
 
@@ -189,7 +189,7 @@ SELECT DISTINCT ?start ?end ?subject WHERE {
 
 https://www.britannica.com/art/Chinese-architecture/Stylistic-and-historical-development-from-220-to-1206-ce
 
-The new Song style is characterized by a number of distinct features. The line of the eaves, which in Tang architecture of northern China was still straight, now curves up at the corners, and the roof has a pronounced sagging silhouette. The bracket cluster (dougong) has become more complex: not only is it continuous between the columns, often including doubled, or even false, cantilever arms (or “tail-rafters,” xia’ang), which slant down from the inner superstructure to the bracket, but also a great variety of bracket types may be used in the same building (56 different types are found in the five-story wooden pagoda built in 1056 at the Fogong Temple in Yingxian, Shanxi province). 
+"The new Song style is characterized by a number of distinct features. The line of the eaves, which in Tang architecture of northern China was still straight, now curves up at the corners, and the roof has a pronounced sagging silhouette. The bracket cluster (dougong) has become more complex: not only is it continuous between the columns, often including doubled, or even false, cantilever arms (or “tail-rafters,” xia’ang), which slant down from the inner superstructure to the bracket, but also a great variety of bracket types may be used in the same building (56 different types are found in the five-story wooden pagoda built in 1056 at the Fogong Temple in Yingxian, Shanxi province)."
 
 Timeline query for number of xia'ang:
 
@@ -412,7 +412,7 @@ where
 }
 ```
 
-## Constructing a diagrapm for the PeriodO graph model: Tang Dynasty
+## Constructing a diagram for the PeriodO graph model: Tang Dynasty
 
 Turtle serialization
 
