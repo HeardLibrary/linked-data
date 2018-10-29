@@ -17,10 +17,9 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Oct. 8 | Workshop: editing Wikidata and associating publications with a person |  |
 | Oct. 15 | No meeting (fall break week) |  |
 | Oct. 22 | Report on Amazon Neptune, Blazegraph, and Metaphactory |  |
-| Oct. 29 | TBD |  |
-| Nov. 5 | Somewhere in here, we should do more stuff with Wikidata |  |
+| Oct. 29 | Traditional Chinese Architecture visualizations using SPARQL and Metaphactory | [Notes Link](../assets/notes-2018-fall/metaphactory-2018-10-28.md) |
+| Nov. 5 | Visualizations using Metaphactory, continued | see previous week |
 | Nov. 12 | Possibly look at the Slave Societies Digital Archive as LOD |  |
 | Nov.19 | No meeting (Thanksgiving week) |  |
 | Nov. 26 | TBD |  |
 | Dec. 3 |  TBD|  |
-
