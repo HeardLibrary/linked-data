@@ -32,7 +32,7 @@ group by ?film
 
 See <https://help.metaphacts.com/resource/Help:HTML5Components> for template instructions
 
-# Create visualizations based on Traditional Chinese Architecture
+# Create visualizations based on Architectura Sinica (https://architecturasinica.org/)
 
 All data can be downloaded from <https://github.com/HeardLibrary/semantic-web/tree/master/2016-fall/tang-song/final-rdf>
 
@@ -68,7 +68,7 @@ SELECT ?lat ?lng ?description ?link WHERE {
 }
 ORDER BY ?siteLabel 
 '
- tuple-template='<b>{{description.value}}</b><br><a href="https://wikidata.metaphacts.com/resource/?uri={{link.value}}" target="_blank">This link does not work</a>'
+ tuple-template='<b>{{description.value}}</b><br><a href="{{link.value}}" target="_blank">Go to building web page</a>'
 ></semantic-map>
 ```
 
@@ -76,16 +76,16 @@ ORDER BY ?siteLabel
 
 page resource/:bubble
 
-Start query with Baitai Monastery http://tcadrt.org/work/000002
+Start query with Baitai Monastery http://architecturasinica.org/place/000002
 
 ```
 <semantic-graph height="1000" query="
 PREFIX schema: <http://schema.org/>
 CONSTRUCT {
-  ?building schema:containedInPlace <http://tcadrt.org/work/000002>
+  ?building schema:containedInPlace <http://architecturasinica.org/place/000002>
 } 
 WHERE {
-  ?building schema:containedInPlace <http://tcadrt.org/work/000002>.
+  ?building schema:containedInPlace <http://architecturasinica.org/place/000002>.
 }
 ">
 </semantic-graph>
@@ -112,12 +112,12 @@ WHERE {
 </semantic-graph>
 ```
 
-## create a timeline for buildings at the site Chongjiao Monastery http://tcadrt.org/work/000012
+## create a timeline for buildings at the site Chongjiao Monastery http://architecturasinica.org/place/000012
 
 Turtle for a site record:
 
 ```Turtle
-<http://tcadrt.org/work/000124> <http://purl.org/dc/terms/temporal> [<http://vocab.getty.edu/ontology#estEnd> "1125"^^xsd:gYear ; 
+<http://architecturasinica.org/place/000124> <http://purl.org/dc/terms/temporal> [<http://vocab.getty.edu/ontology#estEnd> "1125"^^xsd:gYear ; 
                                                                      <http://vocab.getty.edu/ontology#estStart> "0960"^^xsd:gYear ; 
                                                                      :hasBeginning [:inDateTime [:year "0960"^^xsd:gYear ; 
                                                                                                  a :GeneralDateTimeDescription] ; 
@@ -130,7 +130,7 @@ Turtle for a site record:
                                                                      rdfs:label "960-1125"];
                                 <http://rs.tdwg.org/dwc/terms/verbatimLatitude> "37˚ 25.472 (Garmin)";
                                 <http://rs.tdwg.org/dwc/terms/verbatimLongitude> "112˚ 32.840";
-                                <http://schema.org/containedInPlace> <http://tcadrt.org/work/000001>;
+                                <http://schema.org/containedInPlace> <http://architecturasinica.org/place/000001>;
                                 <http://schema.org/geo> [<http://schema.org/latitude> "37.42453333" ; 
                                                          <http://schema.org/longitude> "112.5473333" ; 
                                                          a <http://schema.org/GeoCoordinates>];
@@ -170,7 +170,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX schema: <http://schema.org/>
 PREFIX gvp: <http://vocab.getty.edu/ontology#>
 SELECT DISTINCT ?start ?end ?subject WHERE {
-  ?building schema:containedInPlace <http://tcadrt.org/work/000012>.
+  ?building schema:containedInPlace <http://architecturasinica.org/place/000012>.
   ?building rdfs:label ?subject.
   FILTER(LANG(?subject) = "en")
   ?building dcterms:temporal ?interval.
@@ -208,7 +208,7 @@ PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gvp: <http://vocab.getty.edu/ontology#>
 SELECT DISTINCT ?start ?end ?subject WHERE {
   ?site rdf:type schema:Place.
-  #?building schema:containedInPlace <http://tcadrt.org/work/000012>.
+  #?building schema:containedInPlace <http://architecturasinica.org/place/000012>.
   ?building <http://tcadrt.org/ontology/number_of_xiaang> ?numString.
   BIND(STRDT(?numString,xsd:integer) as ?num)
   FILTER(?num =0)
@@ -294,7 +294,7 @@ Example image description:
                                                                ac:accessURI <https://farm3.staticflickr.com/2469/3824031609_ec01d01cfa_t.jpg>],
                                                               [ac:variantLiteral "Good Quality" ; 
                                                                ac:accessURI <https://farm3.staticflickr.com/2469/3824031609_ec01d01cfa_b.jpg>];
-                                     foaf:depicts <http://tcadrt.org/work/000228>.
+                                     foaf:depicts <http://architecturasinica.org/place/000228>.
 ```
 
 ![](sap.png)
@@ -473,6 +473,60 @@ CONSTRUCT {?s ?p ?o} WHERE {
 </semantic-graph>
 ```
 
+## How I converted from the http://tcadrt.org/work/ URIs to the http://architecturasinica.org/place/ ones
+
+I made the conversion in two steps.  The URIs in question should only occur in the subject or object position (not as predicates). The first query found all triples with a http://tcadrt.org/work/ URI in the subject position, then constructed new triples with the sampe local name but with the http://architecturasinica.org/place/ namespace.  That set of triples was merged (by UNION) with all of the other triples in the graph:
+
+```
+CONSTRUCT {
+  ?newS ?p ?o
+        }
+FROM <http://tcadrt.org/building>
+WHERE {
+{
+?s ?p ?o.
+FILTER(STRSTARTS(str(?s),"http://tcadrt.org/work/"))
+BIND(URI(CONCAT("http://architecturasinica.org/place/",SUBSTR(str(?s),24))) AS ?newS)
+}
+UNION
+{
+  ?newS ?p ?o.
+  MINUS
+  {
+    ?newS ?p ?o.
+    FILTER(STRSTARTS(str(?newS),"http://tcadrt.org/work/"))
+  }
+}
+}
+```
+
+This query was run on the building and site graphs (the image graph didn't have relevant triples in the subject position).  The resulting graphs were loaded into the endpoint, then a second query was run to change all of the URIs that were in the object position, using the same strategy as the first query:
+
+```
+CONSTRUCT {
+  ?s ?p ?newO
+        }
+FROM <http://tcadrt.org/building>
+WHERE {
+{
+?s ?p ?o.
+FILTER(STRSTARTS(str(?o),"http://tcadrt.org/work/"))
+BIND(URI(CONCAT("http://architecturasinica.org/place/",SUBSTR(str(?o),24))) AS ?newO)
+}
+UNION
+{
+  ?s ?p ?newO.
+  MINUS
+  {
+    ?o ?p ?newO.
+    FILTER(STRSTARTS(str(?newO),"http://tcadrt.org/work/"))
+  }
+}
+}
+```
+This query was run on the new site and building graphs constructed previously, plus the old image graph, which had http://tcadrt.org/work/ triples in the object position.  The resulting graphs were loaded into the triplestore under new graph names: http://architecturasinica.org/place/site, http://architecturasinica.org/place/building, and http://architecturasinica.org/place/image .  Note that I did not change the URIs of images, which were in the form of http://tcadrt.org/image/3824031609, since they didn't dereference anyway.  But the same approach could have been used on them.
+
+It would be possible to make a larger and more complicated query that would do both of these changes at once, but since I only needed to do the process on one occasion, I didn't make the effort to create that query.
 
 # Other pages:
 
