@@ -285,7 +285,7 @@ ORDER BY $start
             </template>
           </semantic-timeline>
 ```
-## collapsable tree diagram of Traditional Chinese Architecture resources
+## collapsible tree diagram of Traditional Chinese Architecture resources
 
 Example image description:
 
