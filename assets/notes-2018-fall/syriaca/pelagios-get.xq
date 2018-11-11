@@ -43,23 +43,14 @@ return if ($redirectUri = "error")
        else local:query-endpoint($redirectUri)[2]/rdf:RDF/rdf:Description
 };
 
-let $textPleiadesUris := file:read-text('file:///c:/temp/syriaca-pleiades.csv')
+let $textPleiadesUris := file:read-text('file:///c:/github/linked-data/assets/notes-2018-fall/syriaca/syriaca-pleiades.csv')
 let $xmlPleiadesUris := csv:parse($textPleiadesUris, map { 'header' : true(),'separator' : "," })
-
 let $numberOfResults := count($xmlPleiadesUris/csv/record)
 
-return (
+return 
 
-    file:write("c:\test\syriaca-pleiades.rdf", (: to test without the file write, comment out this line and the last line :)
+    file:write("c:\github\linked-data\assets\notes-2018-fall\syriaca\syriaca-pleiades.rdf", (: to test without the file write, comment out this line and the last line :)
 
-    for $record in (1 to $numberOfResults) (: to test with a single record, replace $numberOfResults with 1 :)
-    let $uri := $xmlPleiadesUris/csv/record[$record]/pleiades_place/text()
-    (:let $uri := 'http://pleiades.stoa.org/places/893976':)
-    let $syriacaId := $xmlPleiadesUris/csv/record[$record]/syriaca_place/text()
-    let $fullUri := 'http://peripleo.pelagios.org/peripleo/places/'||web:encode-url($uri)
-    let $results := local:query-endpoint($fullUri)[2]
-
-    return
 <rdf:RDF 
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -69,7 +60,16 @@ xmlns:dwc="http://rs.tdwg.org/dwc/terms/"
 xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 xmlns:lawd="http://lawd.info/ontology/"
 xmlns:example="http://example.org/"
->
+>{
+
+    for $record in (1 to $numberOfResults) (: to test with a single record, replace $numberOfResults with 1 :)
+    let $uri := $xmlPleiadesUris/csv/record[$record]/pleiades_place/text()
+    (:let $uri := 'http://pleiades.stoa.org/places/893976':)
+    let $syriacaId := $xmlPleiadesUris/csv/record[$record]/syriaca_place/text()
+    let $fullUri := 'http://peripleo.pelagios.org/peripleo/places/'||web:encode-url($uri)
+    let $results := local:query-endpoint($fullUri)[2]
+
+    return
     <rdf:Description rdf:about = "{$syriacaId}">{
       <rdf:type rdf:resource = "http://lawd.info/ontology/Place"/>,
       <dcterms:source rdf:resource = "{$uri}" />,
@@ -99,7 +99,6 @@ xmlns:example="http://example.org/"
                   }</rdf:Description> 
              }</dcterms:isReferencedBy>
     }</rdf:Description> 
-</rdf:RDF>
-       )
-)
+}</rdf:RDF>
 
+)
