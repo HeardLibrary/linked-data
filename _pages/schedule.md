@@ -19,7 +19,7 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Oct. 22 | Report on Amazon Neptune, Blazegraph, and Metaphactory |  |
 | Oct. 29 | Traditional Chinese Architecture visualizations using SPARQL and Metaphactory | [Notes Link](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/metaphactory-2018-10-28.md) |
 | Nov. 5 | Visualizations using Metaphactory, continued | see previous week |
-| Nov. 12 | Look at the syriaca.org Linked Open Data; federated queries? |  |
+| Nov. 12 | Look at the syriaca.org Linked Open Data; federated queries | [Notes Link](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/syriaca-2018-11-12.md) |
 | Nov.19 | No meeting (Thanksgiving week) |  |
 | Nov. 26 | Look at the Slave Societies Digital Archive as Linked Open Data |  |
 | Dec. 3 |  Wrap-up and planning for the spring semester |  |
