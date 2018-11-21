@@ -21,5 +21,5 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Nov. 5 | Visualizations using Metaphactory, continued | see previous week |
 | Nov. 12 | Look at the syriaca.org Linked Open Data; federated queries | [Notes Link](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/syriaca-2018-11-12.md) |
 | Nov.19 | No meeting (Thanksgiving week) |  |
-| Nov. 26 | Look at the Slave Societies Digital Archive as Linked Open Data |  |
+| Nov. 26 | Look at the Slave Societies Digital Archive as Linked Open Data | [Notes Link](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/ssda-2018-11-26.md) |
 | Dec. 3 |  Wrap-up and planning for the spring semester |  |

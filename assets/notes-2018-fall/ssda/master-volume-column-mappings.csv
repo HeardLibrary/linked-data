@@ -1,0 +1,9 @@
+header,predicate,type,value,attribute,subject_id
+title,ex:title,plain,,,$root
+project,ex:project,plain,,,$root
+sqlVolume,ex:sqlVolume,plain,,,$root
+libServerDirectory,ex:libServerDirectory,plain,,,$root
+primaryIslandoraLocation,ex:primaryIslandoraLocation,plain,,,$root
+pid,dcterms:identifier,plain,,,$root
+images,ex:numberImages,plain,,,$root
+notes,skos:editorialNote,plain,,,$root
