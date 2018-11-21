@@ -96,7 +96,7 @@ return
          then <dcterms:title>{$record/m:titleInfo/m:title/text()}</dcterms:title>
          else (),
          
-         for $name in $record/name
+         for $name in $record/m:name
          return
                if ($name/m:role/m:roleTerm/text()="Project Director")
                then <ex:projectDirector>{$name/m:namePart/text()}</ex:projectDirector>
