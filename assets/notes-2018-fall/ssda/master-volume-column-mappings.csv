@@ -1,6 +1,6 @@
 header,predicate,type,value,attribute,subject_id
 title,ex:title,plain,,,$root
-project,ex:project,plain,,,$root
+project,ex:projectCode,plain,,,$root
 sqlVolume,ex:sqlVolume,plain,,,$root
 libServerDirectory,ex:libServerDirectory,plain,,,$root
 primaryIslandoraLocation,ex:primaryIslandoraLocation,plain,,,$root

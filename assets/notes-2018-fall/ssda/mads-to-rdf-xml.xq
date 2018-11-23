@@ -20,7 +20,7 @@ let $uriMatches := $uriXml/csv/record
 let $fileLocation := "c:/test/output/essss.rdf"
 
 return
-(:(file:write($fileLocation,:)
+(file:write($fileLocation,
 <rdf:RDF
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -111,8 +111,8 @@ return
          <dc:format>{$record/m:typeOfResource/text()}</dc:format>,
          <ex:originIssuance>{$record/m:originInfo/m:issuance/text()}</ex:originIssuance>,
 
-         if ($record/m:originInfo/m:languageTerm/text()  != "")
-             then <dc:language>{$record/language/m:languageTerm/text()}</dc:language>
+         if ($record/m:language/m:languageTerm/text()  != "")
+             then <dc:language>{$record/m:language/m:languageTerm/text()}</dc:language>
              else(),
 
          if ($record/m:originInfo/m:publisher/text()  != "")
@@ -162,4 +162,4 @@ return
 
 }</rdf:RDF>
 
-(:)):)
+))
