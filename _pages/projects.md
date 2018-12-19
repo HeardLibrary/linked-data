@@ -70,4 +70,4 @@ Some [notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-sprin
 
 ### Fall 2018. Structured Data and Visualization 
 
-[Meeting notes](https://github.com/HeardLibrary/linked-data/blob/master/notes-2018-fall/notes.md)
+[Meeting notes](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/notes.md)
