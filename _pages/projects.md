@@ -65,3 +65,9 @@ Graph model based on the New York Public Library dataset.
 Wikidata example query from https://query.wikidata.org/
 
 Some [notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-spring/vu-people/README.md), [more notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-spring/vu-people/README.md), and [various XQuery and Python scripts](https://github.com/HeardLibrary/semantic-web/tree/master/2018-spring/vu-people) we used.
+
+----
+
+### Fall 2018. Structured Data and Visualization 
+
+[Meeting notes](https://github.com/HeardLibrary/linked-data/blob/master/notes-2018-fall/notes.md)
