@@ -10,7 +10,7 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Date | Topic | Notes |
 |------|-------|-------|
 | Jan. 14 |  |  |
-| Jan. 22 | (MLK Day - no meeting) |  |
+| Jan. 21 | (MLK Day - no meeting) |  |
 | Jan. 28 |  |  |
 | Feb. 4 |  |  |
 | Feb. 11 |  |  |
