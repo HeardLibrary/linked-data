@@ -71,4 +71,6 @@ Some [notes](https://github.com/HeardLibrary/semantic-web/blob/master/2018-sprin
 ### Fall 2018. Structured Data and Visualization 
 
 <img src="assets/notes-2018-fall/ozymandias.png" alt = "Ozymandias diagram" style="width:400px" /><br/>
+Image from Rod Page's [Ozymandias Biodiversity Knowledge Graph](https://ozymandias-demo.herokuapp.com/)
+
 [Meeting notes](https://github.com/HeardLibrary/linked-data/blob/gh-pages/assets/notes-2018-fall/notes.md)
