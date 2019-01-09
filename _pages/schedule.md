@@ -13,7 +13,7 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Jan. 21 | (MLK Day - no meeting) |  |
 | Jan. 28 | Introduction to Linked Data II: Turtle, XML, and JSON serializations of RDF, conversions, RDF graphs, and loading data into a triplestore |  |
 | Feb. 4 | Project day I: using Docker and setting up an instance of Wikibase on your computer |  |
-| Feb. 11 | Introduction to Linked Data III: SELECT SPARQL queries. The WikiWikidata graph model |  |
+| Feb. 11 | Introduction to Linked Data III: SELECT SPARQL queries. The Wikibase/Wikidata graph model |  |
 | Feb. 18 | Project day II: Entering data into Wikibase/Wikidata using the GUI. Test using SELECT queries |  |
 | Feb. 25 | Introduction to Linked Data IV: CONSTRUCT SPARQL queries.  Construct queries to get RDF from Wikidata |  |
 | Mar. 4 | (spring break - no meeting) |  |
