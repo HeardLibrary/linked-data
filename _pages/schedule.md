@@ -20,6 +20,6 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Mar. 11 | (no meeting) |  |
 | Mar. 18 | | Introduction to Linked Data IV: CONSTRUCT SPARQL queries.  Construct queries to get RDF from Wikidata |
 | Mar. 25 | Project day III: Tools for bulk-loading data into Wikibase (Quickstatements, Python/CSV, bots) |  |
-| Apr. 1 | TBD depending on how things go |  |
+| Apr. 1 | sometime we should check out [Linked Data Fragments](http://linkeddatafragments.org/) |  |
 | Apr. 8 | TBD depending on how things go |  |
 | Apr. 15 | TBD depending on how things go |  |
