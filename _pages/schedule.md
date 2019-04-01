@@ -21,7 +21,7 @@ Our group meets on most Mondays from 12:10 to 1:00 PM in the Training Room in th
 | Mar. 18 | Introduction to Linked Data IV: CONSTRUCT SPARQL queries.  Construct queries to get RDF from Wikidata | [CONSTRUCT lesson](https://heardlibrary.github.io/digital-scholarship/lod/sparql/#construct-sparql-queries) |
 | Mar. 25 | Project day III: Tools for bulk-loading data into Wikibase (Quickstatements, Python/CSV, bots) |  |
 | Apr. 1 | Project day IV: configure and use a Wikibase bot | [Bot building lesson](https://heardlibrary.github.io/digital-scholarship/host/wikidata/bot/) |
-| Apr. 8 | Discuss Wikidata/Wikibase collaboration |  |
+| Apr. 8 | Discuss Wikidata/Wikibase collaboration | [ARL note link](https://www.arl.org/news/arl-news/4682-arl-wikimedia-and-linked-open-data-draft-white-paper-open-for-comments-through-november-30#.W_wEiJNKhKk) [White paper link](https://docs.google.com/document/d/1ZsOyw2sOD3a7xJQ6XCSYDGjZUPxGGl8tuvC7vvtlJRU/edit) |
 | Apr. 15 | Wrap up semester and discuss future meetings |  |
 
 sometime we should check out [Linked Data Fragments](http://linkeddatafragments.org/)
