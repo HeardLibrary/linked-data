@@ -1,0 +1,70 @@
+PREFIX adhoc: <https://rawgit.com/HeardLibrary/semantic-web/master/adhoc#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT { 
+  ?person a foaf:Person.
+  ?person a schema:Person.
+  ?person adhoc:identifierSource "wikidata".
+  ?person adhoc:status "employee". # use "student" when querying for P69 "educated at"
+  ?person rdfs:label ?label.
+  ?person foaf:name ?label.
+  ?person foaf:givenName ?givenNameLabel.  
+  ?person schema:givenName ?givenNameLabel.
+  ?person foaf:familyName ?familyNameLabel.
+  ?person schema:familyName ?familyNameLabel.
+  ?person foaf:name ?alt.
+  ?person dcterms:description ?description.
+  ?person dcterms:identifier ?id.
+  ?person owl:sameAs ?orcidUri.
+  ?person schema:birthDate ?birthDate.
+  ?person schema:gender ?genderLabel. # note: schema.org expects http://schema.org/Male and http://schema.org/Female as values or a string.
+  }
+WHERE {
+  ?person wdt:P108 wd:Q29052.  # use wdt:P69 "educated at" to find students
+  ?person rdfs:label ?labelTagged.
+  FILTER ( langMatches(lang(?labelTagged),"en" ))
+  BIND (str(?labelTagged) AS ?label)
+
+  OPTIONAL {
+    ?person skos:altLabel ?altTagged.
+    FILTER ( langMatches(lang(?altTagged),"en" ))
+    BIND (str(?altTagged) AS ?alt)
+  }
+
+  ?person schema:description ?descriptionTagged.
+  FILTER ( langMatches(lang(?descriptionTagged),"en" ))
+  BIND (str(?descriptionTagged) AS ?description)
+
+  OPTIONAL {?person wdt:P569 ?birthDate.}
+
+  OPTIONAL {
+    ?person wdt:P735 ?givenName.  # note: the values are URIs, not literals.
+    ?givenName rdfs:label ?givenNameLabelTagged.
+    FILTER ( langMatches(lang(?givenNameLabelTagged),"en" ))
+    BIND (str(?givenNameLabelTagged) AS ?givenNameLabel)
+  }
+
+  OPTIONAL {
+    ?person wdt:P734 ?familyName.
+    ?familyName rdfs:label ?familyNameLabelTagged.
+    FILTER ( langMatches(lang(?familyNameLabelTagged),"en" ))
+    BIND (str(?familyNameLabelTagged) AS ?familyNameLabel)
+  }
+
+  OPTIONAL {
+    ?person wdt:P21 ?gender.  # note: the values are URIs, not literals.
+    ?gender rdfs:label ?genderLabelTagged.
+    FILTER ( langMatches(lang(?genderLabelTagged),"en" ))    
+    BIND (str(?genderLabelTagged) AS ?genderLabel)
+  }
+
+  OPTIONAL {
+    ?person wdt:P496 ?orcidId.
+    BIND (URI(CONCAT("http://orcid.org/",?orcidId)) AS ?orcidUri) # turn ORCID string into URI
+  }
+
+  BIND (SUBSTR(STR(?person),32) AS ?id) # remove domain name from Wikidata identifier, leaving only the "Q" part
+  }

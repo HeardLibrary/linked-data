@@ -1,0 +1,2203 @@
+@prefix adhoc: <https://rawgit.com/HeardLibrary/semantic-web/master/adhoc#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix hint: <http://www.bigdata.com/queryHints#> .
+@prefix bd: <http://www.bigdata.com/rdf#> .
+@prefix bds: <http://www.bigdata.com/rdf/search#> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix mwapi: <https://www.mediawiki.org/ontology#API/> .
+@prefix gas: <http://www.bigdata.com/rdf/gas#> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wdata: <http://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix geof: <http://www.opengis.net/def/geosparql/function/> .
+@prefix mediawiki: <https://www.mediawiki.org/ontology#> .
+
+wd:Q16213524 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Isabel Gauthier" ;
+	foaf:name "Isabel Gauthier" ;
+	foaf:givenName "Isabel" ;
+	schema:givenName "Isabel" ;
+	foaf:familyName "Gauthier" ;
+	schema:familyName "Gauthier" ;
+	dcterms:description "Canadian neuroscietnist" ;
+	dcterms:identifier "Q16213524" ;
+	owl:sameAs <http://orcid.org/0000-0002-6249-4769> ;
+	schema:birthDate "1971-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q36004273 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kristopher J. Preacher" ;
+	foaf:name "Kristopher J. Preacher" , "Kristopher J Preacher" ;
+	dcterms:description "researcher" ;
+	dcterms:identifier "Q36004273" ;
+	owl:sameAs <http://orcid.org/0000-0003-4099-3636> ;
+	schema:gender "male" .
+
+wd:Q38099106 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Clifford B. Anderson" ;
+	foaf:name "Clifford B. Anderson" ;
+	foaf:givenName "Clifford" ;
+	schema:givenName "Clifford" ;
+	foaf:familyName "Anderson" ;
+	schema:familyName "Anderson" ;
+	foaf:name "Cliff Anderson" ;
+	dcterms:description "American librarian and professor of religious studies" ;
+	dcterms:identifier "Q38099106" ;
+	owl:sameAs <http://orcid.org/0000-0003-0328-0792> ;
+	schema:birthDate "1970-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Clifford Blake Anderson" ;
+	foaf:givenName "B." ;
+	schema:givenName "B." .
+
+wd:Q40230904 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Carwil Bjork-James" ;
+	foaf:name "Carwil Bjork-James" ;
+	foaf:givenName "Carwil" ;
+	schema:givenName "Carwil" ;
+	dcterms:description "anthropologist" ;
+	dcterms:identifier "Q40230904" ;
+	owl:sameAs <http://orcid.org/0000-0002-4977-0458> ;
+	schema:gender "male" .
+
+wd:Q76807 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Max Delbrück" ;
+	foaf:name "Max Delbrück" ;
+	foaf:givenName "Max" ;
+	schema:givenName "Max" ;
+	foaf:familyName "Delbrück" ;
+	schema:familyName "Delbrück" ;
+	foaf:name "Max Ludwig Henning Delbrück" ;
+	dcterms:description "biophysicist" ;
+	dcterms:identifier "Q76807" ;
+	schema:birthDate "1906-09-04T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q68118 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Earl Wilbur Sutherland Jr." ;
+	foaf:name "Earl Wilbur Sutherland Jr." ;
+	foaf:givenName "Earl" ;
+	schema:givenName "Earl" ;
+	foaf:name "Earl Wilbur Sutherland" ;
+	dcterms:description "American pharmacologist" ;
+	dcterms:identifier "Q68118" ;
+	schema:birthDate "1915-11-19T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q204168 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lorrie Moore" ;
+	foaf:name "Lorrie Moore" ;
+	foaf:givenName "Lorrie" ;
+	schema:givenName "Lorrie" ;
+	foaf:familyName "Moore" ;
+	schema:familyName "Moore" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q204168" ;
+	schema:birthDate "1957-01-13T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q232299 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Stanley Cohen" ;
+	foaf:name "Stanley Cohen" ;
+	foaf:givenName "Stanley" ;
+	schema:givenName "Stanley" ;
+	foaf:familyName "Cohen" ;
+	schema:familyName "Cohen" ;
+	dcterms:description "American biochemist" ;
+	dcterms:identifier "Q232299" ;
+	schema:birthDate "1922-11-17T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q278804 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Bear Bryant" ;
+	foaf:name "Bear Bryant" ;
+	dcterms:description "American college football coach" ;
+	dcterms:identifier "Q278804" ;
+	schema:birthDate "1913-09-11T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q313590 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alain Connes" ;
+	foaf:name "Alain Connes" ;
+	foaf:givenName "Alain" ;
+	schema:givenName "Alain" ;
+	dcterms:description "French mathematician" ;
+	dcterms:identifier "Q313590" ;
+	schema:birthDate "1947-04-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q577160 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Albert Arnold Gore" ;
+	foaf:name "Albert Arnold Gore" ;
+	foaf:givenName "Albert" ;
+	schema:givenName "Albert" ;
+	foaf:familyName "Gore" ;
+	schema:familyName "Gore" ;
+	foaf:name "Albert A. Gore, Sr." ;
+	dcterms:description "American politician from Tennessee" ;
+	dcterms:identifier "Q577160" ;
+	schema:birthDate "1907-12-26T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Albert Arnold  Gore, Sr." , "Albert Arnold \"Al\" Gore, Sr." .
+
+wd:Q369638 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Vaughan Jones" ;
+	foaf:name "Vaughan Jones" ;
+	foaf:familyName "Jones" ;
+	schema:familyName "Jones" ;
+	foaf:name "Sir Vaughan Frederick Randal Jones" ;
+	dcterms:description "New Zealand mathematician and Fields Medalist" ;
+	dcterms:identifier "Q369638" ;
+	schema:birthDate "1952-12-31T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q516167 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jean Bethke Elshtain" ;
+	foaf:name "Jean Bethke Elshtain" ;
+	foaf:givenName "Jean" ;
+	schema:givenName "Jean" ;
+	dcterms:description "American ethicist, political philosopher, and public intellectual" ;
+	dcterms:identifier "Q516167" ;
+	schema:birthDate "1941-01-06T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q577160 foaf:name "Albert Gore, Sr." .
+
+wd:Q463307 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Bjarni Jónsson" ;
+	foaf:name "Bjarni Jónsson" ;
+	foaf:givenName "Bjarni" ;
+	schema:givenName "Bjarni" ;
+	foaf:name "Bjarni Jonsson" ;
+	dcterms:description "Icelandic mathematician" ;
+	dcterms:identifier "Q463307" ;
+	schema:birthDate "1920-02-15T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q577160 foaf:name "Al Gore" .
+
+wd:Q339030 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Michael Kearney" ;
+	foaf:name "Michael Kearney" ;
+	foaf:givenName "Michael" ;
+	schema:givenName "Michael" ;
+	foaf:name "Michael Kevin Kearney" ;
+	dcterms:description "American child prodigy" ;
+	dcterms:identifier "Q339030" ;
+	schema:birthDate "1984-01-18T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q707736 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Taylor Wang" ;
+	foaf:name "Taylor Wang" ;
+	foaf:givenName "Taylor" ;
+	schema:givenName "Taylor" ;
+	foaf:familyName "Wang" ;
+	schema:familyName "Wang" ;
+	foaf:name "Taylor G. Wang" ;
+	dcterms:description "American astronaut" ;
+	dcterms:identifier "Q707736" ;
+	schema:birthDate "1940-06-16T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q714162 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Seigenthaler" ;
+	foaf:name "John Seigenthaler" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	foaf:name "John Lawrence Seigenthaler" ;
+	dcterms:description "American journalist, writer, and political figure" ;
+	dcterms:identifier "Q714162" ;
+	schema:birthDate "1927-07-27T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q984215 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alfred Blalock" ;
+	foaf:name "Alfred Blalock" ;
+	foaf:givenName "Alfred" ;
+	schema:givenName "Alfred" ;
+	foaf:familyName "Blalock" ;
+	schema:familyName "Blalock" ;
+	dcterms:description "American surgeon" ;
+	dcterms:identifier "Q984215" ;
+	schema:birthDate "1899-04-05T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1520978 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alexander Winchell" ;
+	foaf:name "Alexander Winchell" ;
+	foaf:givenName "Alexander" ;
+	schema:givenName "Alexander" ;
+	dcterms:description "U.S. geologist and paleontologist" ;
+	dcterms:identifier "Q1520978" ;
+	schema:birthDate "1824-12-31T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1337955 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Crowe Ransom" ;
+	foaf:name "John Crowe Ransom" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American poet" ;
+	dcterms:identifier "Q1337955" ;
+	schema:birthDate "1888-04-30T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1289901 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Harold Ford" ;
+	foaf:name "Harold Ford" ;
+	foaf:givenName "Harold" ;
+	schema:givenName "Harold" ;
+	dcterms:description "American politician" ;
+	dcterms:identifier "Q1289901" ;
+	schema:birthDate "1970-05-11T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1530602 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "David Keene" ;
+	foaf:name "David Keene" ;
+	foaf:givenName "David" ;
+	schema:givenName "David" ;
+	dcterms:description "American activist" ;
+	dcterms:identifier "Q1530602" ;
+	schema:birthDate "1945-05-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1669642 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Robert M. Miura" ;
+	foaf:name "Robert M. Miura" ;
+	foaf:givenName "Robert" ;
+	schema:givenName "Robert" ;
+	foaf:name "Robert Mitsuro Miura" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q1669642" ;
+	schema:birthDate "1938-09-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Robert Miura" ;
+	schema:birthDate "1938-09-12T00:00:00Z"^^xsd:dateTime .
+
+wd:Q1351160 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Nicholas Georgescu-Roegen" ;
+	foaf:name "Nicholas Georgescu-Roegen" ;
+	foaf:givenName "Nicholas" ;
+	schema:givenName "Nicholas" ;
+	dcterms:description "Mathematician, Statistician and Economist" ;
+	dcterms:identifier "Q1351160" ;
+	schema:birthDate "1906-02-04T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q2054830 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kamie Ethridge" ;
+	foaf:name "Kamie Ethridge" ;
+	foaf:givenName "Kamie" ;
+	schema:givenName "Kamie" ;
+	dcterms:description "basketball player" ;
+	dcterms:identifier "Q2054830" ;
+	schema:birthDate "1964-04-21T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q3020805 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Debbie Black" ;
+	foaf:name "Debbie Black" ;
+	foaf:givenName "Debbie" ;
+	schema:givenName "Debbie" ;
+	foaf:familyName "Black" ;
+	schema:familyName "Black" ;
+	dcterms:description "American basketball player-coach" ;
+	dcterms:identifier "Q3020805" ;
+	schema:birthDate "1966-07-29T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q3098511 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Gary Allan Polis" ;
+	foaf:name "Gary Allan Polis" ;
+	foaf:givenName "Gary" ;
+	schema:givenName "Gary" ;
+	dcterms:description "arachnologist" ;
+	dcterms:identifier "Q3098511" ;
+	schema:birthDate "1946-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q3082238 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Tinsley R. Harrison" ;
+	foaf:name "Tinsley R. Harrison" , "Tinsley Randolph Harrison" ;
+	dcterms:description "American physician" ;
+	dcterms:identifier "Q3082238" ;
+	schema:birthDate "1900-03-18T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q1701672 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Sallis" ;
+	foaf:name "John Sallis" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American philosopher" ;
+	dcterms:identifier "Q1701672" ;
+	schema:birthDate "1938-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q2346767 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James Cullen Martin" ;
+	foaf:name "James Cullen Martin" ;
+	foaf:givenName "James" ;
+	schema:givenName "James" ;
+	foaf:familyName "Martin" ;
+	schema:familyName "Martin" ;
+	dcterms:description "American chemist" ;
+	dcterms:identifier "Q2346767" ;
+	schema:birthDate "1928-01-14T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q2958365 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Charles Kiesler" ;
+	foaf:name "Charles Kiesler" ;
+	foaf:givenName "Charles" ;
+	schema:givenName "Charles" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q2958365" ;
+	schema:birthDate "1934-08-14T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q3218045 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Larry Diamond" ;
+	foaf:name "Larry Diamond" ;
+	foaf:givenName "Larry" ;
+	schema:givenName "Larry" ;
+	foaf:name "Larry Jay Diamond" ;
+	dcterms:description "Scholar on democracy studies" ;
+	dcterms:identifier "Q3218045" ;
+	schema:birthDate "1951-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q4734737 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alp Ikizler" ;
+	foaf:name "Alp Ikizler" ;
+	dcterms:description "American nephrologist" ;
+	dcterms:identifier "Q4734737" ;
+	schema:gender "male" .
+
+wd:Q3710509 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Daoxing Xia" ;
+	foaf:name "Daoxing Xia" , "Hsia Tao-hsing" ;
+	dcterms:description "Chinese American mathematician" ;
+	dcterms:identifier "Q3710509" ;
+	schema:birthDate "1930-10-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Xia Daoxing" .
+
+wd:Q3386829 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Pierre Colas" ;
+	foaf:name "Pierre Colas" ;
+	foaf:givenName "Pierre" ;
+	schema:givenName "Pierre" ;
+	foaf:name "Pierre Robert Colas" ;
+	dcterms:description "German Mesoamericanist" ;
+	dcterms:identifier "Q3386829" ;
+	schema:birthDate "1976-01-13T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q4749053 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Amy-Jill Levine" ;
+	foaf:name "Amy-Jill Levine" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q4749053" ;
+	schema:birthDate "1956-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q3565818 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Walter Lynwood Fleming" ;
+	foaf:name "Walter Lynwood Fleming" ;
+	foaf:givenName "Walter" ;
+	schema:givenName "Walter" ;
+	foaf:familyName "Fleming" ;
+	schema:familyName "Fleming" ;
+	dcterms:description "American historian" ;
+	dcterms:identifier "Q3565818" ;
+	schema:birthDate "1874-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q3193379 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Karl Dean" ;
+	foaf:name "Karl Dean" ;
+	foaf:givenName "Karl" ;
+	schema:givenName "Karl" ;
+	dcterms:description "American mayor" ;
+	dcterms:identifier "Q3193379" ;
+	schema:birthDate "1955-09-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q4756502 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Andrew C. Porter" ;
+	foaf:name "Andrew C. Porter" ;
+	foaf:givenName "Andrew" ;
+	schema:givenName "Andrew" ;
+	dcterms:description "Dean of Penn GSE, educational psychologist and psychometrician" ;
+	dcterms:identifier "Q4756502" ;
+	schema:birthDate "1942-07-10T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q3660753 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Arthur Demarest" ;
+	foaf:name "Arthur Demarest" ;
+	foaf:givenName "Arthur" ;
+	schema:givenName "Arthur" ;
+	dcterms:description "American anthropologist" ;
+	dcterms:identifier "Q3660753" ;
+	schema:birthDate "1965-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q4758596 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Andrew Sledd" ;
+	foaf:name "Andrew Sledd" ;
+	foaf:givenName "Andrew" ;
+	schema:givenName "Andrew" ;
+	foaf:name "Andrew W. Sledd" ;
+	dcterms:description "American university president, professor, theologian" ;
+	dcterms:identifier "Q4758596" ;
+	schema:birthDate "1870-11-07T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Andrew Warren Sledd" .
+
+wd:Q3560662 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Virginia Abernethy" ;
+	foaf:name "Virginia Abernethy" ;
+	foaf:givenName "Virginia" ;
+	schema:givenName "Virginia" ;
+	dcterms:description "professor" ;
+	dcterms:identifier "Q3560662" ;
+	schema:birthDate "1934-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q5044455 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Carol M. Swain" ;
+	foaf:name "Carol M. Swain" ;
+	foaf:givenName "Carol" ;
+	schema:givenName "Carol" ;
+	dcterms:description "political scientist" ;
+	dcterms:identifier "Q5044455" ;
+	schema:birthDate "1954-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q4965438 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Brian T. Fitzpatrick" ;
+	foaf:name "Brian T. Fitzpatrick" ;
+	foaf:givenName "Brian" ;
+	schema:givenName "Brian" ;
+	dcterms:description "American lawyer" ;
+	dcterms:identifier "Q4965438" ;
+	schema:gender "male" .
+
+wd:Q4979972 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Mildred T. Stahlman" ;
+	foaf:name "Mildred T. Stahlman" ;
+	foaf:givenName "Mildred" ;
+	schema:givenName "Mildred" ;
+	dcterms:description "American physician" ;
+	dcterms:identifier "Q4979972" ;
+	schema:birthDate "1922-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q4897443 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Beth Bachmann" ;
+	foaf:name "Beth Bachmann" ;
+	foaf:givenName "Beth" ;
+	schema:givenName "Beth" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q4897443" ;
+	schema:gender "female" .
+
+wd:Q5093542 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Chester E. Finn, Jr." ;
+	foaf:name "Chester E. Finn, Jr." ;
+	foaf:givenName "Chester" ;
+	schema:givenName "Chester" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q5093542" ;
+	schema:birthDate "1944-08-03T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5214706 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Dana D. Nelson" ;
+	foaf:name "Dana D. Nelson" ;
+	foaf:givenName "Dana" ;
+	schema:givenName "Dana" ;
+	dcterms:description "American activist" ;
+	dcterms:identifier "Q5214706" ;
+	schema:birthDate "1962-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q5232311 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "David Charles" ;
+	foaf:name "David Charles" ;
+	foaf:givenName "David" ;
+	schema:givenName "David" ;
+	dcterms:description "American neurologist" ;
+	dcterms:identifier "Q5232311" ;
+	schema:birthDate "1964-05-26T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q4800251 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Arthur Scott Walters" ;
+	foaf:name "Arthur Scott Walters" ;
+	foaf:givenName "Arthur" ;
+	schema:givenName "Arthur" ;
+	dcterms:description "American academic neurologist" ;
+	dcterms:identifier "Q4800251" ;
+	schema:birthDate "1943-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5145037 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Colin Dayan" ;
+	foaf:name "Colin Dayan" ;
+	foaf:givenName "Colin" ;
+	schema:givenName "Colin" ;
+	dcterms:description "Professor in the Humanities at Vanderbilt University" ;
+	dcterms:identifier "Q5145037" ;
+	schema:birthDate "1949-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q5057973 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Celia Applegate" ;
+	foaf:name "Celia Applegate" ;
+	foaf:givenName "Celia" ;
+	schema:givenName "Celia" ;
+	dcterms:description "professor" ;
+	dcterms:identifier "Q5057973" ;
+	schema:birthDate "1959-11-16T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q4967849 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Brigid Hogan" ;
+	foaf:name "Brigid Hogan" ;
+	dcterms:description "British biologist" ;
+	dcterms:identifier "Q4967849" ;
+	schema:birthDate "1943-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q5345826 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Edward Webster Bemis" ;
+	foaf:name "Edward Webster Bemis" ;
+	foaf:givenName "Edward" ;
+	schema:givenName "Edward" ;
+	foaf:familyName "Bemis" ;
+	schema:familyName "Bemis" ;
+	dcterms:description "American economist" ;
+	dcterms:identifier "Q5345826" ;
+	schema:birthDate "1860-04-07T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5246450 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Dean S. Tarbell" ;
+	foaf:name "Dean S. Tarbell" ;
+	foaf:givenName "Dean" ;
+	schema:givenName "Dean" ;
+	dcterms:description "American chemist" ;
+	dcterms:identifier "Q5246450" ;
+	schema:birthDate "1913-10-19T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5543581 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "George Pullen Jackson" ;
+	foaf:name "George Pullen Jackson" ;
+	foaf:givenName "George" ;
+	schema:givenName "George" ;
+	foaf:name "George Jackson" ;
+	dcterms:description "American musicologist" ;
+	dcterms:identifier "Q5543581" ;
+	schema:birthDate "1874-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5525124 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Gary Gerstle" ;
+	foaf:name "Gary Gerstle" ;
+	foaf:givenName "Gary" ;
+	schema:givenName "Gary" ;
+	dcterms:description "American historian" ;
+	dcterms:identifier "Q5525124" ;
+	schema:birthDate "1954-01-07T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5360913 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Elijah Embree Hoss" ;
+	foaf:name "Elijah Embree Hoss" ;
+	foaf:givenName "Elijah" ;
+	schema:givenName "Elijah" ;
+	dcterms:description "American bishop" ;
+	dcterms:identifier "Q5360913" ;
+	schema:birthDate "1849-04-14T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5345826 foaf:givenName "Webster" ;
+	schema:givenName "Webster" .
+
+wd:Q5536441 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "George Arthur Buttrick" ;
+	foaf:name "George Arthur Buttrick" ;
+	foaf:givenName "George" ;
+	schema:givenName "George" ;
+	dcterms:description "American preacher" ;
+	dcterms:identifier "Q5536441" ;
+	schema:birthDate "1892-03-23T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5258604 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Dennis Kezar" ;
+	foaf:name "Dennis Kezar" ;
+	foaf:givenName "Dennis" ;
+	schema:givenName "Dennis" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q5258604" ;
+	schema:gender "male" .
+
+wd:Q5293984 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Donald Ault" ;
+	foaf:name "Donald Ault" ;
+	foaf:givenName "Donald" ;
+	schema:givenName "Donald" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q5293984" ;
+	schema:birthDate "1942-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5360959 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Elijah Millgram" ;
+	foaf:name "Elijah Millgram" ;
+	foaf:givenName "Elijah" ;
+	schema:givenName "Elijah" ;
+	dcterms:description "American philosopher" ;
+	dcterms:identifier "Q5360959" ;
+	schema:gender "male" .
+
+wd:Q5387448 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Eric Schechter" ;
+	foaf:name "Eric Schechter" ;
+	foaf:givenName "Eric" ;
+	schema:givenName "Eric" ;
+	dcterms:description "American mathematician" ;
+	dcterms:identifier "Q5387448" ;
+	schema:birthDate "1950-08-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6113796 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jack M. Sasson" ;
+	foaf:name "Jack M. Sasson" ;
+	foaf:givenName "Jack" ;
+	schema:givenName "Jack" ;
+	foaf:familyName "Sasson" ;
+	schema:familyName "Sasson" ;
+	dcterms:description "Syrian-American academic of Ancient Near Eastern Studies" ;
+	dcterms:identifier "Q6113796" ;
+	schema:birthDate "1941-10-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5660753 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Harold G. Maier" ;
+	foaf:name "Harold G. Maier" ;
+	foaf:givenName "Harold" ;
+	schema:givenName "Harold" ;
+	dcterms:description "American legal scholar" ;
+	dcterms:identifier "Q5660753" ;
+	schema:birthDate "1937-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5916340 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Houston A. Baker, Jr." ;
+	foaf:name "Houston A. Baker, Jr." , "Houston Baker" ;
+	dcterms:description "American scholar" ;
+	dcterms:identifier "Q5916340" ;
+	schema:birthDate "1943-03-22T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6111683 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Ronald Spores" ;
+	foaf:name "Ronald Spores" ;
+	foaf:givenName "Ronald" ;
+	schema:givenName "Ronald" ;
+	dcterms:description "American mesoamericanist" ;
+	dcterms:identifier "Q6111683" ;
+	schema:birthDate "1931-01-25T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6137538 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James L. Crenshaw" ;
+	foaf:name "James L. Crenshaw" ;
+	foaf:givenName "James" ;
+	schema:givenName "James" ;
+	dcterms:description "American theologian" ;
+	dcterms:identifier "Q6137538" ;
+	schema:birthDate "1934-12-19T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5739624 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Herman Clarence Nixon" ;
+	foaf:name "Herman Clarence Nixon" ;
+	foaf:givenName "Herman" ;
+	schema:givenName "Herman" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q5739624" ;
+	schema:birthDate "1886-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5568666 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Glenn Allan Millikan" ;
+	foaf:name "Glenn Allan Millikan" ;
+	foaf:givenName "Glenn" ;
+	schema:givenName "Glenn" ;
+	dcterms:description "American physiologist" ;
+	dcterms:identifier "Q5568666" ;
+	schema:birthDate "1906-05-23T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6129401 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James Barr" ;
+	foaf:name "James Barr" ;
+	foaf:givenName "James" ;
+	schema:givenName "James" ;
+	dcterms:description "British bible scholar" ;
+	dcterms:identifier "Q6129401" ;
+	schema:birthDate "1924-03-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q5545751 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "George W. Stocking, Sr." ;
+	foaf:name "George W. Stocking, Sr." ;
+	foaf:givenName "George" ;
+	schema:givenName "George" ;
+	dcterms:description "American economist" ;
+	dcterms:identifier "Q5545751" ;
+	schema:birthDate "1892-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6129900 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James Blumstein" ;
+	foaf:name "James Blumstein" ;
+	foaf:givenName "James" ;
+	schema:givenName "James" ;
+	dcterms:description "Law professor" ;
+	dcterms:identifier "Q6129900" ;
+	schema:gender "male" .
+
+wd:Q6227401 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Cowper Granbery" ;
+	foaf:name "John Cowper Granbery" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American clergyman of the Southern Methodist Episcopal church" ;
+	dcterms:identifier "Q6227401" ;
+	schema:birthDate "1829-12-05T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6195012 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jim Foglesong" ;
+	foaf:name "Jim Foglesong" ;
+	foaf:givenName "Jim" ;
+	schema:givenName "Jim" ;
+	dcterms:description "Country music executive" ;
+	dcterms:identifier "Q6195012" ;
+	schema:birthDate "1922-07-26T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6197887 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jim Rossi" ;
+	foaf:name "Jim Rossi" ;
+	foaf:givenName "Jim" ;
+	schema:givenName "Jim" ;
+	foaf:familyName "Rossi" ;
+	schema:familyName "Rossi" ;
+	dcterms:description "American legal scholar" ;
+	dcterms:identifier "Q6197887" ;
+	schema:gender "male" .
+
+wd:Q6229719 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Donald Wade" ;
+	foaf:name "John Donald Wade" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6229719" ;
+	schema:birthDate "1892-09-28T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6243779 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Lachs" ;
+	foaf:name "John Lachs" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American philosopher" ;
+	dcterms:identifier "Q6243779" ;
+	schema:birthDate "1934-07-17T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6173281 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jeff Balser" ;
+	foaf:name "Jeff Balser" ;
+	foaf:givenName "Jeff" ;
+	schema:givenName "Jeff" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6173281" ;
+	schema:gender "male" .
+
+wd:Q6232205 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John F. Carney" ;
+	foaf:name "John F. Carney" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6232205" ;
+	schema:birthDate "1941-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6263975 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Wikswo" ;
+	foaf:name "John Wikswo" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American biological physicist" ;
+	dcterms:identifier "Q6263975" ;
+	schema:birthDate "1949-10-06T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6272746 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jonathan Charney" ;
+	foaf:name "Jonathan Charney" ;
+	foaf:givenName "Jonathan" ;
+	schema:givenName "Jonathan" ;
+	dcterms:description "law professor, editor, expert on maritime boundaries" ;
+	dcterms:identifier "Q6272746" ;
+	schema:birthDate "1943-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6537132 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lewis V. Baldwin" ;
+	foaf:name "Lewis V. Baldwin" ;
+	foaf:givenName "Lewis" ;
+	schema:givenName "Lewis" ;
+	dcterms:description "American historian" ;
+	dcterms:identifier "Q6537132" ;
+	schema:birthDate "1949-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6491139 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Larry Soderquist" ;
+	foaf:name "Larry Soderquist" ;
+	foaf:givenName "Larry" ;
+	schema:givenName "Larry" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6491139" ;
+	schema:birthDate "1944-07-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6375457 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kate Daniels" ;
+	foaf:name "Kate Daniels" ;
+	foaf:givenName "Kate" ;
+	schema:givenName "Kate" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q6375457" ;
+	schema:birthDate "1953-07-02T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q6485803 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Langdon Brown Gilkey" ;
+	foaf:name "Langdon Brown Gilkey" ;
+	dcterms:description "American theologian" ;
+	dcterms:identifier "Q6485803" ;
+	schema:birthDate "1919-02-09T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6389929 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kenneth C. Catania" ;
+	foaf:name "Kenneth C. Catania" ;
+	foaf:givenName "Kenneth" ;
+	schema:givenName "Kenneth" ;
+	foaf:name "Catania" ;
+	dcterms:description "American neuroscientist" ;
+	dcterms:identifier "Q6389929" ;
+	schema:birthDate "1965-11-05T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6391688 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kent D. Syverud" ;
+	foaf:name "Kent D. Syverud" ;
+	foaf:givenName "Kent" ;
+	schema:givenName "Kent" ;
+	dcterms:description "American law clerk" ;
+	dcterms:identifier "Q6391688" ;
+	schema:birthDate "1956-10-23T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6530482 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lesley Gill" ;
+	foaf:name "Lesley Gill" ;
+	foaf:givenName "Lesley" ;
+	schema:givenName "Lesley" ;
+	dcterms:description "American anthropologist" ;
+	dcterms:identifier "Q6530482" ;
+	schema:gender "female" .
+
+wd:Q6306725 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Julia Sears" ;
+	foaf:name "Julia Sears" ;
+	foaf:givenName "Julia" ;
+	schema:givenName "Julia" ;
+	dcterms:description "American suffragist" ;
+	dcterms:identifier "Q6306725" ;
+	schema:birthDate "1840-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q6490170 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Larry Dalton" ;
+	foaf:name "Larry Dalton" ;
+	foaf:givenName "Larry" ;
+	schema:givenName "Larry" ;
+	dcterms:description "American chemist" ;
+	dcterms:identifier "Q6490170" ;
+	schema:birthDate "1943-04-25T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7146188 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Patrick C. Fischer" ;
+	foaf:name "Patrick C. Fischer" ;
+	foaf:givenName "Patrick" ;
+	schema:givenName "Patrick" ;
+	foaf:familyName "Fischer" ;
+	schema:familyName "Fischer" ;
+	dcterms:description "American computer scientist" ;
+	dcterms:identifier "Q7146188" ;
+	schema:birthDate "1935-12-03T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6768234 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Mark Jarman" ;
+	foaf:name "Mark Jarman" ;
+	foaf:givenName "Mark" ;
+	schema:givenName "Mark" ;
+	dcterms:description "Poet, critic" ;
+	dcterms:identifier "Q6768234" ;
+	schema:birthDate "1952-06-05T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6814140 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Melvyn P. Leffler" ;
+	foaf:name "Melvyn P. Leffler" ;
+	dcterms:description "American historian" ;
+	dcterms:identifier "Q6814140" ;
+	schema:birthDate "1945-05-31T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6755615 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Marc Hetherington" ;
+	foaf:name "Marc Hetherington" ;
+	foaf:givenName "Marc" ;
+	schema:givenName "Marc" ;
+	dcterms:description "American political scientist" ;
+	dcterms:identifier "Q6755615" ;
+	schema:birthDate "1968-06-20T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6811243 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Melanie Balcomb" ;
+	foaf:name "Melanie Balcomb" ;
+	foaf:givenName "Melanie" ;
+	schema:givenName "Melanie" ;
+	dcterms:description "American basketball player-coach" ;
+	dcterms:identifier "Q6811243" ;
+	schema:birthDate "1962-09-24T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q7026153 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Nicholas S. Zeppos" ;
+	foaf:name "Nicholas S. Zeppos" ;
+	foaf:givenName "Nicholas" ;
+	schema:givenName "Nicholas" ;
+	dcterms:description "American academic administrator" ;
+	dcterms:identifier "Q7026153" ;
+	schema:birthDate "1954-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6558395 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lisa Schultz Bressman" ;
+	foaf:name "Lisa Schultz Bressman" ;
+	foaf:givenName "Lisa" ;
+	schema:givenName "Lisa" ;
+	dcterms:description "American legal scholar" ;
+	dcterms:identifier "Q6558395" ;
+	schema:gender "female" .
+
+wd:Q6774374 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Martha Craig Daughtrey" ;
+	foaf:name "Martha Craig Daughtrey" ;
+	foaf:givenName "Martha" ;
+	schema:givenName "Martha" ;
+	dcterms:description "United States federal judge" ;
+	dcterms:identifier "Q6774374" ;
+	schema:birthDate "1942-06-21T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q6712562 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "M. Eric Johnson" ;
+	foaf:name "M. Eric Johnson" ;
+	foaf:givenName "M." ;
+	schema:givenName "M." ;
+	foaf:familyName "Johnson" ;
+	schema:familyName "Johnson" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6712562" ;
+	schema:gender "male" .
+
+wd:Q6707902 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lyle H. Lanier" ;
+	foaf:name "Lyle H. Lanier" ;
+	foaf:givenName "Lyle" ;
+	schema:givenName "Lyle" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q6707902" ;
+	schema:birthDate "1903-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6708077 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Lyman Ray Patterson" ;
+	foaf:name "Lyman Ray Patterson" ;
+	foaf:givenName "Lyman" ;
+	schema:givenName "Lyman" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q6708077" ;
+	schema:birthDate "1929-02-18T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q6797081 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Mayer Zald" ;
+	foaf:name "Mayer Zald" ;
+	dcterms:description "sociologist" ;
+	dcterms:identifier "Q6797081" ;
+	schema:birthDate "1931-06-17T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7341907 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Robert Barsky" ;
+	foaf:name "Robert Barsky" ;
+	foaf:givenName "Robert" ;
+	schema:givenName "Robert" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q7341907" ;
+	schema:birthDate "1961-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7343585 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Robert Donaldson" ;
+	foaf:name "Robert Donaldson" ;
+	foaf:givenName "Robert" ;
+	schema:givenName "Robert" ;
+	dcterms:description "American political scientist" ;
+	dcterms:identifier "Q7343585" ;
+	schema:birthDate "1943-06-14T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7327177 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Richard L. Daft" ;
+	foaf:name "Richard L. Daft" ;
+	foaf:givenName "Richard" ;
+	schema:givenName "Richard" ;
+	dcterms:description "American sociologist" ;
+	dcterms:identifier "Q7327177" ;
+	schema:birthDate "1964-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7323771 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Richard Arenstorf" ;
+	foaf:name "Richard Arenstorf" ;
+	foaf:givenName "Richard" ;
+	schema:givenName "Richard" ;
+	dcterms:description "American mathematician" ;
+	dcterms:identifier "Q7323771" ;
+	schema:birthDate "1929-11-07T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7324561 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Richard C. McCarty" ;
+	foaf:name "Richard C. McCarty" ;
+	foaf:givenName "Richard" ;
+	schema:givenName "Richard" ;
+	dcterms:description "American psychologist" ;
+	dcterms:identifier "Q7324561" ;
+	schema:birthDate "1947-07-12T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7331457 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Rick Hilles" ;
+	foaf:name "Rick Hilles" ;
+	foaf:givenName "Rick" ;
+	schema:givenName "Rick" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q7331457" ;
+	schema:gender "male" .
+
+wd:Q7372683 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Roy Clyde Clark" ;
+	foaf:name "Roy Clyde Clark" ;
+	foaf:givenName "Roy" ;
+	schema:givenName "Roy" ;
+	dcterms:description "American Bishop of the United Methodist Church, elected in 1980" ;
+	dcterms:identifier "Q7372683" ;
+	schema:birthDate "1920-07-24T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	dcterms:description "American bishop" .
+
+wd:Q7299235 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Raymond Winbush" ;
+	foaf:name "Raymond Winbush" ;
+	foaf:givenName "Raymond" ;
+	schema:givenName "Raymond" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q7299235" ;
+	schema:birthDate "1948-03-31T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7815585 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Tom Dillehay" ;
+	foaf:name "Tom Dillehay" ;
+	foaf:givenName "Tom" ;
+	schema:givenName "Tom" ;
+	dcterms:description "American anthropologist" ;
+	dcterms:identifier "Q7815585" ;
+	schema:birthDate "1947-07-23T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7648347 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Susan Saegert" ;
+	foaf:name "Susan Saegert" ;
+	foaf:givenName "Susan" ;
+	schema:givenName "Susan" ;
+	dcterms:description "American psychologist" ;
+	dcterms:identifier "Q7648347" ;
+	schema:birthDate "1946-10-12T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q7375925 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Rubel Shelly" ;
+	foaf:name "Rubel Shelly" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q7375925" ;
+	schema:gender "male" .
+
+wd:Q7812730 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Todd Zywicki" ;
+	foaf:name "Todd Zywicki" ;
+	foaf:givenName "Todd" ;
+	schema:givenName "Todd" ;
+	dcterms:description "Professor of Law" ;
+	dcterms:identifier "Q7812730" ;
+	schema:birthDate "1966-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7595851 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Stacey M. Floyd-Thomas" ;
+	foaf:name "Stacey M. Floyd-Thomas" ;
+	foaf:givenName "Stacey" ;
+	schema:givenName "Stacey" ;
+	dcterms:description "American theologian" ;
+	dcterms:identifier "Q7595851" ;
+	schema:birthDate "1969-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q7614532 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Steven C. Hebert" ;
+	foaf:name "Steven C. Hebert" ;
+	foaf:givenName "Steven" ;
+	schema:givenName "Steven" ;
+	dcterms:description "American nephrologist" ;
+	dcterms:identifier "Q7614532" ;
+	schema:birthDate "1946-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7614731 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Steven Gabbe" ;
+	foaf:name "Steven Gabbe" ;
+	foaf:givenName "Steven" ;
+	schema:givenName "Steven" ;
+	dcterms:description "American medical researcher" ;
+	dcterms:identifier "Q7614731" ;
+	schema:gender "male" .
+
+wd:Q7819022 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Tomlinson Fort, Jr." ;
+	foaf:name "Tomlinson Fort, Jr." ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q7819022" ;
+	schema:birthDate "1932-04-16T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7822271 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Tony Earley" ;
+	foaf:name "Tony Earley" ;
+	foaf:givenName "Tony" ;
+	schema:givenName "Tony" ;
+	dcterms:description "Novelist, short story writer" ;
+	dcterms:identifier "Q7822271" ;
+	schema:birthDate "1961-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7831689 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Tracy Barrett" ;
+	foaf:name "Tracy Barrett" ;
+	foaf:givenName "Tracy" ;
+	schema:givenName "Tracy" ;
+	dcterms:description "writer" ;
+	dcterms:identifier "Q7831689" ;
+	schema:birthDate "1955-03-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q8013435 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "William James Booth" ;
+	foaf:name "William James Booth" ;
+	foaf:givenName "William" ;
+	schema:givenName "William" ;
+	dcterms:description "American political scientist" ;
+	dcterms:identifier "Q8013435" ;
+	schema:birthDate "1951-10-10T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q13560230 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Hortense Spillers" ;
+	foaf:name "Hortense Spillers" ;
+	foaf:givenName "Hortense" ;
+	schema:givenName "Hortense" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q13560230" ;
+	schema:birthDate "1942-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q12748184 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alex N. Dragnich" ;
+	foaf:name "Alex N. Dragnich" ;
+	foaf:givenName "Alex" ;
+	schema:givenName "Alex" ;
+	dcterms:description "American political scientist" ;
+	dcterms:identifier "Q12748184" ;
+	schema:birthDate "1912-02-22T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q8017403 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "William Ray Forrester" ;
+	foaf:name "William Ray Forrester" ;
+	foaf:givenName "William" ;
+	schema:givenName "William" ;
+	dcterms:description "American Law School dean" ;
+	dcterms:identifier "Q8017403" ;
+	schema:birthDate "1911-01-14T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q8014502 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "William Leroy Broun" ;
+	foaf:name "William Leroy Broun" ;
+	foaf:givenName "William" ;
+	schema:givenName "William" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q8014502" ;
+	schema:birthDate "1827-10-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q13561601 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Kathleen Flake" ;
+	foaf:name "Kathleen Flake" ;
+	foaf:givenName "Kathleen" ;
+	schema:givenName "Kathleen" ;
+	dcterms:description "American historian" ;
+	dcterms:identifier "Q13561601" ;
+	schema:gender "female" .
+
+wd:Q7881751 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Umphrey Lee" ;
+	foaf:name "Umphrey Lee" ;
+	dcterms:description "President of Southern Methodist University" ;
+	dcterms:identifier "Q7881751" ;
+	schema:birthDate "1893-03-23T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q8015076 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "William Malone Baskervill" ;
+	foaf:name "William Malone Baskervill" ;
+	foaf:givenName "William" ;
+	schema:givenName "William" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q8015076" ;
+	schema:birthDate "1850-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q8000185 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Wilbur Fisk Tillett" ;
+	foaf:name "Wilbur Fisk Tillett" ;
+	foaf:givenName "Wilbur" ;
+	schema:givenName "Wilbur" ;
+	dcterms:description "American theologian" ;
+	dcterms:identifier "Q8000185" ;
+	schema:birthDate "1854-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7965410 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Walter Sullivan" ;
+	foaf:name "Walter Sullivan" ;
+	foaf:givenName "Walter" ;
+	schema:givenName "Walter" ;
+	dcterms:description "American writer" ;
+	dcterms:identifier "Q7965410" ;
+	schema:birthDate "1924-01-04T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q7965702 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Walter Nance" ;
+	foaf:name "Walter Nance" ;
+	foaf:givenName "Walter" ;
+	schema:givenName "Walter" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q7965702" ;
+	schema:gender "male" .
+
+wd:Q13522452 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Joseph Blenkinsopp" ;
+	foaf:name "Joseph Blenkinsopp" ;
+	foaf:givenName "Joseph" ;
+	schema:givenName "Joseph" ;
+	dcterms:description "American scholar" ;
+	dcterms:identifier "Q13522452" ;
+	schema:birthDate "1927-04-03T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q14816066 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Marilyn Friedman" ;
+	foaf:name "Marilyn Friedman" ;
+	foaf:givenName "Marilyn" ;
+	schema:givenName "Marilyn" ;
+	dcterms:description "American philosopher" ;
+	dcterms:identifier "Q14816066" ;
+	schema:birthDate "1945-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q15411064 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Patrick DeLeon" ;
+	foaf:name "Patrick DeLeon" ;
+	foaf:givenName "Patrick" ;
+	schema:givenName "Patrick" ;
+	dcterms:description "American psychologist and public policy expert" ;
+	dcterms:identifier "Q15411064" ;
+	schema:birthDate "1943-01-06T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q14492078 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Michael D. Plummer" ;
+	foaf:name "Michael D. Plummer" ;
+	foaf:givenName "Michael" ;
+	schema:givenName "Michael" ;
+	dcterms:description "American mathematician" ;
+	dcterms:identifier "Q14492078" ;
+	schema:birthDate "1937-08-31T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q15485913 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jon Kaas" ;
+	foaf:name "Jon Kaas" ;
+	foaf:givenName "Jon" ;
+	schema:givenName "Jon" ;
+	dcterms:description "American neuroscientist" ;
+	dcterms:identifier "Q15485913" ;
+	schema:gender "male" .
+
+wd:Q13561610 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Suzanna Sherry" ;
+	foaf:name "Suzanna Sherry" ;
+	foaf:givenName "Suzanna" ;
+	schema:givenName "Suzanna" ;
+	dcterms:description "American legal scholar" ;
+	dcterms:identifier "Q13561610" ;
+	schema:gender "female" .
+
+wd:Q15994214 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Eugene Biel-Bienne" ;
+	foaf:name "Eugene Biel-Bienne" ;
+	foaf:givenName "Eugene" ;
+	schema:givenName "Eugene" ;
+	foaf:name "Egon Vitalis Biel" ;
+	dcterms:description "Austrian-American painter" ;
+	dcterms:identifier "Q15994214" ;
+	schema:birthDate "1902-11-27T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "Eugene Biel" , "Eugene V. Biel-Bienne" , "Eugene Vitalis Biel-Bienne" , "Eugéne Vitalis Biel-Bienne" .
+
+wd:Q15485753 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Mitchell A. Seligson" ;
+	foaf:name "Mitchell A. Seligson" ;
+	foaf:givenName "Mitchell" ;
+	schema:givenName "Mitchell" ;
+	dcterms:description "American political scientist" ;
+	dcterms:identifier "Q15485753" ;
+	schema:birthDate "1945-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q15441392 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jay Clayton" ;
+	foaf:name "Jay Clayton" ;
+	foaf:givenName "Jay" ;
+	schema:givenName "Jay" ;
+	dcterms:description "American literary critic" ;
+	dcterms:identifier "Q15441392" ;
+	schema:birthDate "1951-07-11T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q15441970 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Sandy Solomon" ;
+	foaf:name "Sandy Solomon" ;
+	foaf:givenName "Sandy" ;
+	schema:givenName "Sandy" ;
+	dcterms:description "American poet" ;
+	dcterms:identifier "Q15441970" ;
+	schema:birthDate "1948-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q16122562 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Fernando Segovia" ;
+	foaf:name "Fernando Segovia" ;
+	foaf:givenName "Fernando" ;
+	schema:givenName "Fernando" ;
+	dcterms:description "American theologian" ;
+	dcterms:identifier "Q16122562" ;
+	schema:birthDate "1948-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16011553 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Margaret Cuninggim" ;
+	foaf:name "Margaret Cuninggim" ;
+	foaf:givenName "Margaret" ;
+	schema:givenName "Margaret" ;
+	dcterms:description "academic" ;
+	dcterms:identifier "Q16011553" ;
+	schema:gender "female" .
+
+wd:Q16063179 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Thomas Osgood Summers" ;
+	foaf:name "Thomas Osgood Summers" ;
+	foaf:givenName "Thomas" ;
+	schema:givenName "Thomas" ;
+	dcterms:description "American Methodist clergyman" ;
+	dcterms:identifier "Q16063179" ;
+	schema:birthDate "1812-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16059322 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Edward Southey Joynes" ;
+	foaf:name "Edward Southey Joynes" ;
+	foaf:givenName "Edward" ;
+	schema:givenName "Edward" ;
+	dcterms:description "American scholar" ;
+	dcterms:identifier "Q16059322" ;
+	schema:birthDate "1834-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q15999349 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Edwin Mims" ;
+	foaf:name "Edwin Mims" ;
+	foaf:givenName "Edwin" ;
+	schema:givenName "Edwin" ;
+	dcterms:description "United States professor of English literature" ;
+	dcterms:identifier "Q15999349" ;
+	schema:birthDate "1872-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16062221 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Nathaniel Thomas Lupton" ;
+	foaf:name "Nathaniel Thomas Lupton" ;
+	foaf:givenName "Nathaniel" ;
+	schema:givenName "Nathaniel" ;
+	dcterms:description "American chemist" ;
+	dcterms:identifier "Q16062221" ;
+	schema:birthDate "1830-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16066725 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jesse Lee Cuninggim" ;
+	foaf:name "Jesse Lee Cuninggim" ;
+	foaf:givenName "Jesse" ;
+	schema:givenName "Jesse" ;
+	dcterms:description "American acaedmic" ;
+	dcterms:identifier "Q16066725" ;
+	schema:birthDate "1870-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16030377 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Milton W. Humphreys" ;
+	foaf:name "Milton W. Humphreys" ;
+	foaf:givenName "Milton" ;
+	schema:givenName "Milton" ;
+	foaf:name "Milton Wylie Humphreys" ;
+	dcterms:description "American scholar" ;
+	dcterms:identifier "Q16030377" ;
+	schema:birthDate "1844-09-15T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16011964 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Edwin Pomfret" ;
+	foaf:name "John Edwin Pomfret" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American historian, writer, academic" ;
+	dcterms:identifier "Q16011964" ;
+	schema:birthDate "1898-09-21T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16192669 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Daniel M. Fleetwood" ;
+	foaf:name "Daniel M. Fleetwood" ;
+	foaf:givenName "Daniel" ;
+	schema:givenName "Daniel" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q16192669" ;
+	schema:birthDate "1958-08-03T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16198181 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Clyde Pharr" ;
+	foaf:name "Clyde Pharr" ;
+	foaf:givenName "Clyde" ;
+	schema:givenName "Clyde" ;
+	dcterms:description "American classical philologist and legal historian" ;
+	dcterms:identifier "Q16198181" ;
+	schema:birthDate "1883-02-17T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16202994 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Sam B. Girgus" ;
+	foaf:name "Sam B. Girgus" ;
+	foaf:givenName "Sam" ;
+	schema:givenName "Sam" ;
+	dcterms:description "American film historian" ;
+	dcterms:identifier "Q16202994" ;
+	schema:birthDate "1942-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16211872 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Edward F. Fischer" ;
+	foaf:name "Edward F. Fischer" ;
+	foaf:givenName "Edward" ;
+	schema:givenName "Edward" ;
+	foaf:familyName "Fischer" ;
+	schema:familyName "Fischer" ;
+	dcterms:description "American sociologist" ;
+	dcterms:identifier "Q16211872" ;
+	schema:birthDate "1966-11-12T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16211927 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Cindy Griffin" ;
+	foaf:name "Cindy Griffin" ;
+	foaf:givenName "Cindy" ;
+	schema:givenName "Cindy" ;
+	foaf:name "Cindy Anderson" ;
+	dcterms:description "American basketball player and coach" ;
+	dcterms:identifier "Q16211927" ;
+	schema:birthDate "1969-07-11T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q16205513 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Michael Bess" ;
+	foaf:name "Michael Bess" ;
+	foaf:givenName "Michael" ;
+	schema:givenName "Michael" ;
+	dcterms:description "Chancellor's Professor of History, Professor of European Studies at Vanderbilt University" ;
+	dcterms:identifier "Q16205513" ;
+	schema:gender "male" .
+
+wd:Q16823047 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John Keith Benton" ;
+	foaf:name "John Keith Benton" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q16823047" ;
+	schema:birthDate "1896-05-24T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16198181 schema:birthDate "1885-02-17T00:00:00Z"^^xsd:dateTime .
+
+wd:Q16853994 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James M. Safford" ;
+	foaf:name "James M. Safford" ;
+	foaf:givenName "James" ;
+	schema:givenName "James" ;
+	dcterms:description "American geologist and educator" ;
+	dcterms:identifier "Q16853994" ;
+	schema:birthDate "1822-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q20638697 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Barbara Hahn" ;
+	foaf:name "Barbara Hahn" ;
+	foaf:givenName "Barbara" ;
+	schema:givenName "Barbara" ;
+	dcterms:description "German university teacher" ;
+	dcterms:identifier "Q20638697" ;
+	schema:birthDate "1952-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q17183047 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Mike Spivey" ;
+	foaf:name "Mike Spivey" ;
+	foaf:givenName "Mike" ;
+	schema:givenName "Mike" ;
+	dcterms:description "American legal academic" ;
+	dcterms:identifier "Q17183047" ;
+	schema:gender "male" .
+
+wd:Q16933532 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Ronald D. Schrimpf" ;
+	foaf:name "Ronald D. Schrimpf" ;
+	foaf:givenName "Ronald" ;
+	schema:givenName "Ronald" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q16933532" ;
+	schema:birthDate "1959-08-18T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q17421986 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "William J. Vaughn" ;
+	foaf:name "William J. Vaughn" ;
+	foaf:givenName "William" ;
+	schema:givenName "William" ;
+	dcterms:description "American professor" ;
+	dcterms:identifier "Q17421986" ;
+	schema:birthDate "1834-02-15T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16859091 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Albert Micajah Shipp" ;
+	foaf:name "Albert Micajah Shipp" ;
+	foaf:givenName "Micajah" ;
+	schema:givenName "Micajah" ;
+	dcterms:description "American university administrator" ;
+	dcterms:identifier "Q16859091" ;
+	schema:birthDate "1819-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16886293 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John V. Van Sickle" ;
+	foaf:name "John V. Van Sickle" ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American economist" ;
+	dcterms:identifier "Q16886293" ;
+	schema:birthDate "1892-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q16902110 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Ellen Wright Clayton" ;
+	foaf:name "Ellen Wright Clayton" ;
+	foaf:givenName "Ellen" ;
+	schema:givenName "Ellen" ;
+	foaf:name "Ellen W. Clayton" ;
+	dcterms:description "American geneticist" ;
+	dcterms:identifier "Q16902110" ;
+	schema:gender "female" ;
+	foaf:name "Ellen W Clayton" .
+
+wd:Q16859091 foaf:givenName "Albert" ;
+	schema:givenName "Albert" .
+
+wd:Q17155636 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "John D. Boice, Jr." ;
+	foaf:name "John D. Boice, Jr." ;
+	foaf:givenName "John" ;
+	schema:givenName "John" ;
+	dcterms:description "American radiation epidemiologist and health physicist" ;
+	dcterms:identifier "Q17155636" ;
+	schema:birthDate "1945-12-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q22666021 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Jonathan Metzl " ;
+	foaf:name "Jonathan Metzl " ;
+	foaf:givenName "Jonathan" ;
+	schema:givenName "Jonathan" ;
+	dcterms:description "American psychiatrist" ;
+	dcterms:identifier "Q22666021" ;
+	schema:gender "male" .
+
+wd:Q21422619 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "E. Inman Fox" ;
+	foaf:name "E. Inman Fox" ;
+	foaf:givenName "Edward" ;
+	schema:givenName "Edward" ;
+	dcterms:description "Spanish Tenure and writer (1934-2008)" ;
+	dcterms:identifier "Q21422619" ;
+	schema:birthDate "1934-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q21016483 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Oscar Touster" ;
+	foaf:name "Oscar Touster" ;
+	foaf:givenName "Óscar" ;
+	schema:givenName "Óscar" ;
+	dcterms:description "American molecular biologist" ;
+	dcterms:identifier "Q21016483" ;
+	schema:birthDate "1921-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q21693572 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Carolyn Heinrich" ;
+	foaf:name "Carolyn Heinrich" ;
+	foaf:givenName "Carolyn" ;
+	schema:givenName "Carolyn" ;
+	foaf:familyName "Heinrich" ;
+	schema:familyName "Heinrich" ;
+	dcterms:description "American economist" ;
+	dcterms:identifier "Q21693572" ;
+	schema:birthDate "1967-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q23371371 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Alexander Olshansky" ;
+	foaf:name "Alexander Olshansky" ;
+	foaf:givenName "Aleksandr" ;
+	schema:givenName "Aleksandr" ;
+	foaf:familyName "Olshansky" ;
+	schema:familyName "Olshansky" ;
+	dcterms:description "Russian mathematician" ;
+	dcterms:identifier "Q23371371" ;
+	schema:birthDate "1946-01-19T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q26233900 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "James Henry Stevenson" ;
+	foaf:name "James Henry Stevenson" ;
+	foaf:givenName "Henry" ;
+	schema:givenName "Henry" ;
+	foaf:familyName "Stevenson" ;
+	schema:familyName "Stevenson" ;
+	foaf:name "J. H. Stevenson" ;
+	dcterms:description "American academic" ;
+	dcterms:identifier "Q26233900" ;
+	schema:birthDate "1860-01-01T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q20651191 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Charles Forster Smith" ;
+	foaf:name "Charles Forster Smith" ;
+	foaf:givenName "Charles" ;
+	schema:givenName "Charles" ;
+	dcterms:description "American classical philologist" ;
+	dcterms:identifier "Q20651191" ;
+	schema:birthDate "1852-06-30T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" .
+
+wd:Q26233900 foaf:givenName "James" ;
+	schema:givenName "James" .
+
+wd:Q11596 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Charlotte Froese Fischer" ;
+	foaf:name "Charlotte Froese Fischer" ;
+	foaf:givenName "Charlotte" ;
+	schema:givenName "Charlotte" ;
+	foaf:familyName "Fischer" ;
+	schema:familyName "Fischer" ;
+	dcterms:description "Canadian-American applied mathematician and computer scientist" ;
+	dcterms:identifier "Q11596" ;
+	schema:birthDate "1929-09-21T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q44379426 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Ilda McVeigh" ;
+	foaf:name "Ilda McVeigh" ;
+	dcterms:description "biologist and botanist" ;
+	dcterms:identifier "Q44379426" ;
+	schema:birthDate "1905-02-12T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "female" .
+
+wd:Q31112 a foaf:Person , schema:Person ;
+	adhoc:identifierSource "wikidata" ;
+	adhoc:status "employee" ;
+	rdfs:label "Bill Frist" ;
+	foaf:name "Bill Frist" ;
+	foaf:givenName "Bill" ;
+	schema:givenName "Bill" ;
+	foaf:name "William Harrison \"Bill\" Frist, Sr." ;
+	dcterms:description "physician, businessman, and politician" ;
+	dcterms:identifier "Q31112" ;
+	schema:birthDate "1952-02-22T00:00:00Z"^^xsd:dateTime ;
+	schema:gender "male" ;
+	foaf:name "William Harrison Frist" .
