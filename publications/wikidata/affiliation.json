@@ -1,0 +1,46 @@
+[
+    {
+        "label":"Blair School of Music",
+        "wikidataId":"Q4924165"
+    },
+    {
+        "label":"College of Arts & Science",
+        "wikidataId":"Q7914451"
+    },
+    {
+        "label":"Divinity School",
+        "wikidataId":"Q7914452"
+    },
+    {
+        "label":"Graduate School",
+        "wikidataId":"Q7914453"
+    },
+    {
+        "label":"Law School",
+        "wikidataId":"Q7914456"
+    },
+    {
+        "label":"Owen Graduate School of Management",
+        "wikidataId":"Q14710143"
+    },
+    {
+        "label":"Peabody College of Education & Human Development",
+        "wikidataId":"Q7157226"
+    },
+    {
+        "label":"School of Engineering",
+        "wikidataId":"Q7914459"
+    },
+    {
+        "label":"School of Medicine",
+        "wikidataId":"Q7914466"
+    },
+    {
+        "label":"School of Nursing",
+        "wikidataId":"Q7914461"
+    },
+    {
+        "label":"Jean and Alexander Heard Libraries",
+        "wikidataId":"Q16849893"
+    }
+]
