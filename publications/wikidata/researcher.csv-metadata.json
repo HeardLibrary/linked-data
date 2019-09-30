@@ -1,0 +1,105 @@
+{
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [{
+        "url": "researcher.csv",
+        "tableSchema": {
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "columns": [{
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "orcid",
+              "name": "orcid",
+              "datatype": "string",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P496"
+            },{
+              "titles": "givenNameString",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "familyNameString",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "affiliationP1416",
+              "name": "affiliationP1416",
+              "datatype": "string",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P1416",
+              "valueUrl": "http://www.wikidata.org/entity/{affiliationP1416}"
+            },{
+              "titles": "fieldOfWorkP101",
+              "name": "fieldOfWorkP101",
+              "datatype": "string",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P101",
+              "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP101}"
+            },{
+              "titles": "notes",
+              "datatype": "string", 
+              "suppressOutput": true
+            }],
+            "primaryKey": "wikidataId"
+          }
+        }, {
+        "url": "work.csv",
+        "tableSchema": {
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "columns": [{
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "doi",
+              "datatype": "string",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P356"
+            },{
+              "titles": "title",
+              "datatype": "string"
+            }],
+            "primaryKey": "wikidataId"
+          }
+        }, {
+            "url": "alt_label.csv",
+            "tableSchema": {
+                "columns": [{
+                  "titles": "wikidataId",
+                  "datatype": "string", 
+                  "suppressOutput": true
+                },{
+                  "titles": "altLabel",
+                  "datatype": "string",
+                  "propertyUrl": "skos:altLabel"
+                },{
+                  "titles": "language",
+                  "datatype": "string"
+                }],
+                "foreignKeys": [{
+                    "columnReference": "wikidataId",
+                    "reference": {
+                      "resource": "researcher.csv",
+                      "columnReference": "wikidataId"
+                    }
+                  }],
+                "primaryKey": "wikidataId"                 
+              }
+            }, {
+            "url": "work_author_join.csv",
+            "tableSchema": {
+            "columns": [{
+                "aboutUrl": "http://www.wikidata.org/entity/{workWikidataId}",
+                "titles": "workWikidataId",
+                "name": "workWikidataId",
+                "datatype": "string", 
+                "suppressOutput": true
+            },{
+                "titles": "authorWikidataId",
+                "name": "authorWikidataId",
+                "datatype": "string",
+                "propertyUrl": "http://www.wikidata.org/prop/direct/P50",
+                "valueUrl": "http://www.wikidata.org/entity/{authorWikidataId}"
+              }]
+            }
+        }]
+  }
