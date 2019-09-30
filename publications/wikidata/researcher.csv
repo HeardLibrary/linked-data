@@ -1,5 +1,5 @@
-wikidataId,orcid,givenNameString,familyNameString,affiliationP1416,fieldOfWorkP101,notes
-Q42352198,0000-0002-7248-6551,Antonis,Rokas,Q7914451,Q420,BSCI department faculty (multiple appointments)
-Q38099106,0000-0003-0328-0792,Clifford,Anderson,Q16849893,,"library, does not follow college departmental structure"
-Q4749053,,Amy-Jill,Levine,Q7914452,,"has multiple appointments (primary appointment in Div School with no depts, CAS Jewish Study department)"
-Q37371192,0000-0002-0965-2297,Brandt,Eichman,Q7914451,Q420,BSCI department faculty (multiple appointments)
+wikidataId,orcid,labelEn,givenNameString,familyNameString,affiliationP1416,fieldOfWorkP101,notes
+Q42352198,0000-0002-7248-6551,,Antonis,Rokas,Q7914451,Q420,BSCI department faculty (multiple appointments)
+Q38099106,0000-0003-0328-0792,Clifford B. Anderson,Clifford,Anderson,Q16849893,,"library, does not follow college departmental structure"
+Q4749053,,Amy-Jill Levine,Amy-Jill,Levine,Q7914452,,"has multiple appointments (primary appointment in Div School with no depts, CAS Jewish Study department)"
+Q37371192,0000-0002-0965-2297,Brandt F Eichman,Brandt,Eichman,Q7914451,Q420,BSCI department faculty (multiple appointments)
