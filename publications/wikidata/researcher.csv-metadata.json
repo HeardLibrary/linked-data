@@ -70,16 +70,17 @@
             "url": "alt_label.csv",
             "tableSchema": {
                 "columns": [{
+                  "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
                   "titles": "wikidataId",
+                  "name": "wikidataId",
                   "datatype": "string", 
                   "suppressOutput": true
                 },{
                   "titles": "altLabel",
+                  "name": "altLabel",
                   "datatype": "string",
-                  "propertyUrl": "skos:altLabel"
-                },{
-                  "titles": "language",
-                  "datatype": "string"
+                  "propertyUrl": "skos:altLabel",
+                  "lang": "en"
                 }],
                 "foreignKeys": [{
                     "columnReference": "wikidataId",
