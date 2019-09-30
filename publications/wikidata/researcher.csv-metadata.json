@@ -15,6 +15,12 @@
               "datatype": "string",
               "propertyUrl": "http://www.wikidata.org/prop/direct/P496"
             },{
+              "titles": "labelEn",
+              "name": "labelEn",
+              "datatype": "string",
+              "propertyUrl": "rdfs:label",
+              "lang": "en"
+            },{
               "titles": "givenNameString",
               "datatype": "string", 
               "suppressOutput": true
