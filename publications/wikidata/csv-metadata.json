@@ -1,9 +1,10 @@
 {
+    "@type": "TableGroup",
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [{
         "url": "researcher.csv",
+        "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
         "tableSchema": {
-            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
             "columns": [{
               "titles": "wikidataId",
               "name": "wikidataId",
@@ -22,10 +23,12 @@
               "lang": "en"
             },{
               "titles": "givenNameString",
+              "name": "givenNameString",
               "datatype": "string", 
               "suppressOutput": true
             },{
               "titles": "familyNameString",
+              "name": "familyNameString",
               "datatype": "string", 
               "suppressOutput": true
             },{
@@ -42,15 +45,15 @@
               "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP101}"
             },{
               "titles": "notes",
+              "name": "notes",
               "datatype": "string", 
               "suppressOutput": true
-            }],
-            "primaryKey": "wikidataId"
+            }]
           }
         }, {
         "url": "work.csv",
+        "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
         "tableSchema": {
-            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
             "columns": [{
               "titles": "wikidataId",
               "name": "wikidataId",
@@ -58,44 +61,38 @@
               "suppressOutput": true
             },{
               "titles": "doi",
+              "name": "doi",
               "datatype": "string",
               "propertyUrl": "http://www.wikidata.org/prop/direct/P356"
             },{
               "titles": "title",
-              "datatype": "string"
-            }],
-            "primaryKey": "wikidataId"
+              "name": "title",
+              "datatype": "string", 
+              "suppressOutput": true
+            }]
           }
         }, {
-            "url": "alt_label.csv",
-            "tableSchema": {
-                "columns": [{
-                  "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-                  "titles": "wikidataId",
-                  "name": "wikidataId",
-                  "datatype": "string", 
-                  "suppressOutput": true
-                },{
-                  "titles": "altLabel",
-                  "name": "altLabel",
-                  "datatype": "string",
-                  "propertyUrl": "skos:altLabel",
-                  "lang": "en"
-                }],
-                "foreignKeys": [{
-                    "columnReference": "wikidataId",
-                    "reference": {
-                      "resource": "researcher.csv",
-                      "columnReference": "wikidataId"
-                    }
-                  }],
-                "primaryKey": "wikidataId"                 
-              }
-            }, {
-            "url": "work_author_join.csv",
-            "tableSchema": {
+        "url": "alt_label.csv",
+        "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+        "tableSchema": {
             "columns": [{
-                "aboutUrl": "http://www.wikidata.org/entity/{workWikidataId}",
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "altLabel",
+              "name": "altLabel",
+              "datatype": "string",
+              "propertyUrl": "skos:altLabel",
+              "lang": "en"
+            }]                
+          }
+        }, {
+        "url": "work_author_join.csv",
+        "aboutUrl": "http://www.wikidata.org/entity/{workWikidataId}",
+        "tableSchema": {
+            "columns": [{
                 "titles": "workWikidataId",
                 "name": "workWikidataId",
                 "datatype": "string", 
