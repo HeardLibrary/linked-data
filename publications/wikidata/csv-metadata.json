@@ -11,10 +11,10 @@
               "datatype": "string", 
               "suppressOutput": true
             },{
-              "titles": "orcid",
-              "name": "orcid",
+              "titles": "orcidP90468",
+              "name": "orcidP90468",
               "datatype": "string",
-              "propertyUrl": "http://www.wikidata.org/prop/direct/P496"
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P90468"
             },{
               "titles": "labelEn",
               "name": "labelEn",
@@ -32,78 +32,40 @@
               "datatype": "string", 
               "suppressOutput": true
             },{
-              "titles": "affiliationP1416",
-              "name": "affiliationP1416",
+              "titles": "affiliationP95220",
+              "name": "affiliationP95220",
               "datatype": "string",
-              "propertyUrl": "http://www.wikidata.org/prop/direct/P1416",
-              "valueUrl": "http://www.wikidata.org/entity/{affiliationP1416}"
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P95220",
+              "valueUrl": "http://www.wikidata.org/entity/{affiliationP95220}"
             },{
-              "titles": "fieldOfWorkP101",
-              "name": "fieldOfWorkP101",
+              "titles": "fieldOfWorkP128",
+              "name": "fieldOfWorkP128",
               "datatype": "string",
-              "propertyUrl": "http://www.wikidata.org/prop/direct/P101",
-              "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP101}"
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P128",
+              "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP128}"
             },{
               "titles": "notes",
               "name": "notes",
               "datatype": "string", 
               "suppressOutput": true
             }]
-          }
-        }, {
-        "url": "work.csv",
-        "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-        "tableSchema": {
-            "columns": [{
-              "titles": "wikidataId",
-              "name": "wikidataId",
-              "datatype": "string", 
-              "suppressOutput": true
-            },{
-              "titles": "doi",
-              "name": "doi",
-              "datatype": "string",
-              "propertyUrl": "http://www.wikidata.org/prop/direct/P356"
-            },{
-              "titles": "title",
-              "name": "title",
-              "datatype": "string", 
-              "suppressOutput": true
-            }]
-          }
-        }, {
-        "url": "alt_label.csv",
-        "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-        "tableSchema": {
-            "columns": [{
-              "titles": "wikidataId",
-              "name": "wikidataId",
-              "datatype": "string", 
-              "suppressOutput": true
-            },{
-              "titles": "altLabel",
-              "name": "altLabel",
-              "datatype": "string",
-              "propertyUrl": "skos:altLabel",
-              "lang": "en"
-            }]                
-          }
-        }, {
-        "url": "work_author_join.csv",
-        "aboutUrl": "http://www.wikidata.org/entity/{workWikidataId}",
-        "tableSchema": {
-            "columns": [{
-                "titles": "workWikidataId",
-                "name": "workWikidataId",
-                "datatype": "string", 
-                "suppressOutput": true
-            },{
-                "titles": "authorWikidataId",
-                "name": "authorWikidataId",
-                "datatype": "string",
-                "propertyUrl": "http://www.wikidata.org/prop/direct/P50",
-                "valueUrl": "http://www.wikidata.org/entity/{authorWikidataId}"
-              }]
-            }
-        }]
-  }
+        }
+    }, {
+      "url": "alt_label.csv",
+      "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+      "tableSchema": {
+          "columns": [{
+            "titles": "wikidataId",
+            "name": "wikidataId",
+            "datatype": "string", 
+            "suppressOutput": true
+          },{
+            "titles": "altLabel",
+            "name": "altLabel",
+            "datatype": "string",
+            "propertyUrl": "skos:altLabel",
+            "lang": "en"
+          }]                
+        }
+    }]
+}
