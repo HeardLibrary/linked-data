@@ -1,5 +1,8 @@
+# See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
+# for a general explanation about writing to the Wikidata API
+
 # See https://github.com/HeardLibrary/digital-scholarship/blob/master/code/wikibase/api/write-statements.py
-# for explanation of how to write to a Wikibase API and comments on the authentication functions
+# for details of how to write to a Wikibase API and comments on the authentication functions
 
 import json
 import requests
