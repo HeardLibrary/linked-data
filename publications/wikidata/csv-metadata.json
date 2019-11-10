@@ -44,6 +44,12 @@
               "propertyUrl": "http://www.wikidata.org/prop/direct/P128",
               "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP128}"
             },{
+              "titles": "description",
+              "name": "description",
+              "datatype": "string",
+              "propertyUrl": "schema:description",
+              "lang": "en"
+            },{
               "titles": "notes",
               "name": "notes",
               "datatype": "string", 

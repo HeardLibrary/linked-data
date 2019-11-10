@@ -114,6 +114,20 @@ def writeAltLabel(apiUrl, editToken, subjectQNumber, languageCode, value):
     data = r.json()
     return data
 
+def writeDescription(apiUrl, editToken, subjectQNumber, languageCode, value):
+    parameters = {
+        'action':'wbsetdescription',
+        'format':'json',
+        'id':subjectQNumber,
+        'bot':'1',  # not sure that this actually does anything
+        'token': editToken,
+        'language': languageCode,
+        'value': value
+    }
+    r = session.post(apiUrl, data=parameters)
+    data = r.json()
+    return data
+
 # ----------------------------------------------------------------
 # authentication
 
@@ -206,6 +220,20 @@ for table in tables:
                         print()
                         sleep(delay)
          
+            # find columns that contain desdriptions
+            elif column['propertyUrl'] == 'schema:description':
+                descriptionColumnHeader = column['titles']
+                descriptionLanguage = column['lang']
+                print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
+                for row in tableData:
+                    obj = row[descriptionColumnHeader]
+                    if obj != '':                  
+                        print(row[subjectWikidataIdName], descriptionLanguage, obj)
+                        data = writeDescription(endpointUrl, csrfToken, row[subjectWikidataIdName], descriptionLanguage, obj)
+                        print('Write confirmation: ', data)
+                        print()
+                        sleep(delay)
+         
             # find columns that contain properties with entity values
             elif 'valueUrl' in column:
                 propColumnHeader = column['titles']
@@ -236,6 +264,5 @@ for table in tables:
                         sleep(delay)
                         
             print()
-            # need to include an option for adding descriptions using wbsetdescription
 
     print()
