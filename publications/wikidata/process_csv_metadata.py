@@ -65,6 +65,23 @@ def readDict(filename):
     fileObject.close()
     return array
 
+def attemptPost():
+    r = session.post(apiUrl, data=parameters)
+    data = r.json()
+    pass
+
+def createEntity(apiUrl, editToken):
+    parameters = {
+        "action": "wbeditentity",
+        "format": "json",
+        "new": "item",
+        "token": editToken,
+        "data": "{}"
+    }
+    r = session.post(apiUrl, data=parameters)
+    data = r.json()
+    return data
+
 # write specific types of statements
 def writeEntityValueStatement(apiUrl, editToken, subjectQNumber, propertyPNumber, objectQNumber):
     strippedQNumber = objectQNumber[1:len(objectQNumber)] # remove initial "Q" from object string
@@ -177,6 +194,14 @@ for table in tables:
     print('File name: ', tableFileName)
     tableData = readDict(tableFileName)
     
+    # we are opening the file as a csv.reader object as the easy way to get the header row as a list
+    fileObject = open(tableFileName, 'r', newline='', encoding='utf-8')
+    readerObject = csv.reader(fileObject)
+    for row in readerObject:
+        fieldnames = row
+        break # we only nead the header row, so break after the first loop
+    fileObject.close()
+    
     # assume each table has an aboutUrl and each table is about an entity
     # extract the column name of the subject resource from the URI template
     temp = table['aboutUrl'].partition('{')[2]
@@ -188,6 +213,22 @@ for table in tables:
         if column['name'] == subjectWikidataIdName:
             subjectWikidataIdColumnHeader = column['titles']
     print('Subject column: ', subjectWikidataIdColumnHeader)
+    
+    # create item for any row without an Wikidata ID
+    addedItem = False
+    for rowNumber in range(0, len(tableData)):
+        if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
+            responseData = createEntity(endpointUrl, csrfToken)
+            # extract the entity Q number from the response JSON
+            tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
+            addedItem = True
+    # if any new items were created, replace the table with a new one containing the new IDs
+    if addedItem:
+        with open(tableFileName, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for rowNumber in range(0, len(tableData)):
+                writer.writerow(tableData[rowNumber])
     
     # find columns without suppressed output (should have properties)
     for column in columns:
@@ -218,8 +259,8 @@ for table in tables:
                     obj = row[altLabelColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], altLabelLanguage, obj)
-                        data = writeAltLabel(endpointUrl, csrfToken, row[subjectWikidataIdName], altLabelLanguage, obj)
-                        print('Write confirmation: ', data)
+                        #data = writeAltLabel(endpointUrl, csrfToken, row[subjectWikidataIdName], altLabelLanguage, obj)
+                        #print('Write confirmation: ', data)
                         print()
                         sleep(delay)
          
