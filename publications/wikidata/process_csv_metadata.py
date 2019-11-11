@@ -222,6 +222,8 @@ for table in tables:
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
             addedItem = True
+            print('Write confirmation: ', responseData)
+            print()
     # if any new items were created, replace the table with a new one containing the new IDs
     if addedItem:
         with open(tableFileName, 'w', newline='') as csvfile:
