@@ -65,12 +65,40 @@ def readDict(filename):
     fileObject.close()
     return array
 
-def attemptPost():
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
-    pass
+# This function attempts to post and handles maxlag errors
+def attemptPost(apiUrl, parameters):
+    maxRetries = 2
+    retry = 0
+    # maximum number of times to retry lagged server = maxRetries
+    while retry <= maxRetries:
+        r = session.post(apiUrl, data = parameters)
+        data = r.json()
+        try:
+            # check if response is a maxlag error
+            # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+            if data['error']['code'] == 'maxlag':
+                print('Lag of ', data['error']['lag'], ' seconds.')
+                retry += 1
+                recommendedDelay = int(r.headers['Retry-After'])
+                if recommendedDelay < 5:
+                    # recommendation is to wait at least 5 seconds if server is lagged
+                    recommendedDelay = 5
+                print('Waiting ', recommendedDelay , ' seconds.')
+                print()
+                sleep(recommendedDelay)
+                # after this, go out of if and try code blocks
+            else:
+                # an error code is returned, but it's not maxlag
+                return data
+        except:
+            # if the response doesn't have an error key, it was successful, so return
+            return data
+        # here's where execution goes after the delay
+    # here's where execution goes after maxRetries tries
+    print('Failed after ' + str(maxRetries) + ' retries.')
+    exit() # just abort the script
 
-def createEntity(apiUrl, editToken):
+def createEntity(maxlag, apiUrl, editToken):
     parameters = {
         "action": "wbeditentity",
         "format": "json",
@@ -78,20 +106,21 @@ def createEntity(apiUrl, editToken):
         "token": editToken,
         "data": "{}"
     }
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
+    if maxlag > 0:
+        parameters['maxlag'] = maxlag
+    data = attemptPost(apiUrl, parameters)
     return data
 
 # write specific types of statements
-def writeEntityValueStatement(apiUrl, editToken, subjectQNumber, propertyPNumber, objectQNumber):
+def writeEntityValueStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, objectQNumber):
     strippedQNumber = objectQNumber[1:len(objectQNumber)] # remove initial "Q" from object string
     # note: the value is a string, not an actual data structure.  I think it will get URL encoded by requests before posting
     value ='{"entity-type":"item","numeric-id":' + strippedQNumber+ '}'
-    data = writeStatement(apiUrl, editToken, subjectQNumber, propertyPNumber, value)
+    data = writeStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, value)
     return data
 
 # pass in the local names including the initial letter as strings, e.g. ('Q3345', 'P6', 'Q1917')
-def writeStatement(apiUrl, editToken, subjectQNumber, propertyPNumber, value):
+def writeStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, value):
     parameters = {
         'action':'wbcreateclaim',
         'format':'json',
@@ -102,11 +131,12 @@ def writeStatement(apiUrl, editToken, subjectQNumber, propertyPNumber, value):
         'property': propertyPNumber,
         'value': value
     }
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
+    if maxlag > 0:
+        parameters['maxlag'] = maxlag
+    data = attemptPost(apiUrl, parameters)
     return data
 
-def writeLabel(apiUrl, editToken, subjectQNumber, languageCode, value):
+def writeLabel(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
     parameters = {
         'action':'wbsetlabel',
         'format':'json',
@@ -116,11 +146,12 @@ def writeLabel(apiUrl, editToken, subjectQNumber, languageCode, value):
         'language': languageCode,
         'value': value
     }
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
+    if maxlag > 0:
+        parameters['maxlag'] = maxlag
+    data = attemptPost(apiUrl, parameters)
     return data
 
-def writeAltLabel(apiUrl, editToken, subjectQNumber, languageCode, value):
+def writeAltLabel(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
     parameters = {
         'action':'wbsetaliases',
         'format':'json',
@@ -130,11 +161,12 @@ def writeAltLabel(apiUrl, editToken, subjectQNumber, languageCode, value):
         'language': languageCode,
         'add': value
     }
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
+    if maxlag > 0:
+        parameters['maxlag'] = maxlag
+    data = attemptPost(apiUrl, parameters)
     return data
 
-def writeDescription(apiUrl, editToken, subjectQNumber, languageCode, value):
+def writeDescription(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
     parameters = {
         'action':'wbsetdescription',
         'format':'json',
@@ -144,8 +176,9 @@ def writeDescription(apiUrl, editToken, subjectQNumber, languageCode, value):
         'language': languageCode,
         'value': value
     }
-    r = session.post(apiUrl, data=parameters)
-    data = r.json()
+    if maxlag > 0:
+        parameters['maxlag'] = maxlag
+    data = attemptPost(apiUrl, parameters)
     return data
 
 # ----------------------------------------------------------------
@@ -159,8 +192,14 @@ username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 '''
 
+# Set your own User-Agent header here. Do not use VanderBot!
+# See https://meta.wikimedia.org/wiki/User-Agent_policy
+userAgentHeader = 'VanderBot/0.1 (steve.baskauf@vanderbilt.edu)'
+
 # Instantiate session outside of any function so that it's globally accessible.
 session = requests.Session()
+# Set default User-Agent header so you don't have to send it with every request
+session.headers.update({'User-Agent': userAgentHeader})
 
 # default API resource URL when a Wikibase/Wikidata instance is installed.
 resourceUrl = '/w/api.php'
@@ -180,9 +219,12 @@ csrfToken = getCsrfToken(endpointUrl)
 # -------------------------------------------
 # Beginning of script to process the tables
 
-# If using real Wikidata, need to implement maxlag parameter https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
-# For now, throttle using a fixed number of seconds to delay
-delay = 0.2
+# Set the value of the maxlag parameter to back off when the server is lagged
+# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+# The recommended value is 5 seconds.
+# To not use maxlang, set the value to 0
+# To test the maxlag handler code, set maxlag to a very low number like .1
+maxlag = 5
 
 with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
@@ -218,12 +260,13 @@ for table in tables:
     addedItem = False
     for rowNumber in range(0, len(tableData)):
         if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-            responseData = createEntity(endpointUrl, csrfToken)
+            responseData = createEntity(maxlag, endpointUrl, csrfToken)
+            print('Write confirmation: ', responseData)
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
             addedItem = True
-            print('Write confirmation: ', responseData)
             print()
+      
     # if any new items were created, replace the table with a new one containing the new IDs
     if addedItem:
         with open(tableFileName, 'w', newline='') as csvfile:
@@ -246,10 +289,9 @@ for table in tables:
                     obj = row[labelColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], labelLanguage, obj)
-                        data = writeLabel(endpointUrl, csrfToken, row[subjectWikidataIdName], labelLanguage, obj)
+                        data = writeLabel(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], labelLanguage, obj)
                         print('Write confirmation: ', data)
                         print()
-                        sleep(delay)
 
             # find columns that contain aliases
             # GUI calls it "Also known as"; RDF as skos:altLabel
@@ -261,10 +303,9 @@ for table in tables:
                     obj = row[altLabelColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], altLabelLanguage, obj)
-                        #data = writeAltLabel(endpointUrl, csrfToken, row[subjectWikidataIdName], altLabelLanguage, obj)
-                        #print('Write confirmation: ', data)
+                        data = writeAltLabel(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], altLabelLanguage, obj)
+                        print('Write confirmation: ', data)
                         print()
-                        sleep(delay)
          
             # find columns that contain desdriptions
             elif column['propertyUrl'] == 'schema:description':
@@ -275,10 +316,9 @@ for table in tables:
                     obj = row[descriptionColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], descriptionLanguage, obj)
-                        data = writeDescription(endpointUrl, csrfToken, row[subjectWikidataIdName], descriptionLanguage, obj)
+                        data = writeDescription(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], descriptionLanguage, obj)
                         print('Write confirmation: ', data)
                         print()
-                        sleep(delay)
          
             # find columns that contain properties with entity values
             elif 'valueUrl' in column:
@@ -289,10 +329,9 @@ for table in tables:
                     obj = row[propColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], propertyId, obj)
-                        data = writeEntityValueStatement(endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, row[propColumnHeader])
+                        data = writeEntityValueStatement(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, row[propColumnHeader])
                         print('Write confirmation: ', data)
                         print()
-                        sleep(delay)
 
             # remaining columns should have properties with literal values
             else:
@@ -304,10 +343,9 @@ for table in tables:
                     obj = row[propColumnHeader]
                     if obj != '':                  
                         print(row[subjectWikidataIdName], propertyId, obj)
-                        data = writeStatement(endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, '"' + row[propColumnHeader] + '"')
+                        data = writeStatement(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, '"' + row[propColumnHeader] + '"')
                         print('Write confirmation: ', data)
                         print()
-                        sleep(delay)
                         
             print()
 
