@@ -22,6 +22,12 @@
               "propertyUrl": "rdfs:label",
               "lang": "en"
             },{
+              "titles": "alias",
+              "name": "alias",
+              "datatype": "string",
+              "propertyUrl": "skos:altLabel",
+              "lang": "en"
+            },{
               "titles": "givenNameString",
               "name": "givenNameString",
               "datatype": "string", 

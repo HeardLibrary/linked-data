@@ -98,89 +98,6 @@ def attemptPost(apiUrl, parameters):
     print('Failed after ' + str(maxRetries) + ' retries.')
     exit() # just abort the script
 
-def createEntity(maxlag, apiUrl, editToken):
-    parameters = {
-        "action": "wbeditentity",
-        "format": "json",
-        "new": "item",
-        "token": editToken,
-        "data": "{}"
-    }
-    if maxlag > 0:
-        parameters['maxlag'] = maxlag
-    data = attemptPost(apiUrl, parameters)
-    return data
-
-# write specific types of statements
-def writeEntityValueStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, objectQNumber):
-    strippedQNumber = objectQNumber[1:len(objectQNumber)] # remove initial "Q" from object string
-    # note: the value is a string, not an actual data structure.  I think it will get URL encoded by requests before posting
-    value ='{"entity-type":"item","numeric-id":' + strippedQNumber+ '}'
-    data = writeStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, value)
-    return data
-
-# pass in the local names including the initial letter as strings, e.g. ('Q3345', 'P6', 'Q1917')
-def writeStatement(maxlag, apiUrl, editToken, subjectQNumber, propertyPNumber, value):
-    parameters = {
-        'action':'wbcreateclaim',
-        'format':'json',
-        'entity':subjectQNumber,
-        'snaktype':'value',
-        'bot':'1',  # not sure that this actually does anything
-        'token': editToken,
-        'property': propertyPNumber,
-        'value': value
-    }
-    if maxlag > 0:
-        parameters['maxlag'] = maxlag
-    data = attemptPost(apiUrl, parameters)
-    return data
-
-def writeLabel(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
-    parameters = {
-        'action':'wbsetlabel',
-        'format':'json',
-        'id':subjectQNumber,
-        'bot':'1',  # not sure that this actually does anything
-        'token': editToken,
-        'language': languageCode,
-        'value': value
-    }
-    if maxlag > 0:
-        parameters['maxlag'] = maxlag
-    data = attemptPost(apiUrl, parameters)
-    return data
-
-def writeAltLabel(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
-    parameters = {
-        'action':'wbsetaliases',
-        'format':'json',
-        'id':subjectQNumber,
-        'bot':'1',  # not sure that this actually does anything
-        'token': editToken,
-        'language': languageCode,
-        'add': value
-    }
-    if maxlag > 0:
-        parameters['maxlag'] = maxlag
-    data = attemptPost(apiUrl, parameters)
-    return data
-
-def writeDescription(maxlag, apiUrl, editToken, subjectQNumber, languageCode, value):
-    parameters = {
-        'action':'wbsetdescription',
-        'format':'json',
-        'id':subjectQNumber,
-        'bot':'1',  # not sure that this actually does anything
-        'token': editToken,
-        'language': languageCode,
-        'value': value
-    }
-    if maxlag > 0:
-        parameters['maxlag'] = maxlag
-    data = attemptPost(apiUrl, parameters)
-    return data
-
 # ----------------------------------------------------------------
 # authentication
 
@@ -260,6 +177,7 @@ for table in tables:
     entityValuedPropertiesList = []
     entityValueIdList = []
     literalValuedPropertiesList = []
+    literalValueIdList = []
     literalValueDatatypeList = []
 
     # step through all of the columns and sort their headers into the appropriate list
@@ -313,6 +231,7 @@ for table in tables:
                 valueDatatype = column['datatype']
                 print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', valueDatatype)
                 literalValuedPropertiesList.append(propColumnHeader)
+                literalValueIdList.append(propertyId)
                 literalValueDatatypeList.append(valueDatatype)
 
             print()
@@ -326,7 +245,7 @@ for table in tables:
         parameterDictionary = {
             'action': 'wbeditentity',
             'format':'json',
-            'token': editToken
+            'token': csrfToken
             }
     
         if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
@@ -336,26 +255,111 @@ for table in tables:
             newItem = False
             parameterDictionary['id'] = tableData[rowNumber][subjectWikidataIdColumnHeader]
             
-        # begin constructing the string for the "data" value
-        dataString = '{'
+        # begin constructing the string for the "data" value by creating a data structure to be turned into JSON
+        # the examples are from https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+        dataStructure = {}
         
-        areLabels = False
-        for labelColumnNumber in range(0, len(labelColumnList)):
-            areLabels = True
-            # left off here
-            'language': languageCode,
-            'value': value
+        if len(labelColumnList) > 0:
+            # here's what we need to construct for labels:
+            # data={"labels":{"de":{"language":"de","value":"de-value"},"en":{"language":"en","value":"en-value"}}}
+            labelDict = {}
+            for labelColumnNumber in range(0, len(labelColumnList)):
+                valueString = tableData[rowNumber][labelColumnList[labelColumnNumber]]
+                if valueString != '':
+                    labelDict[labelLanguageList[labelColumnNumber]] = {
+                        'language': labelLanguageList[labelColumnNumber],
+                        'value': valueString
+                        }
+            dataStructure['labels'] = labelDict
+        
+        if len(aliasColumnList) > 0:
+            # no example, but follow the same pattern as labels
+            aliasDict = {}
+            for aliasColumnNumber in range(0, len(aliasColumnList)):
+                valueString = tableData[rowNumber][aliasColumnList[aliasColumnNumber]]
+                if valueString != '':
+                    aliasDict[aliasLanguageList[aliasColumnNumber]] = {
+                        'language': aliasLanguageList[aliasColumnNumber],
+                        'value': valueString
+                        }
+            dataStructure['aliases'] = aliasDict
+        
+        if len(descriptionColumnList) > 0:
+            # here's what we need to construct for descriptions:
+            # data={"descriptions":{"nb":{"language":"nb","value":"nb-Description-Here"}}}
+            descriptionDict = {}
+            for descriptionColumnNumber in range(0, len(descriptionColumnList)):
+                valueString = tableData[rowNumber][descriptionColumnList[descriptionColumnNumber]]
+                if valueString != '':
+                    descriptionDict[descriptionLanguageList[descriptionColumnNumber]] = {
+                        'language': descriptionLanguageList[descriptionColumnNumber],
+                        'value': valueString
+                        }
+            dataStructure['descriptions'] = descriptionDict
 
+        # handle both types of claims
+        if len(entityValuedPropertiesList) + len(literalValuedPropertiesList) > 0:
+            claimsList = []
+            
+            # here's what we need to construct for literal valued properties:
+            # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
+            for literalValuePropertyNumber in range(0, len(literalValuedPropertiesList)):
+                valueString = tableData[rowNumber][literalValuedPropertiesList[literalValuePropertyNumber]]
+                if valueString != '':
+                    snakDict = {
+                        'mainsnak': {
+                            'snaktype': 'value',
+                            'property': literalValueIdList[literalValuePropertyNumber],
+                            'datavalue':{
+                                'value': valueString,
+                                'type': literalValueDatatypeList[literalValuePropertyNumber]
+                                }
+                            },
+                        'type': 'statement',
+                        'rank': 'normal'
+                        }
+                    claimsList.append(snakDict)
+
+            # the wbeditentity page doesn't give examples for entity valued properties.
+            # for clues, look at https://www.wikidata.org/w/api.php?action=help&modules=wbcreateclaim
+            # to compare literal valued claim values with entity valued claim values
+            for entityValuedPropertyNumber in range(0, len(entityValuedPropertiesList)):
+                objectQNumber = tableData[rowNumber][entityValuedPropertiesList[entityValuedPropertyNumber]]
+                if objectQNumber != '':
+                    snakDict = {
+                        'mainsnak': {
+                            'snaktype': 'value',
+                            'property': entityValueIdList[entityValuedPropertyNumber],
+                            'datavalue': {
+                                #'entity-type': 'item',
+                                #'numeric-id': [strippedQNumber],
+                                'value': {
+                                    'id': objectQNumber
+                                    },
+                                'type': 'wikibase-entityid'
+                                }
+                            },
+                        'type': 'statement',
+                        'rank': 'normal'
+                        }
+                    claimsList.append(snakDict)
+
+            dataStructure['claims'] = claimsList
+
+        # The data value has to be turned into a JSON string
+        parameterDictionary['data'] = json.dumps(dataStructure)
         
-        # ----------
-        #responseData = createEntity(maxlag, endpointUrl, csrfToken)
+        if maxlag > 0:
+            parameterDictionary['maxlag'] = maxlag
+        responseData = attemptPost(endpointUrl, parameterDictionary)
         print('Write confirmation: ', responseData)
+        print()
+        
         if newItem:
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
             addedItem = True
-            print()
-      
+    
     # if any new items were created, replace the table with a new one containing the new IDs
     if addedItem:
         with open(tableFileName, 'w', newline='') as csvfile:
@@ -363,64 +367,3 @@ for table in tables:
             writer.writeheader()
             for rowNumber in range(0, len(tableData)):
                 writer.writerow(tableData[rowNumber])
-    
-            # ------------------------------------
-            
-            # find columns that contain aliases
-            # GUI calls it "Also known as"; RDF as skos:altLabel
-            elif column['propertyUrl'] == 'skos:altLabel':
-                altLabelColumnHeader = column['titles']
-                altLabelLanguage = column['lang']
-                print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
-                for row in tableData:
-                    obj = row[altLabelColumnHeader]
-                    if obj != '':                  
-                        print(row[subjectWikidataIdName], altLabelLanguage, obj)
-                        data = writeAltLabel(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], altLabelLanguage, obj)
-                        print('Write confirmation: ', data)
-                        print()
-         
-            # find columns that contain desdriptions
-            elif column['propertyUrl'] == 'schema:description':
-                descriptionColumnHeader = column['titles']
-                descriptionLanguage = column['lang']
-                print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
-                for row in tableData:
-                    obj = row[descriptionColumnHeader]
-                    if obj != '':                  
-                        print(row[subjectWikidataIdName], descriptionLanguage, obj)
-                        data = writeDescription(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], descriptionLanguage, obj)
-                        print('Write confirmation: ', data)
-                        print()
-         
-            # find columns that contain properties with entity values
-            elif 'valueUrl' in column:
-                propColumnHeader = column['titles']
-                propertyId = column['propertyUrl'].partition('prop/direct/')[2]
-                print('Property column: ', propColumnHeader, ', Property ID: ', propertyId)
-                for row in tableData:
-                    obj = row[propColumnHeader]
-                    if obj != '':                  
-                        print(row[subjectWikidataIdName], propertyId, obj)
-                        data = writeEntityValueStatement(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, row[propColumnHeader])
-                        print('Write confirmation: ', data)
-                        print()
-
-            # remaining columns should have properties with literal values
-            else:
-                propColumnHeader = column['titles']
-                propertyId = column['propertyUrl'].partition('prop/direct/')[2]
-                valueDatatype = column['datatype']
-                print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', valueDatatype)
-                for row in tableData:
-                    obj = row[propColumnHeader]
-                    if obj != '':                  
-                        print(row[subjectWikidataIdName], propertyId, obj)
-                        data = writeStatement(maxlag, endpointUrl, csrfToken, row[subjectWikidataIdName], propertyId, '"' + row[propColumnHeader] + '"')
-                        print('Write confirmation: ', data)
-                        print()
-                        
-            print()
-
-    print()
-'''
