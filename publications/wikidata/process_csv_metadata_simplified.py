@@ -19,7 +19,8 @@ def retrieveCredentials(path):
     endpointUrl = lineList[0].split('=')[1]
     username = lineList[1].split('=')[1]
     password = lineList[2].split('=')[1]
-    credentials = [endpointUrl, username, password]
+    userAgent = lineList[3].split('=')[1]
+    credentials = [endpointUrl, username, password, userAgent]
     return credentials
 
 def getLoginToken(apiUrl):    
@@ -103,20 +104,14 @@ def attemptPost(apiUrl, parameters):
 
 # This is the format of the wikibase_credentials.txt file. Username and password
 # are for a bot that you've created.  Save file in your home directory.
+# Set your own User-Agent header. Do not use the one listed here
+# See https://meta.wikimedia.org/wiki/User-Agent_policy
 '''
 endpointUrl=https://test.wikidata.org
 username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+userAgentHeader=YourBot/0.1 (someuser@university.edu)
 '''
-
-# Set your own User-Agent header here. Do not use VanderBot!
-# See https://meta.wikimedia.org/wiki/User-Agent_policy
-userAgentHeader = 'VanderBot/0.1 (steve.baskauf@vanderbilt.edu)'
-
-# Instantiate session outside of any function so that it's globally accessible.
-session = requests.Session()
-# Set default User-Agent header so you don't have to send it with every request
-session.headers.update({'User-Agent': userAgentHeader})
 
 # default API resource URL when a Wikibase/Wikidata instance is installed.
 resourceUrl = '/w/api.php'
@@ -128,6 +123,13 @@ credentials = retrieveCredentials(credentialsPath)
 endpointUrl = credentials[0] + resourceUrl
 user = credentials[1]
 pwd = credentials[2]
+userAgentHeader = credentials[3]
+
+# Instantiate session outside of any function so that it's globally accessible.
+session = requests.Session()
+# Set default User-Agent header so you don't have to send it with every request
+session.headers.update({'User-Agent': userAgentHeader})
+
 
 loginToken = getLoginToken(endpointUrl)
 data = logIn(endpointUrl, loginToken, user, pwd)
