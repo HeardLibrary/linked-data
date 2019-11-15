@@ -1,3 +1,4 @@
+# Freely available under a CC0 license. Steve Baskauf 2019-11-14
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
 
