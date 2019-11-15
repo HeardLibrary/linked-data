@@ -1,3 +1,8 @@
+# ************************
+# NOTE: This script has been replaced with a more efficient one at
+# https://github.com/HeardLibrary/linked-data/blob/master/publications/wikidata/process_csv_metadata_simplified.py
+# ************************
+
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
 
