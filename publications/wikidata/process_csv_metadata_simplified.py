@@ -210,7 +210,8 @@ for table in tables:
                 aliasColumnList.append(altLabelColumnHeader)
                 aliasLanguageList.append(altLabelLanguage)
 
-            # find columns that contain desdriptions
+            # find columns that contain descriptions
+            # Note: if descriptions exist for a language, they will be overwritten
             elif column['propertyUrl'] == 'schema:description':
                 descriptionColumnHeader = column['titles']
                 descriptionLanguage = column['lang']
