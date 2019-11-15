@@ -334,8 +334,6 @@ for table in tables:
                             'snaktype': 'value',
                             'property': entityValueIdList[entityValuedPropertyNumber],
                             'datavalue': {
-                                #'entity-type': 'item',
-                                #'numeric-id': [strippedQNumber],
                                 'value': {
                                     'id': objectQNumber
                                     },
