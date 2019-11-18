@@ -69,7 +69,7 @@ def readDict(filename):
 
 # If there are references for a statement, return a reference list
 def createReferences(propertyId, tableData):
-    referenceDictionary = '''[
+    referenceDictionary = [
         {
             'snaks': {
                 'P93': [
@@ -85,9 +85,9 @@ def createReferences(propertyId, tableData):
                     ]
                 }
         }
-    ]'''
+    ]
 
-    return []
+    return referenceDictionary
 
 # If there are qualifiers for a statement, return a qualifiers dictionary
 def createQualifiers():
@@ -313,7 +313,8 @@ for table in tables:
                         'language': labelLanguageList[labelColumnNumber],
                         'value': valueString
                         }
-            dataStructure['labels'] = labelDict
+            if labelDict != {}:
+                dataStructure['labels'] = labelDict
         
         if len(aliasColumnList) > 0:
             # no example, but follow the same pattern as labels
@@ -325,7 +326,8 @@ for table in tables:
                         'language': aliasLanguageList[aliasColumnNumber],
                         'value': valueString
                         }
-            dataStructure['aliases'] = aliasDict
+            if aliasDict != {}:
+                dataStructure['aliases'] = aliasDict
         
         if len(descriptionColumnList) > 0:
             # here's what we need to construct for descriptions:
@@ -338,7 +340,8 @@ for table in tables:
                         'language': descriptionLanguageList[descriptionColumnNumber],
                         'value': valueString
                         }
-            dataStructure['descriptions'] = descriptionDict
+            if descriptionDict != {}:
+                dataStructure['descriptions'] = descriptionDict
 
         # handle both types of claims
         if len(entityValuedPropertiesList) + len(literalValuedPropertiesList) > 0:
@@ -391,10 +394,12 @@ for table in tables:
                         snakDict['references'] = references
                     claimsList.append(snakDict)
 
-            dataStructure['claims'] = claimsList
+            if claimsList != []:
+                dataStructure['claims'] = claimsList
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
+        print(json.dumps(dataStructure, indent = 2))
 '''        
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag
