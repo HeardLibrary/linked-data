@@ -1,0 +1,117 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [{
+        "url": "researcher.csv",
+        "tableSchema": {
+            "columns": [{
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "labelEn",
+              "name": "labelEn",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "rdfs:label",
+              "lang": "en"
+            },{
+              "titles": "alias",
+              "name": "alias",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "skos:altLabel",
+              "lang": "en"
+            },{
+              "titles": "description",
+              "name": "description",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "schema:description",
+              "lang": "en"
+            },{
+              "titles": "givenNameString",
+              "name": "givenNameString",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "familyNameString",
+              "name": "familyNameString",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "affiliationP95220",
+              "name": "affiliationP95220",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P95220",
+              "valueUrl": "http://www.wikidata.org/entity/{affiliationP95220}"
+            },{
+              "titles": "fieldOfWorkP128",
+              "name": "fieldOfWorkP128",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P128",
+              "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP128}"
+            },{
+              "titles": "orcidP90468uuid",
+              "name": "orcidP90468uuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "orcidP90468",
+              "name": "orcidP90468",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P90468"
+            },{
+              "name": "hasOrcidStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P90468",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}"
+            },{
+              "titles": "orcidP90468refHash",
+              "name": "orcidP90468refHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "orcidReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}"
+            },{
+              "titles": "orcidP90468refUrlP854",
+              "name": "orcidP90468refUrlP854",
+              "datatype": "anyURI",
+              "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            },{
+              "titles": "orcidP90468refRetrievedP813",
+              "name": "orcidP90468refRetrievedP813",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "name": "qualStartP580",
+              "virtual": true,
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
+              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
+            },{
+              "name": "qualEndP582",
+              "virtual": true,
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
+              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
+            },{
+              "titles": "notes",
+              "name": "notes",
+              "datatype": "string", 
+              "suppressOutput": true
+            }]
+        }
+    }]
+}
