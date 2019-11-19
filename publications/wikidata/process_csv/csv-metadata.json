@@ -83,17 +83,17 @@
               "propertyUrl": "prov:wasDerivedFrom",
               "valueUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}"
             },{
-              "titles": "orcidP90468refUrlP854",
-              "name": "orcidP90468refUrlP854",
+              "titles": "orcidP90468refUrlP93",
+              "name": "orcidP90468refUrlP93",
               "datatype": "anyURI",
               "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
-              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P93"
             },{
-              "titles": "orcidP90468refRetrievedP813",
-              "name": "orcidP90468refRetrievedP813",
+              "titles": "orcidP90468refRetrievedP388",
+              "name": "orcidP90468refRetrievedP388",
               "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
-              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P388"
             },{
               "name": "qualStartP580",
               "virtual": true,

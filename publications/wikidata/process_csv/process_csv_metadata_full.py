@@ -5,6 +5,9 @@
 # See https://github.com/HeardLibrary/digital-scholarship/blob/master/code/wikibase/api/write-statements.py
 # for details of how to write to a Wikibase API and comments on the authentication functions
 
+# The most important reference for formatting the data JSON to be sent to the API is:
+# https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
+
 import json
 import requests
 import csv
@@ -111,45 +114,38 @@ def createReferences(columns, propertyId, rowData):
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValueTypeList[refPropNumber] == 'time':
-            refValue = {'time': refValue}
-        snakDictionary[refPropList[refPropNumber]] = [
+        if refValue != '':  #skip columns with no value
+            if refValueTypeList[refPropNumber] == 'time':
+                # Q1985727 is the Gregorian calendar
+                # Currently this assumes times are YYYY-MM-DD, hence precision 11. Need more work to handle year only, or year and month
+                refValue = {
+                        'time': '+' + refValue + 'T00:00:00Z',
+                        'timezone': 0,
+                        'before': 0,
+                        'after': 0,
+                        'precision': 11,
+                        'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                        }
+            snakDictionary[refPropList[refPropNumber]] = [
+                {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datavalue': {
+                        'value': refValue,
+                        'type': refValueTypeList[refPropNumber]
+                    },
+                    'datatype': refTypeList[refPropNumber]
+                }
+            ]
+    if snakDictionary != {}:  # don't send an empty snakDictionary
+        referenceDictionary = [
             {
-                'snaktype': 'value',
-                'property': refPropList[refPropNumber],
-                'datavalue': {
-                    'value': refValue,
-                    'type': refValueTypeList[refPropNumber]
-                },
-                'datatype': refTypeList[refPropNumber]
+                'snaks': snakDictionary
             }
         ]
-    referenceDictionary = [
-        {
-            'snaks': snakDictionary
-        }
-    ]
-    print(json.dumps(referenceDictionary, indent = 2))
-
-        
-    referenceDictionary = [
-        {
-            'snaks': {
-                'P93': [
-                        {
-                            'snaktype': 'value',
-                            'property': 'P93',
-                            'datavalue': {
-                                'value': 'https://orcid.org/0000-0001-6601-0234',
-                                'type': 'string'
-                            },
-                            'datatype': 'url'
-                        }
-                    ]
-                }
-        }
-    ]
-
+    else:
+        referenceDictionary = []
+    #print(json.dumps(referenceDictionary, indent = 2))
     return referenceDictionary
 
 # If there are qualifiers for a statement, return a qualifiers dictionary
@@ -462,14 +458,14 @@ for table in tables:
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        #print(json.dumps(dataStructure, indent = 2))
-'''        
+        print(json.dumps(dataStructure, indent = 2))
+
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag
         responseData = attemptPost(endpointUrl, parameterDictionary)
         print('Write confirmation: ', responseData)
         print()
-        
+'''        
         if newItem:
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
