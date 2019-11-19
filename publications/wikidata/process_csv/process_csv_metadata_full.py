@@ -101,6 +101,7 @@ def createTimeReferenceValue(value):
     return dateDict
 
 # If there are references for a statement, return a reference list
+# Currently only handles one referece per statement
 def createReferences(columns, propertyId, rowData):
     statementUuidColumn = ''
     refHashColumn = ''
@@ -111,36 +112,26 @@ def createReferences(columns, propertyId, rowData):
     
     for column in columns:
         if not('suppressOutput' in column):
-            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
-            if 'prop/' + propertyId in column['propertyUrl']:
+            # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
+            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
                 temp = column['valueUrl'].partition('{')[2]
-                statementUuidColumn = temp.partition('}')[0]
-                #print(statementUuidColumn)
-    if statementUuidColumn == '':
-        return []
-    else:
-        for column in columns:
-            if not('suppressOutput' in column):
-                # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
-                if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
-                    temp = column['valueUrl'].partition('{')[2]
-                    refHashColumn = temp.partition('}')[0]
-                    #print(refHashColumn)
-        for column in columns:
-            if not('suppressOutput' in column):
-                # find the columns that have the refHash in the aboutUrl
-                if refHashColumn in column['aboutUrl']:
-                    refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
-                    refValueColumnList.append(column['titles'])
-                    if column['datatype'] == 'anyURI':
-                        refTypeList.append('url')
-                        refValueTypeList.append('string')
-                    elif column['datatype'] == 'date':
-                        refTypeList.append('time')
-                        refValueTypeList.append('time')
-                    else:
-                        refTypeList.append('string')
-                        refValueTypeList.append('string')
+                refHashColumn = temp.partition('}')[0]
+                #print(refHashColumn)
+    for column in columns:
+        if not('suppressOutput' in column):
+            # find the columns that have the refHash in the aboutUrl
+            if refHashColumn in column['aboutUrl']:
+                refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
+                refValueColumnList.append(column['titles'])
+                if column['datatype'] == 'anyURI':
+                    refTypeList.append('url')
+                    refValueTypeList.append('string')
+                elif column['datatype'] == 'date':
+                    refTypeList.append('time')
+                    refValueTypeList.append('time')
+                else:
+                    refTypeList.append('string')
+                    refValueTypeList.append('string')
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         refValue = rowData[refValueColumnList[refPropNumber]]
@@ -353,6 +344,10 @@ for table in tables:
     literalValuedPropertiesList = []
     literalValueIdList = []
     literalValueDatatypeList = []
+    propertiesColumnList = []
+    propertiesTypeList = []
+    propertiesIdList = []
+    propertiesDatatypeList = []
 
     # step through all of the columns and sort their headers into the appropriate list
 
@@ -398,8 +393,10 @@ for table in tables:
                     propColumnHeader = column['titles']
                     propertyId = column['propertyUrl'].partition('prop/direct/')[2]
                     print('Property column: ', propColumnHeader, ', Property ID: ', propertyId)
-                    entityValuedPropertiesList.append(propColumnHeader)
-                    entityValueIdList.append(propertyId)
+                    propertiesColumnList.append(propColumnHeader)
+                    propertiesTypeList.append('entity')
+                    propertiesIdList.append(propertyId)
+                    propertiesDatatypeList.append('')
             
             # remaining columns should have properties with literal values
             else:
@@ -409,9 +406,10 @@ for table in tables:
                     propertyId = column['propertyUrl'].partition('prop/direct/')[2]
                     valueDatatype = column['datatype']
                     print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', valueDatatype)
-                    literalValuedPropertiesList.append(propColumnHeader)
-                    literalValueIdList.append(propertyId)
-                    literalValueDatatypeList.append(valueDatatype)
+                    propertiesColumnList.append(propColumnHeader)
+                    propertiesTypeList.append('literal')
+                    propertiesIdList.append(propertyId)
+                    propertiesDatatypeList.append(valueDatatype)
 
             print()
 
@@ -419,6 +417,8 @@ for table in tables:
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
+        statementUuidColumnList = []
+        statementPropertyIdList = []
         # build the parameter string to be posted to the API
         parameterDictionary = {
             'action': 'wbeditentity',
@@ -478,67 +478,71 @@ for table in tables:
             if descriptionDict != {}:
                 dataStructure['descriptions'] = descriptionDict
 
-        # handle both types of claims
-        if len(entityValuedPropertiesList) + len(literalValuedPropertiesList) > 0:
+        # handle claims
+        if len(propertiesColumnList) > 0:
             claimsList = []
             
             # here's what we need to construct for literal valued properties:
             # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
-            for literalValuePropertyNumber in range(0, len(literalValuedPropertiesList)):
-                valueString = tableData[rowNumber][literalValuedPropertiesList[literalValuePropertyNumber]]
+            for propertyNumber in range(0, len(propertiesColumnList)):
+                valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
                 if valueString != '':
-                    snakDict = {
-                        'mainsnak': {
-                            'snaktype': 'value',
-                            'property': literalValueIdList[literalValuePropertyNumber],
-                            'datavalue':{
-                                'value': valueString,
-                                'type': literalValueDatatypeList[literalValuePropertyNumber]
-                                }
-                            },
-                        'type': 'statement',
-                        'rank': 'normal'
-                        }
-                    references = createReferences(columns, literalValueIdList[literalValuePropertyNumber], tableData[rowNumber])
-                    if references != []:
-                        snakDict['references'] = references
+                    if propertiesTypeList[propertyNumber] == 'literal':
+                        snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue':{
+                                    'value': valueString,
+                                    'type': propertiesDatatypeList[propertyNumber]
+                                    }
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
+                    elif propertiesTypeList[propertyNumber] == 'entity':
+                        snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue': {
+                                    'value': {
+                                        'id': valueString
+                                        },
+                                    'type': 'wikibase-entityid'
+                                    }
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
+                    else:
+                        print('This should not happen')
+                        
+                    propertyId = propertiesIdList[propertyNumber]
+                    # find the column with the UUID for the statement
+                    statementUuidColumn = ''
+                    for column in columns:
+                        if not('suppressOutput' in column):
+                            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
+                            if 'prop/' + propertyId in column['propertyUrl']:
+                                temp = column['valueUrl'].partition('{')[2]
+                                statementUuidColumn = temp.partition('}')[0]
+                                print(statementUuidColumn)
 
-                    qualifiers = createQualifiers(columns, literalValueIdList[literalValuePropertyNumber], tableData[rowNumber])
+                    if statementUuidColumn != '':  # don't look for references if there isn't a UUID column
+                        statementUuidColumnList.append(statementUuidColumn)
+                        statementPropertyIdList.append(propertyId)
+                        
+                        references = createReferences(columns, propertyId, tableData[rowNumber])
+                        if references != []:
+                            snakDict['references'] = references
+
+                    qualifiers = createQualifiers(columns, propertiesIdList[propertyNumber], tableData[rowNumber])
                     if qualifiers != {}:
                         snakDict['qualifiers'] = qualifiers
                         
                     claimsList.append(snakDict)
-
-            # the wbeditentity page doesn't give examples for entity valued properties.
-            # for clues, look at https://www.wikidata.org/w/api.php?action=help&modules=wbcreateclaim
-            # to compare literal valued claim values with entity valued claim values
-            for entityValuedPropertyNumber in range(0, len(entityValuedPropertiesList)):
-                objectQNumber = tableData[rowNumber][entityValuedPropertiesList[entityValuedPropertyNumber]]
-                if objectQNumber != '':
-                    snakDict = {
-                        'mainsnak': {
-                            'snaktype': 'value',
-                            'property': entityValueIdList[entityValuedPropertyNumber],
-                            'datavalue': {
-                                'value': {
-                                    'id': objectQNumber
-                                    },
-                                'type': 'wikibase-entityid'
-                                }
-                            },
-                        'type': 'statement',
-                        'rank': 'normal'
-                        }
-                    references = createReferences(columns, entityValueIdList[entityValuedPropertyNumber], tableData[rowNumber])
-                    if references != []:
-                        snakDict['references'] = references
-
-                    qualifiers = createQualifiers(columns, entityValueIdList[entityValuedPropertyNumber], tableData[rowNumber])
-                    if qualifiers != {}:
-                        snakDict['qualifiers'] = qualifiers
-                        
-                    claimsList.append(snakDict)
-
+                    
             if claimsList != []:
                 dataStructure['claims'] = claimsList
 
@@ -546,6 +550,9 @@ for table in tables:
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
 
+        print(statementUuidColumnList)
+        print(statementPropertyIdList)
+'''                        
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag
         responseData = attemptPost(endpointUrl, parameterDictionary)
@@ -562,4 +569,4 @@ for table in tables:
         writer.writeheader()
         for rowNumber in range(0, len(tableData)):
             writer.writerow(tableData[rowNumber])
-
+'''
