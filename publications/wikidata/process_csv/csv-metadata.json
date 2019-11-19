@@ -95,17 +95,17 @@
               "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P388"
             },{
-              "name": "qualStartP580",
-              "virtual": true,
+              "titles": "qualStartP355",
+              "name": "qualStartP355",
               "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
-              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
+              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P355"
             },{
-              "name": "qualEndP582",
-              "virtual": true,
+              "titles": "qualEndP356",
+              "name": "qualEndP356",
               "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
-              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
+              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P356"
             },{
               "titles": "notes",
               "name": "notes",

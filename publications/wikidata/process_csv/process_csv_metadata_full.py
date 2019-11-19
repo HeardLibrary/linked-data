@@ -70,6 +70,36 @@ def readDict(filename):
     fileObject.close()
     return array
 
+# Function to create reference value for times
+def createTimeReferenceValue(value):
+    # date is YYYY-MM-DD
+    if len(value) == 10:
+        timeString = '+' + value + 'T00:00:00Z'
+        precisionNumber = 11 # precision to days
+    # date is YYYY-MM
+    elif len(value) == 7:
+        timeString = '+' + value + '-00T00:00:00Z'
+        precisionNumber = 10 # precision to months
+    # date is YYYY
+    elif len(value) == 4:
+        timeString = '+' + value + '-00-00T00:00:00Z'
+        precisionNumber = 9 # precision to years
+    # date form unknown, don't adjust
+    else:
+        timeString = value
+        precisionNumber = 11 # assume precision to days
+        
+    # Q1985727 is the Gregorian calendar
+    dateDict = {
+            'time': timeString,
+            'timezone': 0,
+            'before': 0,
+            'after': 0,
+            'precision': precisionNumber,
+            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+            }
+    return dateDict
+
 # If there are references for a statement, return a reference list
 def createReferences(columns, propertyId, rowData):
     statementUuidColumn = ''
@@ -85,7 +115,7 @@ def createReferences(columns, propertyId, rowData):
             if 'prop/' + propertyId in column['propertyUrl']:
                 temp = column['valueUrl'].partition('{')[2]
                 statementUuidColumn = temp.partition('}')[0]
-                print(statementUuidColumn)
+                #print(statementUuidColumn)
     if statementUuidColumn == '':
         return []
     else:
@@ -95,7 +125,7 @@ def createReferences(columns, propertyId, rowData):
                 if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
                     temp = column['valueUrl'].partition('{')[2]
                     refHashColumn = temp.partition('}')[0]
-                    print(refHashColumn)
+                    #print(refHashColumn)
         for column in columns:
             if not('suppressOutput' in column):
                 # find the columns that have the refHash in the aboutUrl
@@ -116,16 +146,8 @@ def createReferences(columns, propertyId, rowData):
         refValue = rowData[refValueColumnList[refPropNumber]]
         if refValue != '':  #skip columns with no value
             if refValueTypeList[refPropNumber] == 'time':
-                # Q1985727 is the Gregorian calendar
-                # Currently this assumes times are YYYY-MM-DD, hence precision 11. Need more work to handle year only, or year and month
-                refValue = {
-                        'time': '+' + refValue + 'T00:00:00Z',
-                        'timezone': 0,
-                        'before': 0,
-                        'after': 0,
-                        'precision': 11,
-                        'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
-                        }
+                refValue = createTimeReferenceValue(refValue)
+                
             snakDictionary[refPropList[refPropNumber]] = [
                 {
                     'snaktype': 'value',
@@ -149,8 +171,62 @@ def createReferences(columns, propertyId, rowData):
     return referenceDictionary
 
 # If there are qualifiers for a statement, return a qualifiers dictionary
-def createQualifiers():
-    return {}
+# This is a hack of the createReferences() function, which is very similar
+def createQualifiers(columns, propertyId, rowData):
+    statementUuidColumn = ''
+    refPropList = []
+    refValueColumnList = []
+    refTypeList = []
+    refValueTypeList = []
+    
+    for column in columns:
+        if not('suppressOutput' in column):
+            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
+            if 'prop/' + propertyId in column['propertyUrl']:
+                temp = column['valueUrl'].partition('{')[2]
+                statementUuidColumn = temp.partition('}')[0]
+                # print(statementUuidColumn)
+    if statementUuidColumn == '':
+        return []
+    else:
+        for column in columns:
+           if not('suppressOutput' in column):
+                # find the column that has the statement UUID in the about
+                # and the property is a qualifier property
+                if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
+                # differs from references:
+                # find the columns that have the refHash in the aboutUrl
+                # if refHashColumn in column['aboutUrl']:
+                    refPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
+                    refValueColumnList.append(column['titles'])
+                    if column['datatype'] == 'anyURI':
+                        refTypeList.append('url')
+                        refValueTypeList.append('string')
+                    elif column['datatype'] == 'date':
+                        refTypeList.append('time')
+                        refValueTypeList.append('time')
+                    else:
+                        refTypeList.append('string')
+                        refValueTypeList.append('string')
+    snakDictionary = {}
+    for refPropNumber in range(0, len(refPropList)):
+        refValue = rowData[refValueColumnList[refPropNumber]]
+        if refValue != '':  #skip columns with no value
+            if refValueTypeList[refPropNumber] == 'time':
+                refValue = createTimeReferenceValue(refValue)
+                
+            snakDictionary[refPropList[refPropNumber]] = [
+                {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datavalue': {
+                        'value': refValue,
+                        'type': refValueTypeList[refPropNumber]
+                    },
+                    'datatype': refTypeList[refPropNumber]
+                }
+            ]
+    return snakDictionary
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
@@ -426,6 +502,11 @@ for table in tables:
                     references = createReferences(columns, literalValueIdList[literalValuePropertyNumber], tableData[rowNumber])
                     if references != []:
                         snakDict['references'] = references
+
+                    qualifiers = createQualifiers(columns, literalValueIdList[literalValuePropertyNumber], tableData[rowNumber])
+                    if qualifiers != {}:
+                        snakDict['qualifiers'] = qualifiers
+                        
                     claimsList.append(snakDict)
 
             # the wbeditentity page doesn't give examples for entity valued properties.
@@ -451,6 +532,11 @@ for table in tables:
                     references = createReferences(columns, entityValueIdList[entityValuedPropertyNumber], tableData[rowNumber])
                     if references != []:
                         snakDict['references'] = references
+
+                    qualifiers = createQualifiers(columns, entityValueIdList[entityValuedPropertyNumber], tableData[rowNumber])
+                    if qualifiers != {}:
+                        snakDict['qualifiers'] = qualifiers
+                        
                     claimsList.append(snakDict)
 
             if claimsList != []:
@@ -458,14 +544,14 @@ for table in tables:
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        print(json.dumps(dataStructure, indent = 2))
+        #print(json.dumps(dataStructure, indent = 2))
 
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag
         responseData = attemptPost(endpointUrl, parameterDictionary)
         print('Write confirmation: ', responseData)
         print()
-'''        
+        
         if newItem:
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
@@ -476,4 +562,4 @@ for table in tables:
         writer.writeheader()
         for rowNumber in range(0, len(tableData)):
             writer.writerow(tableData[rowNumber])
-'''
+
