@@ -1,4 +1,4 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-11-14
+# Freely available under a CC0 license. Steve Baskauf 2019-11-19
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
 
@@ -68,7 +68,70 @@ def readDict(filename):
     return array
 
 # If there are references for a statement, return a reference list
-def createReferences(propertyId, tableData):
+def createReferences(columns, propertyId, rowData):
+    statementUuidColumn = ''
+    refHashColumn = ''
+    refPropList = []
+    refValueColumnList = []
+    refTypeList = []
+    refValueTypeList = []
+    
+    for column in columns:
+        if not('suppressOutput' in column):
+            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
+            if 'prop/' + propertyId in column['propertyUrl']:
+                temp = column['valueUrl'].partition('{')[2]
+                statementUuidColumn = temp.partition('}')[0]
+                print(statementUuidColumn)
+    if statementUuidColumn == '':
+        return []
+    else:
+        for column in columns:
+            if not('suppressOutput' in column):
+                # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
+                if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
+                    temp = column['valueUrl'].partition('{')[2]
+                    refHashColumn = temp.partition('}')[0]
+                    print(refHashColumn)
+        for column in columns:
+            if not('suppressOutput' in column):
+                # find the columns that have the refHash in the aboutUrl
+                if refHashColumn in column['aboutUrl']:
+                    refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
+                    refValueColumnList.append(column['titles'])
+                    if column['datatype'] == 'anyURI':
+                        refTypeList.append('url')
+                        refValueTypeList.append('string')
+                    elif column['datatype'] == 'date':
+                        refTypeList.append('time')
+                        refValueTypeList.append('time')
+                    else:
+                        refTypeList.append('string')
+                        refValueTypeList.append('string')
+    snakDictionary = {}
+    for refPropNumber in range(0, len(refPropList)):
+        refValue = rowData[refValueColumnList[refPropNumber]]
+        if refValueTypeList[refPropNumber] == 'time':
+            refValue = {'time': refValue}
+        snakDictionary[refPropList[refPropNumber]] = [
+            {
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': refValue,
+                    'type': refValueTypeList[refPropNumber]
+                },
+                'datatype': refTypeList[refPropNumber]
+            }
+        ]
+    referenceDictionary = [
+        {
+            'snaks': snakDictionary
+        }
+    ]
+    print(json.dumps(referenceDictionary, indent = 2))
+
+        
     referenceDictionary = [
         {
             'snaks': {
@@ -364,7 +427,7 @@ for table in tables:
                         'type': 'statement',
                         'rank': 'normal'
                         }
-                    references = createReferences(literalValueIdList[literalValuePropertyNumber], tableData)
+                    references = createReferences(columns, literalValueIdList[literalValuePropertyNumber], tableData[rowNumber])
                     if references != []:
                         snakDict['references'] = references
                     claimsList.append(snakDict)
@@ -389,7 +452,7 @@ for table in tables:
                         'type': 'statement',
                         'rank': 'normal'
                         }
-                    references = createReferences(entityValueIdList[entityValuedPropertyNumber], tableData)
+                    references = createReferences(columns, entityValueIdList[entityValuedPropertyNumber], tableData[rowNumber])
                     if references != []:
                         snakDict['references'] = references
                     claimsList.append(snakDict)
@@ -399,7 +462,7 @@ for table in tables:
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        print(json.dumps(dataStructure, indent = 2))
+        #print(json.dumps(dataStructure, indent = 2))
 '''        
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag

@@ -91,19 +91,19 @@
             },{
               "titles": "orcidP90468refRetrievedP813",
               "name": "orcidP90468refRetrievedP813",
-              "datatype": "string",
+              "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/reference/{orcidP90468refHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
             },{
               "name": "qualStartP580",
               "virtual": true,
-              "datatype": "string",
+              "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
               "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
             },{
               "name": "qualEndP582",
               "virtual": true,
-              "datatype": "string",
+              "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidP90468uuid}",
               "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
             },{
