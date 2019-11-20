@@ -1,2 +1,2 @@
-wikidataId,labelEn,alias,description,givenNameString,familyNameString,affiliationP95220,fieldOfWorkP128,orcidP90468uuid,orcidP90468,orcidP90468refHash,orcidP90468refUrlP93,orcidP90468refRetrievedP388,qualStartP355,qualEndP356,notes
-,jackalope8,,,,,,Q10,,0000-0002-7248-6551,,https://orcid.org/0000-0001-6601-0234,2018,2014-10-01,2016-12,
+wikidataId,labelEn,alias,description,givenNameString,familyNameString,affiliationP95220uuid,affiliationP95220,fieldOfWorkP128uuid,fieldOfWorkP128,orcidP90468uuid,orcidP90468,orcidP90468refHash,orcidP90468refUrlP93,orcidP90468refRetrievedP388,qualStartP355,qualEndP356,notes
+Q210953,jackalope22,,,,,1FE8E974-27CE-4376-B8F5-3B03FFF30E63,Q11,DD96694F-6B18-462F-853C-DEAAD6D0C9B6,Q10,B30D28E7-5A8D-476C-A6D1-6D080C4E46DC,0000-0002-7248-6551,f17aeb7506f9593757578add8ac9421d413693c0,https://orcid.org/0000-0001-6601-0234,2018,2014-10-01,2016-12,

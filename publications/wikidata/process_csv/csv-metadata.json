@@ -41,6 +41,11 @@
               "datatype": "string", 
               "suppressOutput": true
             },{
+              "titles": "affiliationP95220uuid",
+              "name": "affiliationP95220uuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
               "titles": "affiliationP95220",
               "name": "affiliationP95220",
               "datatype": "string",
@@ -48,12 +53,29 @@
               "propertyUrl": "http://www.wikidata.org/prop/direct/P95220",
               "valueUrl": "http://www.wikidata.org/entity/{affiliationP95220}"
             },{
+              "name": "hasAffiliationStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P95220",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{affiliationP95220uuid}"
+            },{
+              "titles": "fieldOfWorkP128uuid",
+              "name": "fieldOfWorkP128uuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
               "titles": "fieldOfWorkP128",
               "name": "fieldOfWorkP128",
               "datatype": "string",
               "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
               "propertyUrl": "http://www.wikidata.org/prop/direct/P128",
               "valueUrl": "http://www.wikidata.org/entity/{fieldOfWorkP128}"
+            },{
+              "name": "hasFieldOfWorkStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P128",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{fieldOfWorkP128uuid}"
             },{
               "titles": "orcidP90468uuid",
               "name": "orcidP90468uuid",

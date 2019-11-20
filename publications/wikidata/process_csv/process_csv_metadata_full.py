@@ -102,21 +102,12 @@ def createTimeReferenceValue(value):
 
 # If there are references for a statement, return a reference list
 # Currently only handles one referece per statement
-def createReferences(columns, propertyId, rowData):
-    statementUuidColumn = ''
-    refHashColumn = ''
+def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashColumn):
     refPropList = []
     refValueColumnList = []
     refTypeList = []
     refValueTypeList = []
     
-    for column in columns:
-        if not('suppressOutput' in column):
-            # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
-            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
-                temp = column['valueUrl'].partition('{')[2]
-                refHashColumn = temp.partition('}')[0]
-                #print(refHashColumn)
     for column in columns:
         if not('suppressOutput' in column):
             # find the columns that have the refHash in the aboutUrl
@@ -330,7 +321,7 @@ for table in tables:
                 temp = column['aboutUrl'].partition('{')[2]
                 subjectWikidataIdName = temp.partition('}')[0]
                 # don't worry about repeatedly replacing subjectWikidataIdName as long as the row is only about one entity            
-    print(subjectWikidataIdName)
+    #print(subjectWikidataIdName)
 
     # make lists of the columns for each kind of property
     labelColumnList = []
@@ -419,6 +410,10 @@ for table in tables:
     for rowNumber in range(0, len(tableData)):
         statementUuidColumnList = []
         statementPropertyIdList = []
+        statementValueColumnList = []
+        statementValueTypeList = []
+        referenceHashColumnList = []
+
         # build the parameter string to be posted to the API
         parameterDictionary = {
             'action': 'wbeditentity',
@@ -485,6 +480,32 @@ for table in tables:
             # here's what we need to construct for literal valued properties:
             # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
             for propertyNumber in range(0, len(propertiesColumnList)):
+                propertyId = propertiesIdList[propertyNumber]
+                
+                # find the column with the UUID for the statement
+                statementUuidColumn = ''
+                for column in columns:
+                    if not('suppressOutput' in column):
+                        # find the column in the value of the statement that has the prop version of the property as its propertyUrl
+                        if 'prop/' + propertyId in column['propertyUrl']:
+                            temp = column['valueUrl'].partition('{')[2]
+                            statementUuidColumn = temp.partition('}')[0]
+                            #print(statementUuidColumn)
+                            
+                # If there is already a UUID, then don't write that property to the API
+                if tableData[rowNumber][statementUuidColumn] != '':
+                    continue  # skip the rest of this iteration and go onto the next property
+                            
+                # find the column with the hash for the reference (handles only one reference per statement)
+                refHashColumn = ''
+                for column in columns:
+                    if not('suppressOutput' in column):
+                        # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
+                        if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
+                            temp = column['valueUrl'].partition('{')[2]
+                            refHashColumn = temp.partition('}')[0]
+                            #print(refHashColumn)
+                
                 valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
                 if valueString != '':
                     if propertiesTypeList[propertyNumber] == 'literal':
@@ -518,22 +539,14 @@ for table in tables:
                     else:
                         print('This should not happen')
                         
-                    propertyId = propertiesIdList[propertyNumber]
-                    # find the column with the UUID for the statement
-                    statementUuidColumn = ''
-                    for column in columns:
-                        if not('suppressOutput' in column):
-                            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
-                            if 'prop/' + propertyId in column['propertyUrl']:
-                                temp = column['valueUrl'].partition('{')[2]
-                                statementUuidColumn = temp.partition('}')[0]
-                                print(statementUuidColumn)
-
-                    if statementUuidColumn != '':  # don't look for references if there isn't a UUID column
-                        statementUuidColumnList.append(statementUuidColumn)
-                        statementPropertyIdList.append(propertyId)
+                    statementUuidColumnList.append(statementUuidColumn)
+                    statementPropertyIdList.append(propertyId)
+                    referenceHashColumnList.append(refHashColumn)
+                    statementValueColumnList.append(propertiesColumnList[propertyNumber])
+                    statementValueTypeList.append(propertiesTypeList[propertyNumber])
                         
-                        references = createReferences(columns, propertyId, tableData[rowNumber])
+                    if refHashColumn != '':  # don't create references if there isn't a reference hash column
+                        references = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
                         if references != []:
                             snakDict['references'] = references
 
@@ -550,9 +563,6 @@ for table in tables:
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
 
-        print(statementUuidColumnList)
-        print(statementPropertyIdList)
-'''                        
         if maxlag > 0:
             parameterDictionary['maxlag'] = maxlag
         responseData = attemptPost(endpointUrl, parameterDictionary)
@@ -562,6 +572,33 @@ for table in tables:
         if newItem:
             # extract the entity Q number from the response JSON
             tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
+            
+        # fill into the table the values of newly created claims and references
+        for statementIndex in range(0, len(statementPropertyIdList)):
+            print(tableData[rowNumber][statementValueColumnList[statementIndex]])
+            # only add the claim if the UUID cell for that row is empty
+            if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
+                for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
+                    print(statement)
+                    # does the value in the cell equal the mainsnak value of the claim?
+                    # it's necessary to check this because there could be other previous claims for that property
+                    found = False
+                    if statementValueTypeList[statementIndex] == 'literal':
+                        found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
+                    elif statementValueTypeList[statementIndex] == 'entity':
+                        found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
+                    else:
+                        pass
+                    if found:
+                        tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
+                        # in the case where the statement had no reference, the 'references' key won't be found
+                        # so just leave the reference hash cell blank in the table
+                        try: 
+                            tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
+                        except:
+                            pass
+                    else:
+                        print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
     
     # Replace the table with a new one containing any new IDs
     with open(tableFileName, 'w', newline='') as csvfile:
@@ -569,4 +606,3 @@ for table in tables:
         writer.writeheader()
         for rowNumber in range(0, len(tableData)):
             writer.writerow(tableData[rowNumber])
-'''
