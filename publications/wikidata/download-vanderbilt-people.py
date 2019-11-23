@@ -11,9 +11,13 @@ def writeCsv(fileName, array):
     fileObject.close()
 
 endpointUrl = 'https://query.wikidata.org/sparql'
-query = '''select distinct  ?person ?orcid ?startDate ?endDate ?description where {
+query = '''select distinct  ?person ?name ?orcid ?startDate ?endDate ?description where {
   ?person p:P108 ?statement.
   ?statement ps:P108  wd:Q29052.
+  optional{
+    ?person rdfs:label ?name.
+    FILTER(lang(?name)="en")
+    }
   optional{?statement pq:P580 ?startDate.}
   optional{?statement pq:P582 ?endDate.}
   optional{?person wdt:P496 ?orcid.}
@@ -29,10 +33,13 @@ r = requests.get(endpointUrl, params={'query' : query}, headers={'Accept' : 'app
 data = r.json()
 print(json.dumps(data,indent = 2))
 
-table = [['wikidataIri', 'description', 'startDate', 'endDate', 'orcid']]
+table = [['wikidataIri', 'name', 'description', 'startDate', 'endDate', 'orcid']]
 items = data['results']['bindings']
 for item in items:
     wikidataIri = item['person']['value']
+    name = ''
+    if 'name' in item:
+        name = item['name']['value']
     description = ''
     if 'description' in item:
         description = item['description']['value']
@@ -45,7 +52,7 @@ for item in items:
     orcid = ''
     if 'orcid' in item:
         orcid = item['orcid']['value']
-    table.append([wikidataIri, description, startDate, endDate, orcid])
+    table.append([wikidataIri, name, description, startDate, endDate, orcid])
     
 fileName = 'vanderbilt_wikidata.csv'
 writeCsv(fileName, table)
