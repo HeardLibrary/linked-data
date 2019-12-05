@@ -1,0 +1,100 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [{
+        "url": "bsci-employees-to-write.csv",
+        "tableSchema": {
+            "columns": [{
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "name",
+              "name": "name",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "labelEn",
+              "name": "labelEn",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "rdfs:label",
+              "lang": "en"
+            },{
+              "titles": "alias",
+              "name": "alias",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "skos:altLabel",
+              "lang": "en"
+            },{
+              "titles": "description",
+              "name": "description",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "schema:description",
+              "lang": "en"
+            },{
+              "titles": "orcidStatementUuid",
+              "name": "orcidStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "orcid",
+              "name": "orcid",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P496"
+            },{
+              "name": "hasOrcidStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P496",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{orcidStatementUuid}"
+            },{
+              "titles": "orcidReferenceHash",
+              "name": "orcidReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "orcidReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}"
+            },{
+              "titles": "orcidReferenceProperty",
+              "name": "orcidReferenceProperty",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "orcidReferenceValue",
+              "name": "orcidReferenceValue",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "titles": "degree",
+              "name": "degree",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "category",
+              "name": "category",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "wikidataStatus",
+              "name": "wikidataStatus",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "role",
+              "name": "role",
+              "datatype": "string", 
+              "suppressOutput": true
+            }]
+        }
+    }]
+}
