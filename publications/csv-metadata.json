@@ -75,6 +75,24 @@
               "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
             },{
+              "titles": "instanceOfuuid",
+              "name": "instanceOfuuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "instanceOf",
+              "name": "instanceOf",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P31",
+              "valueUrl": "http://www.wikidata.org/entity/{instanceOf}"
+            },{
+              "name": "hasInstanceOfStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P31",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfuuid}"
+            },{
               "titles": "degree",
               "name": "degree",
               "datatype": "string", 

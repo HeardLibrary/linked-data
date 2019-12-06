@@ -152,6 +152,27 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
     #print(json.dumps(referenceDictionary, indent = 2))
     return referenceDictionary
 
+# This is used when the statement already exists and has a UUID but a reference needs to be added to it
+def createSeparateReference(refProperty, refType, refValue, refValueType):
+    if refValueType == 'time':
+        refValue = createTimeReferenceValue(refValue)
+        
+    snakList = [
+        {
+            'snaktype': 'value',
+            'property': refProperty,
+            'datavalue': {
+                'value': refValue,
+                'type': refValueType
+            },
+            'datatype': refType
+        }
+    ]
+
+    snakDictionary = {}
+    snakDictionary[refProperty] = snakList
+    return snakDictionary
+
 # If there are qualifiers for a statement, return a qualifiers dictionary
 # This is a hack of the createReferences() function, which is very similar
 def createQualifiers(columns, propertyId, rowData):
@@ -607,13 +628,17 @@ for table in tables:
                         else:
                             print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
         
-            # Replace the table with a new one containing any new IDs
-            # Note: I'm writing after every line so that if the script crashes, no data will be lost
-            with open(tableFileName, 'w', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for rowNumber in range(0, len(tableData)):
-                    writer.writerow(tableData[rowNumber])
-            
-            # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
-            sleep(10)
+    # Replace the table with a new one containing any new IDs
+    with open(tableFileName, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for rowNumber in range(0, len(tableData)):
+            writer.writerow(tableData[rowNumber])
+
+refProperty = 'P813'
+refType = 'time'
+refValue = '2019-12-05'
+refValueType = 'time'
+
+data = createSeparateReference(refProperty, refType, refValue, refValueType)
+print(json.dumps(data, indent = 2))
