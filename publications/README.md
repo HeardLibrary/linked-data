@@ -20,4 +20,4 @@ The publications part is related to assembling publication metadata and identifi
 The `work-person-figure.png` and powerpoint file is an RDF model to represent institutions (Vanderbilt), people, and their works.
 
 ----
-Revised 2019-05-01
+Revised 2019-12-09
