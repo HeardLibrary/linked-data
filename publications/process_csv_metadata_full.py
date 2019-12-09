@@ -546,7 +546,7 @@ for table in tables:
                     referenceHashColumnList.append(refHashColumn)
                     statementValueColumnList.append(propertiesColumnList[propertyNumber])
                     statementValueTypeList.append(propertiesTypeList[propertyNumber])
-                        
+                    
                     if refHashColumn != '':  # don't create references if there isn't a reference hash column
                         references = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
                         if references != []:
@@ -582,11 +582,11 @@ for table in tables:
                 
             # fill into the table the values of newly created claims and references
             for statementIndex in range(0, len(statementPropertyIdList)):
-                print(tableData[rowNumber][statementValueColumnList[statementIndex]])
+                #print(tableData[rowNumber][statementValueColumnList[statementIndex]])
                 # only add the claim if the UUID cell for that row is empty
                 if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
                     for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
-                        print(statement)
+                        #print(statement)
                         # does the value in the cell equal the mainsnak value of the claim?
                         # it's necessary to check this because there could be other previous claims for that property
                         found = False

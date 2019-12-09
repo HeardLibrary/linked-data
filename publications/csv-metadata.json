@@ -64,15 +64,51 @@
               "propertyUrl": "prov:wasDerivedFrom",
               "valueUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}"
             },{
-              "titles": "orcidReferenceProperty",
-              "name": "orcidReferenceProperty",
-              "datatype": "string", 
-              "suppressOutput": true
-            },{
               "titles": "orcidReferenceValue",
               "name": "orcidReferenceValue",
               "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "titles": "employerStatementUuid",
+              "name": "employerStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "employer",
+              "name": "employer",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P108",
+              "valueUrl": "http://www.wikidata.org/entity/{employer}"
+            },{
+              "name": "hasEmployerStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P108",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{employerStatementUuid}"
+            },{
+              "titles": "employerReferenceHash",
+              "name": "employerReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "employerReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{employerStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{employerReferenceHash}"
+            },{
+              "titles": "employerReferenceSourceUrl",
+              "name": "employerReferenceSourceUrl",
+              "datatype": "anyURI",
+              "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            },{
+              "titles": "employerReferenceRetrieved",
+              "name": "employerReferenceRetrieved",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
             },{
               "titles": "instanceOfuuid",
