@@ -111,6 +111,47 @@
               "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
             },{
+              "titles": "affiliationStatementUuid",
+              "name": "affiliationStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "affiliation",
+              "name": "affiliation",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P1416",
+              "valueUrl": "http://www.wikidata.org/entity/{affiliation}"
+            },{
+              "name": "hasAffiliationStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P1416",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{affiliationStatementUuid}"
+            },{
+              "titles": "affiliationReferenceHash",
+              "name": "affiliationReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "affiliationReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{affiliationStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}"
+            },{
+              "titles": "affiliationReferenceSourceUrl",
+              "name": "affiliationReferenceSourceUrl",
+              "datatype": "anyURI",
+              "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            },{
+              "titles": "affiliationReferenceRetrieved",
+              "name": "affiliationReferenceRetrieved",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
               "titles": "instanceOfuuid",
               "name": "instanceOfuuid",
               "datatype": "string", 

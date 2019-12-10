@@ -587,11 +587,12 @@ for table in tables:
                 #print(tableData[rowNumber][statementValueColumnList[statementIndex]])
                 # only add the claim if the UUID cell for that row is empty
                 if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
+                    found = False
                     for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
                         #print(statement)
+
                         # does the value in the cell equal the mainsnak value of the claim?
                         # it's necessary to check this because there could be other previous claims for that property
-                        found = False
                         if statementValueTypeList[statementIndex] == 'literal':
                             found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
                         elif statementValueTypeList[statementIndex] == 'entity':
@@ -606,8 +607,11 @@ for table in tables:
                                 tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
                             except:
                                 pass
-                        else:
-                            print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
+                            # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
+                            break
+                    # print this error message only if there is not match to any of the values after looping through all of them
+                    if not found:
+                        print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
         
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost
