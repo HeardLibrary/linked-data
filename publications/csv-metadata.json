@@ -152,8 +152,8 @@
               "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
             },{
-              "titles": "instanceOfuuid",
-              "name": "instanceOfuuid",
+              "titles": "instanceOfUuid",
+              "name": "instanceOfUuid",
               "datatype": "string", 
               "suppressOutput": true
             },{
@@ -168,7 +168,30 @@
               "virtual": true,
               "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
               "propertyUrl": "http://www.wikidata.org/prop/P31",
-              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfuuid}"
+              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfUuid}"
+            },{
+              "titles": "sexOrGenderUuid",
+              "name": "sexOrGenderUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "sexOrGenderQId",
+              "name": "sexOrGenderQId",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P21",
+              "valueUrl": "http://www.wikidata.org/entity/{sexOrGenderQId}"
+            },{
+              "name": "hasSexOrGenderStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P21",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{sexOrGenderUuid}"
+            },{
+              "titles": "gender",
+              "name": "gender",
+              "datatype": "string", 
+              "suppressOutput": true
             },{
               "titles": "degree",
               "name": "degree",
