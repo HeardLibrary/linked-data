@@ -358,6 +358,30 @@ csrfToken = getCsrfToken(endpointUrl)
 # To test the maxlag handler code, set maxlag to a very low number like .1
 maxlag = 5
 
+# this file says where default labels and descriptions should come from.
+# The except clause has an example.  If the source is a column, the value is the header of the column with the values.
+# If the source is constant, the value is the value assigned by default
+try:
+    with open('default_label_desc.json', 'rt', encoding='utf-8') as fileObject:
+        text = fileObject.read()
+    labelDefaults = json.loads(text)
+except:
+    text = '''
+{"labels": 
+    {
+        "source": "column",
+        "value": "name"
+    },
+"descriptions": 
+    {
+        "source": "constant",
+        "value": "biology researcher"
+    }
+}
+'''
+    labelDefaults = json.loads(text)
+
+# This is the schema that maps the CSV column to Wikidata properties
 with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
 metadata = json.loads(text)
@@ -550,9 +574,15 @@ for table in tables:
             labelDict = {}
             for languageNumber in range(0, len(labelColumnList)):
                 valueString = tableData[rowNumber][labelColumnList[languageNumber]]
-                # if there is a new record with no Q ID, then use the value from the 'name' column.
+                # if there is a new record with no Q ID...
                 if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-                    valueString = tableData[rowNumber]['name'] #*** ideosyncratic for employees application!!! ***
+                    if labelDefaults["labels"]["source"] == 'column':
+                        # then use the value from the default label column.
+                        defaultLabelColumn = labelDefaults["labels"]["value"]
+                        valueString = tableData[rowNumber][defaultLabelColumn]
+                    else:
+                        # or use the default label value.
+                        valueString = labelDefaults["labels"]["value"]
                 else:
                     # not a new record, check if the value in the table is different from what's currently in Wikidata
                     if valueString != existingLabels[languageNumber][rowNumber]:
@@ -594,9 +624,15 @@ for table in tables:
             descriptionDict = {}
             for languageNumber in range(0, len(descriptionColumnList)):
                 valueString = tableData[rowNumber][descriptionColumnList[languageNumber]]
-                # if there is a new record with no Q ID, then use the value from the 'name' column.
+                # if there is a new record with no Q ID...
                 if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-                    valueString = 'biology researcher' #*** ideosyncratic for employees application!!! ***
+                    if labelDefaults['descriptions']['source'] == 'column':
+                        # then use the value from the default description column.
+                        defaultDescriptionColumn = labelDefaults['descriptions']['value']
+                        valueString = tableData[rowNumber][defaultDescriptionColumn]
+                    else:
+                        # or use the default description value.
+                        valueString = labelDefaults['descriptions']['value']
                 else:
                     # not a new record, check if the value in the table is different from what's currently in Wikidata
                     if valueString != existingDescriptions[languageNumber][rowNumber]:
