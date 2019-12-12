@@ -1,4 +1,4 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-12-09
+# Freely available under a CC0 license. Steve Baskauf 2019-12-12
 # It's part of the development of VanderBot 0.1
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
@@ -9,6 +9,15 @@
 
 # The most important reference for formatting the data JSON to be sent to the API is:
 # https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
+
+# Usage note: the script that generates the input file downloads all of the labels and descriptions from Wikidata
+# So if you want to change either of them, just edit the input table before running the script.
+# If an alias is listed in the table, it will replace current aliases, then removed from the output table.  
+# This means that if you don't like the label that gets downloaded from Wikidata, you can move it to the alias column
+# and replace the label with your preferred version.  NOTE: it doesn't add an alias, it replaces.  See notes in code!
+
+# A stale output file should not be used as input for this script since if others have changed either the label or
+# description, the script will change it back to whatever previous value was in the stale table.  
 
 import json
 import requests
@@ -432,10 +441,9 @@ for table in tables:
                 labelsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'label', labelLanguage)
                 for entityIndex in range(0, len(tableData)):
                     found = False
-                    print(tableData[entityIndex][labelColumnHeader])
                     if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
                         for wikiLabel in labelsAtWikidata:
-                            if tableData[entityIndex][labelColumnHeader] == wikiLabel['string']:
+                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
                                 found = True
                                 tempLabels.append(wikiLabel['string'])
                                 break # stop looking if there is a match
@@ -462,6 +470,23 @@ for table in tables:
                 print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
                 descriptionColumnList.append(descriptionColumnHeader)
                 descriptionLanguageList.append(descriptionLanguage)
+
+                # retrieve the descriptions in that language that already exist in Wikidata and match them with table rows
+                tempLabels = []
+                descriptionsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'description', labelLanguage)
+                for entityIndex in range(0, len(tableData)):
+                    found = False
+                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                        for wikiDescription in descriptionsAtWikidata:
+                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiDescription['qId']:
+                                found = True
+                                tempLabels.append(wikiDescription['string'])
+                                break # stop looking if there is a match
+                    if not found:
+                        tempLabels.append('')
+                
+                # add all of the found labels for that language to the list of labels in various languages
+                existingDescriptions.append(tempLabels)
 
             # find columns that contain properties with entity values
             elif 'valueUrl' in column:
@@ -491,13 +516,10 @@ for table in tables:
             print()
 
     print()
-    print(existingLabels)
-    '''
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
-        print('writing row ', rowNumber)
-        print()
+        print('processing row ', rowNumber)
         statementUuidColumnList = []
         statementPropertyIdList = []
         statementValueColumnList = []
@@ -526,16 +548,31 @@ for table in tables:
             # here's what we need to construct for labels:
             # data={"labels":{"de":{"language":"de","value":"de-value"},"en":{"language":"en","value":"en-value"}}}
             labelDict = {}
-            for labelColumnNumber in range(0, len(labelColumnList)):
-                valueString = tableData[rowNumber][labelColumnList[labelColumnNumber]]
-                if valueString != '':
-                    labelDict[labelLanguageList[labelColumnNumber]] = {
-                        'language': labelLanguageList[labelColumnNumber],
-                        'value': valueString
-                        }
+            for languageNumber in range(0, len(labelColumnList)):
+                valueString = tableData[rowNumber][labelColumnList[languageNumber]]
+                # if there is a new record with no Q ID, then use the value from the 'name' column.
+                if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
+                    valueString = tableData[rowNumber]['name'] #*** ideosyncratic for employees application!!! ***
+                else:
+                    # not a new record, check if the value in the table is different from what's currently in Wikidata
+                    if valueString != existingLabels[languageNumber][rowNumber]:
+                        # if they are different check to make sure the table value isn't empty
+                        if valueString != '':
+                            print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString)
+                            # # write the value in the table
+                            labelDict[labelLanguageList[languageNumber]] = {
+                                'language': labelLanguageList[languageNumber],
+                                'value': valueString
+                                }
             if labelDict != {}:
                 dataStructure['labels'] = labelDict
         
+        # if there is a value in this column, it will be added to any existing alises in Wikidata, 
+        # then removed from the output table.
+        # ***********************
+        # ***** This seems to replace existing alias(es) with the one being written, as opposed to adding another alias!
+        # Need to do a separate API call for wbsetaliases with "add=" to be able to add rather than replace
+        # ***********************
         if len(aliasColumnList) > 0:
             # no example, but follow the same pattern as labels
             aliasDict = {}
@@ -546,6 +583,8 @@ for table in tables:
                         'language': aliasLanguageList[aliasColumnNumber],
                         'value': valueString
                         }
+                    # delete the alias from the table
+                    tableData[rowNumber][aliasColumnList[aliasColumnNumber]] = ''
             if aliasDict != {}:
                 dataStructure['aliases'] = aliasDict
         
@@ -553,13 +592,22 @@ for table in tables:
             # here's what we need to construct for descriptions:
             # data={"descriptions":{"nb":{"language":"nb","value":"nb-Description-Here"}}}
             descriptionDict = {}
-            for descriptionColumnNumber in range(0, len(descriptionColumnList)):
-                valueString = tableData[rowNumber][descriptionColumnList[descriptionColumnNumber]]
-                if valueString != '':
-                    descriptionDict[descriptionLanguageList[descriptionColumnNumber]] = {
-                        'language': descriptionLanguageList[descriptionColumnNumber],
-                        'value': valueString
-                        }
+            for languageNumber in range(0, len(descriptionColumnList)):
+                valueString = tableData[rowNumber][descriptionColumnList[languageNumber]]
+                # if there is a new record with no Q ID, then use the value from the 'name' column.
+                if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
+                    valueString = 'biology researcher' #*** ideosyncratic for employees application!!! ***
+                else:
+                    # not a new record, check if the value in the table is different from what's currently in Wikidata
+                    if valueString != existingDescriptions[languageNumber][rowNumber]:
+                        # if they are different check to make sure the table value isn't empty
+                        if valueString != '':
+                            print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString)
+                            # # write the value in the table
+                            descriptionDict[descriptionLanguageList[languageNumber]] = {
+                                'language': descriptionLanguageList[languageNumber],
+                                'value': valueString
+                                }
             if descriptionDict != {}:
                 dataStructure['descriptions'] = descriptionDict
 
@@ -657,6 +705,7 @@ for table in tables:
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
+            print()
         else:
             if maxlag > 0:
                 parameterDictionary['maxlag'] = maxlag
@@ -709,4 +758,4 @@ for table in tables:
             
             # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
             sleep(10)
-    '''
+    
