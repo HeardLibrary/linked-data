@@ -72,6 +72,64 @@ def readDict(filename):
     fileObject.close()
     return array
 
+# gunction to get local name from an IRI
+def extractFromIri(iri, numberPieces):
+    # with pattern like http://www.wikidata.org/entity/Q6386232 there are 5 pieces with qId as number 4
+    pieces = iri.split('/')
+    return pieces[numberPieces]
+
+# search for any of the "label" types: label, alias, description
+def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
+    # configuration settings
+    endpointUrl = 'https://query.wikidata.org/sparql'
+    acceptMediaType = 'application/json'
+    userAgentHeader = 'VanderBot/0.1 (steve.baskauf@vanderbilt.edu)'
+    requestHeaderDictionary = {
+    'Accept' : acceptMediaType,
+    'User-Agent': userAgentHeader
+    }
+
+    # create a string for all of the Wikidata item IDs to be used as subjects in the query
+    alternatives = ''
+    for qId in qIds:
+        alternatives += 'wd:' + qId + '\n'
+        
+    if labelType == 'label':
+        predicate = 'rdfs:label'
+    elif labelType == 'alias':
+        predicate = 'skos:altLabel'
+    elif labelType == 'description':
+        predicate = 'schema:description'
+    else:
+        predicate = 'rdfs:label'        
+        
+    # create a string for the query
+    query = 'select distinct ?id ?string '
+    query += '''where {
+  VALUES ?id
+{
+''' + alternatives + '''}
+  ?id '''+ predicate + ''' ?string.
+  filter(lang(?string)="''' + language + '''")
+  }'''
+    #print(query)
+
+    returnValue = []
+    r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    data = r.json()
+    results = data['results']['bindings']
+    for result in results:
+        # remove wd: 'http://www.wikidata.org/entity/'
+        qNumber = extractFromIri(result['id']['value'], 4)
+        string = result['string']['value']
+        resultsDict = {'qId': qNumber, 'string': string}
+        returnValue.append(resultsDict)
+
+    # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
+    sleep(0.25)
+    
+    return returnValue
+
 # Function to create reference value for times
 def createTimeReferenceValue(value):
     # date is YYYY-MM-DD
@@ -350,16 +408,42 @@ for table in tables:
             subjectWikidataIdColumnHeader = column['titles']
             print('Subject column: ', subjectWikidataIdColumnHeader)
 
+    # create a list of the entities that have Wikidata qIDs
+    qIds = []
+    for entity in tableData:
+        if entity[subjectWikidataIdColumnHeader] != '':
+            qIds.append(entity[subjectWikidataIdColumnHeader])
+
+    existingLabels = [] # a list to hold lists of labels in various languages
+    existingDescriptions = [] # a list to hold lists of descriptions in various languages
+    for column in columns:
         if not('suppressOutput' in column):
 
             # find the columns (if any) that provide labels
-            # Note: if labels exist for a language, they will be overwritten
             if column['propertyUrl'] == 'rdfs:label':
                 labelColumnHeader = column['titles']
                 labelLanguage = column['lang']
                 print('Label column: ', labelColumnHeader, ', language: ', labelLanguage)
                 labelColumnList.append(labelColumnHeader)
                 labelLanguageList.append(labelLanguage)
+
+                # retrieve the labels in that language that already exist in Wikidata and match them with table rows
+                tempLabels = []
+                labelsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'label', labelLanguage)
+                for entityIndex in range(0, len(tableData)):
+                    found = False
+                    print(tableData[entityIndex][labelColumnHeader])
+                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                        for wikiLabel in labelsAtWikidata:
+                            if tableData[entityIndex][labelColumnHeader] == wikiLabel['string']:
+                                found = True
+                                tempLabels.append(wikiLabel['string'])
+                                break # stop looking if there is a match
+                    if not found:
+                        tempLabels.append('')
+                
+                # add all of the found labels for that language to the list of labels in various languages
+                existingLabels.append(tempLabels)
 
             # find columns that contain aliases
             # GUI calls it "Also known as"; RDF as skos:altLabel
@@ -407,6 +491,8 @@ for table in tables:
             print()
 
     print()
+    print(existingLabels)
+    '''
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
@@ -623,3 +709,4 @@ for table in tables:
             
             # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
             sleep(10)
+    '''
