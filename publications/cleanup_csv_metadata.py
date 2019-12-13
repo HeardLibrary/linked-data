@@ -1,4 +1,6 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-11-19
+# Freely available under a CC0 license. Steve Baskauf 2019-12-13
+# It's part of the development of VanderBot 0.1
+
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
 
@@ -7,6 +9,15 @@
 
 # The most important reference for formatting the data JSON to be sent to the API is:
 # https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
+
+# Usage note: the script that generates the input file downloads all of the labels and descriptions from Wikidata
+# So if you want to change either of them, just edit the input table before running the script.
+# If an alias is listed in the table, it will replace current aliases, then removed from the output table.  
+# This means that if you don't like the label that gets downloaded from Wikidata, you can move it to the alias column
+# and replace the label with your preferred version.  NOTE: it doesn't add an alias, it replaces.  See notes in code!
+
+# A stale output file should not be used as input for this script since if others have changed either the label or
+# description, the script will change it back to whatever previous value was in the stale table.  
 
 import json
 import requests
@@ -70,6 +81,12 @@ def readDict(filename):
     fileObject.close()
     return array
 
+# gunction to get local name from an IRI
+def extractFromIri(iri, numberPieces):
+    # with pattern like http://www.wikidata.org/entity/Q6386232 there are 5 pieces with qId as number 4
+    pieces = iri.split('/')
+    return pieces[numberPieces]
+
 # Function to create reference value for times
 def createTimeReferenceValue(value):
     # date is YYYY-MM-DD
@@ -100,8 +117,8 @@ def createTimeReferenceValue(value):
             }
     return dateDict
 
-# If there are references for a statement, return a reference list
-# Currently only handles one referece per statement
+# NOTE: this differs from the createReferences function in the main program in that it returns
+# a dictionary of snaks, NOT a list
 def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashColumn):
     refPropList = []
     refValueColumnList = []
@@ -110,7 +127,7 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
     
     for column in columns:
         if not('suppressOutput' in column):
-            # find the columns that have the refHash in the aboutUrl
+            # find the columns that have the refHash column name in the aboutUrl
             if refHashColumn in column['aboutUrl']:
                 refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
                 refValueColumnList.append(column['titles'])
@@ -141,36 +158,7 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
                     'datatype': refTypeList[refPropNumber]
                 }
             ]
-    if snakDictionary != {}:  # don't send an empty snakDictionary
-        referenceDictionary = [
-            {
-                'snaks': snakDictionary
-            }
-        ]
-    else:
-        referenceDictionary = []
-    #print(json.dumps(referenceDictionary, indent = 2))
-    return referenceDictionary
-
-# This is used when the statement already exists and has a UUID but a reference needs to be added to it
-def createSeparateReference(refProperty, refType, refValue, refValueType):
-    if refValueType == 'time':
-        refValue = createTimeReferenceValue(refValue)
-        
-    snakList = [
-        {
-            'snaktype': 'value',
-            'property': refProperty,
-            'datavalue': {
-                'value': refValue,
-                'type': refValueType
-            },
-            'datatype': refType
-        }
-    ]
-
-    snakDictionary = {}
-    snakDictionary[refProperty] = snakList
+    #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
 
 # If there are qualifiers for a statement, return a qualifiers dictionary
@@ -310,6 +298,7 @@ csrfToken = getCsrfToken(endpointUrl)
 # To test the maxlag handler code, set maxlag to a very low number like .1
 maxlag = 5
 
+# This is the schema that maps the CSV column to Wikidata properties
 with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
 metadata = json.loads(text)
@@ -345,12 +334,6 @@ for table in tables:
     #print(subjectWikidataIdName)
 
     # make lists of the columns for each kind of property
-    labelColumnList = []
-    labelLanguageList = []
-    aliasColumnList = []
-    aliasLanguageList = []
-    descriptionColumnList = []
-    descriptionLanguageList = []
     entityValuedPropertiesList = []
     entityValueIdList = []
     literalValuedPropertiesList = []
@@ -369,37 +352,17 @@ for table in tables:
             subjectWikidataIdColumnHeader = column['titles']
             print('Subject column: ', subjectWikidataIdColumnHeader)
 
+    # create a list of the entities that have Wikidata qIDs
+    qIds = []
+    for entity in tableData:
+        if entity[subjectWikidataIdColumnHeader] != '':
+            qIds.append(entity[subjectWikidataIdColumnHeader])
+
+    for column in columns:
         if not('suppressOutput' in column):
 
-            # find the columns (if any) that provide labels
-            # Note: if labels exist for a language, they will be overwritten
-            if column['propertyUrl'] == 'rdfs:label':
-                labelColumnHeader = column['titles']
-                labelLanguage = column['lang']
-                print('Label column: ', labelColumnHeader, ', language: ', labelLanguage)
-                labelColumnList.append(labelColumnHeader)
-                labelLanguageList.append(labelLanguage)
-
-            # find columns that contain aliases
-            # GUI calls it "Also known as"; RDF as skos:altLabel
-            elif column['propertyUrl'] == 'skos:altLabel':
-                altLabelColumnHeader = column['titles']
-                altLabelLanguage = column['lang']
-                print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
-                aliasColumnList.append(altLabelColumnHeader)
-                aliasLanguageList.append(altLabelLanguage)
-
-            # find columns that contain descriptions
-            # Note: if descriptions exist for a language, they will be overwritten
-            elif column['propertyUrl'] == 'schema:description':
-                descriptionColumnHeader = column['titles']
-                descriptionLanguage = column['lang']
-                print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
-                descriptionColumnList.append(descriptionColumnHeader)
-                descriptionLanguageList.append(descriptionLanguage)
-
             # find columns that contain properties with entity values
-            elif 'valueUrl' in column:
+            if 'valueUrl' in column:
                 # only add columns that have direct properties
                 if 'prop/direct/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
@@ -429,79 +392,16 @@ for table in tables:
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
-        print('writing row ', rowNumber)
-        print()
+        print('processing row ', rowNumber)
         statementUuidColumnList = []
         statementPropertyIdList = []
         statementValueColumnList = []
         statementValueTypeList = []
         referenceHashColumnList = []
 
-        # build the parameter string to be posted to the API
-        parameterDictionary = {
-            'action': 'wbeditentity',
-            'format':'json',
-            'token': csrfToken
-            }
-    
-        if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-            newItem = True
-            parameterDictionary['new'] = 'item'
-        else:
-            newItem = False
-            parameterDictionary['id'] = tableData[rowNumber][subjectWikidataIdColumnHeader]
-            
-        # begin constructing the string for the "data" value by creating a data structure to be turned into JSON
-        # the examples are from https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-        dataStructure = {}
-        
-        if len(labelColumnList) > 0:
-            # here's what we need to construct for labels:
-            # data={"labels":{"de":{"language":"de","value":"de-value"},"en":{"language":"en","value":"en-value"}}}
-            labelDict = {}
-            for labelColumnNumber in range(0, len(labelColumnList)):
-                valueString = tableData[rowNumber][labelColumnList[labelColumnNumber]]
-                if valueString != '':
-                    labelDict[labelLanguageList[labelColumnNumber]] = {
-                        'language': labelLanguageList[labelColumnNumber],
-                        'value': valueString
-                        }
-            if labelDict != {}:
-                dataStructure['labels'] = labelDict
-        
-        if len(aliasColumnList) > 0:
-            # no example, but follow the same pattern as labels
-            aliasDict = {}
-            for aliasColumnNumber in range(0, len(aliasColumnList)):
-                valueString = tableData[rowNumber][aliasColumnList[aliasColumnNumber]]
-                if valueString != '':
-                    aliasDict[aliasLanguageList[aliasColumnNumber]] = {
-                        'language': aliasLanguageList[aliasColumnNumber],
-                        'value': valueString
-                        }
-            if aliasDict != {}:
-                dataStructure['aliases'] = aliasDict
-        
-        if len(descriptionColumnList) > 0:
-            # here's what we need to construct for descriptions:
-            # data={"descriptions":{"nb":{"language":"nb","value":"nb-Description-Here"}}}
-            descriptionDict = {}
-            for descriptionColumnNumber in range(0, len(descriptionColumnList)):
-                valueString = tableData[rowNumber][descriptionColumnList[descriptionColumnNumber]]
-                if valueString != '':
-                    descriptionDict[descriptionLanguageList[descriptionColumnNumber]] = {
-                        'language': descriptionLanguageList[descriptionColumnNumber],
-                        'value': valueString
-                        }
-            if descriptionDict != {}:
-                dataStructure['descriptions'] = descriptionDict
-
         # handle claims
         if len(propertiesColumnList) > 0:
-            claimsList = []
             
-            # here's what we need to construct for literal valued properties:
-            # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
             for propertyNumber in range(0, len(propertiesColumnList)):
                 propertyId = propertiesIdList[propertyNumber]
                 
@@ -515,102 +415,64 @@ for table in tables:
                             statementUuidColumn = temp.partition('}')[0]
                             #print(statementUuidColumn)
                             
-                # If there is already a UUID, then don't write that property to the API
+                # We are only interested in writing references for statements that already have UUIDs
                 if tableData[rowNumber][statementUuidColumn] != '':
-                    continue  # skip the rest of this iteration and go onto the next property
                             
-                # find the column with the hash for the reference (handles only one reference per statement)
-                refHashColumn = ''
-                for column in columns:
-                    if not('suppressOutput' in column):
-                        # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
-                        if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
-                            temp = column['valueUrl'].partition('{')[2]
-                            refHashColumn = temp.partition('}')[0]
-                            #print(refHashColumn)
-                
-                valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
-                if valueString != '':
-                    if propertiesTypeList[propertyNumber] == 'literal':
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue':{
-                                    'value': valueString,
-                                    'type': propertiesDatatypeList[propertyNumber]
-                                    }
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    elif propertiesTypeList[propertyNumber] == 'entity':
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue': {
-                                    'value': {
-                                        'id': valueString
-                                        },
-                                    'type': 'wikibase-entityid'
-                                    }
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    else:
-                        print('This should not happen')
-                        
+                    # find the column with the hash for the reference (handles only one reference per statement)
+                    refHashColumn = ''
+                    for column in columns:
+                        if not('suppressOutput' in column):
+                            # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
+                            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
+                                temp = column['valueUrl'].partition('{')[2]
+                                refHashColumn = temp.partition('}')[0]
+                    
                     statementUuidColumnList.append(statementUuidColumn)
                     statementPropertyIdList.append(propertyId)
                     referenceHashColumnList.append(refHashColumn)
                     statementValueColumnList.append(propertiesColumnList[propertyNumber])
                     statementValueTypeList.append(propertiesTypeList[propertyNumber])
-                        
-                    if refHashColumn != '':  # don't create references if there isn't a reference hash column
-                        references = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
-                        if references != []:
-                            snakDict['references'] = references
-
-                    qualifiers = createQualifiers(columns, propertiesIdList[propertyNumber], tableData[rowNumber])
-                    if qualifiers != {}:
-                        snakDict['qualifiers'] = qualifiers
-                        
-                    claimsList.append(snakDict)
                     
-            if claimsList != []:
-                dataStructure['claims'] = claimsList
-
-        # The data value has to be turned into a JSON string
-        parameterDictionary['data'] = json.dumps(dataStructure)
-        #print(json.dumps(dataStructure, indent = 2))
-        #print(parameterDictionary)
-
-        # don't try to write if there aren't any data to send
-        if parameterDictionary['data'] == '{}':
-            print('no data to write')
-        else:
-            if maxlag > 0:
-                parameterDictionary['maxlag'] = maxlag
-            responseData = attemptPost(endpointUrl, parameterDictionary)
-            print('Write confirmation: ', responseData)
-            print()
-            
+                    uuidValue = tableData[rowNumber][statementUuidColumn]
+                    if refHashColumn != '':  # don't create references if there isn't a reference hash column
+                        if tableData[rowNumber][refHashColumn] == '': # only create new references
+                            # in this script, the createReferences function returns a snak dictionary, not a list
+                            referencesDict = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
+                            if referencesDict == {}:
+                                print('no data to write')
+                                print()
+                            else:
+                                #print(json.dumps(referencesDict, indent=2))
+                                # build the parameter string to be posted to the API
+                                parameterDictionary = {
+                                    'action': 'wbsetreference',
+                                    'statement': tableData[rowNumber][subjectWikidataIdColumnHeader] + "$" + uuidValue,
+                                    'format':'json',
+                                    'token': csrfToken,
+                                    'snaks': json.dumps(referencesDict)
+                                    }
+                                #print(parameterDictionary)    
+                                if maxlag > 0:
+                                    parameterDictionary['maxlag'] = maxlag
+                                responseData = attemptPost(endpointUrl, parameterDictionary)
+                                print('Write confirmation: ', responseData)
+                                print()
+# LEFT OFF HERE *************            
             if newItem:
                 # extract the entity Q number from the response JSON
                 tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
                 
             # fill into the table the values of newly created claims and references
             for statementIndex in range(0, len(statementPropertyIdList)):
-                print(tableData[rowNumber][statementValueColumnList[statementIndex]])
+                #print(tableData[rowNumber][statementValueColumnList[statementIndex]])
                 # only add the claim if the UUID cell for that row is empty
                 if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
+                    found = False
                     for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
-                        print(statement)
+                        #print(statement)
+
                         # does the value in the cell equal the mainsnak value of the claim?
                         # it's necessary to check this because there could be other previous claims for that property
-                        found = False
                         if statementValueTypeList[statementIndex] == 'literal':
                             found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
                         elif statementValueTypeList[statementIndex] == 'entity':
@@ -625,20 +487,20 @@ for table in tables:
                                 tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
                             except:
                                 pass
-                        else:
-                            print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
+                            # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
+                            break
+                    # print this error message only if there is not match to any of the values after looping through all of them
+                    if not found:
+                        print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
         
-    # Replace the table with a new one containing any new IDs
-    with open(tableFileName, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for rowNumber in range(0, len(tableData)):
-            writer.writerow(tableData[rowNumber])
-
-refProperty = 'P813'
-refType = 'time'
-refValue = '2019-12-05'
-refValueType = 'time'
-
-data = createSeparateReference(refProperty, refType, refValue, refValueType)
-print(json.dumps(data, indent = 2))
+            # Replace the table with a new one containing any new IDs
+            # Note: I'm writing after every line so that if the script crashes, no data will be lost
+            with open(tableFileName, 'w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for rowNumber in range(0, len(tableData)):
+                    writer.writerow(tableData[rowNumber])
+            
+            # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
+            sleep(10)
+'''

@@ -1,4 +1,4 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-12-12
+# Freely available under a CC0 license. Steve Baskauf 2019-12-13
 # It's part of the development of VanderBot 0.1
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
@@ -170,7 +170,7 @@ def createTimeReferenceValue(value):
     return dateDict
 
 # If there are references for a statement, return a reference list
-# Currently only handles one referece per statement
+# Currently only handles one reference per statement
 def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashColumn):
     refPropList = []
     refValueColumnList = []
@@ -179,7 +179,7 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
     
     for column in columns:
         if not('suppressOutput' in column):
-            # find the columns that have the refHash in the aboutUrl
+            # find the columns that have the refHash column name in the aboutUrl
             if refHashColumn in column['aboutUrl']:
                 refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
                 refValueColumnList.append(column['titles'])
@@ -619,14 +619,17 @@ for table in tables:
             aliasDict = {}
             # step through each language that has aliases
             for aliasColumnNumber in range(0, len(aliasColumnList)):
-                valueList = tableData[rowNumber][aliasColumnList[aliasColumnNumber]]
+                valueList = json.loads(tableData[rowNumber][aliasColumnList[aliasColumnNumber]])
                 # don't do anything if there are no alias values for that person
                 if valueList != []:
                     # perform an unordered comparison between the aliases currently in Wikidata and
                     # the aliases in the CSV for that person. Don't do anything if they are the same.
+                    # NOTE: this is actually redundant with the > test that follows, but I'm leaving it here to remember
+                    # how to do an unordered comparison.  The > test might be replaced with something more sophisticated later
                     if set(valueList) != set(existingAliases[languageNumber][rowNumber]):
                         # only make a change if there are more aliases in the spreadsheet than currently in Wikidata
-                        if len(valueList) > existingAliases[languageNumber][rowNumber]:
+                        if len(valueList) > len(existingAliases[languageNumber][rowNumber]):
+                            print('')
                             # see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON#Labels,_Descriptions_and_Aliases
                             # for structure of aliases in JSON
                             aliasLangList = []
@@ -759,7 +762,7 @@ for table in tables:
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-'''
+
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -816,4 +819,3 @@ for table in tables:
             
             # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
             sleep(10)
-    '''
