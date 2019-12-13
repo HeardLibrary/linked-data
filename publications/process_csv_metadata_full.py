@@ -449,6 +449,7 @@ for table in tables:
 
     existingLabels = [] # a list to hold lists of labels in various languages
     existingDescriptions = [] # a list to hold lists of descriptions in various languages
+    existingAliases = [] # a list to hold lists of lists of aliases in various languages
     for column in columns:
         if not('suppressOutput' in column):
 
@@ -485,6 +486,21 @@ for table in tables:
                 print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
                 aliasColumnList.append(altLabelColumnHeader)
                 aliasLanguageList.append(altLabelLanguage)
+
+                # retrieve the aliases in that language that already exist in Wikidata and match them with table rows
+                languageAliases = []
+                aliasesAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'alias', labelLanguage)
+                for entityIndex in range(0, len(tableData)):
+                    personAliasList = []
+                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                        for wikiLabel in aliasesAtWikidata:
+                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
+                                personAliasList.append(wikiLabel['string'])
+                    # if not found, the personAliasList list will remain empty
+                    languageAliases.append(personAliasList)
+                
+                # add all of the found aliases for that language to the list of aliases in various languages
+                existingAliases.append(languageAliases)
 
             # find columns that contain descriptions
             # Note: if descriptions exist for a language, they will be overwritten
@@ -597,24 +613,30 @@ for table in tables:
             if labelDict != {}:
                 dataStructure['labels'] = labelDict
         
-        # if there is a value in this column, it will be added to any existing alises in Wikidata, 
-        # then removed from the output table.
-        # ***********************
-        # ***** This seems to replace existing alias(es) with the one being written, as opposed to adding another alias!
-        # Need to do a separate API call for wbsetaliases with "add=" to be able to add rather than replace
-        # ***********************
+        # the alias column contains a list. If the table has more aliases than currently in Wikidata, then update
         if len(aliasColumnList) > 0:
             # no example, but follow the same pattern as labels
             aliasDict = {}
+            # step through each language that has aliases
             for aliasColumnNumber in range(0, len(aliasColumnList)):
-                valueString = tableData[rowNumber][aliasColumnList[aliasColumnNumber]]
-                if valueString != '':
-                    aliasDict[aliasLanguageList[aliasColumnNumber]] = {
-                        'language': aliasLanguageList[aliasColumnNumber],
-                        'value': valueString
-                        }
-                    # delete the alias from the table
-                    tableData[rowNumber][aliasColumnList[aliasColumnNumber]] = ''
+                valueList = tableData[rowNumber][aliasColumnList[aliasColumnNumber]]
+                # don't do anything if there are no alias values for that person
+                if valueList != []:
+                    # perform an unordered comparison between the aliases currently in Wikidata and
+                    # the aliases in the CSV for that person. Don't do anything if they are the same.
+                    if set(valueList) != set(existingAliases[languageNumber][rowNumber]):
+                        # only make a change if there are more aliases in the spreadsheet than currently in Wikidata
+                        if len(valueList) > existingAliases[languageNumber][rowNumber]:
+                            # see https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON#Labels,_Descriptions_and_Aliases
+                            # for structure of aliases in JSON
+                            aliasLangList = []
+                            for aliasValue in valueList:
+                                temp = {
+                                'language': aliasLanguageList[aliasColumnNumber],
+                                'value': aliasValue
+                                }
+                                aliasLangList.append(temp)
+                            aliasDict[aliasLanguageList[aliasColumnNumber]] = aliasLangList
             if aliasDict != {}:
                 dataStructure['aliases'] = aliasDict
         
@@ -737,7 +759,7 @@ for table in tables:
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-
+'''
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -794,4 +816,4 @@ for table in tables:
             
             # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
             sleep(10)
-    
+    '''
