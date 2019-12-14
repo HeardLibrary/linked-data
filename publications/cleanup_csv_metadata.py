@@ -1,5 +1,5 @@
 # Freely available under a CC0 license. Steve Baskauf 2019-12-13
-# It's part of the development of VanderBot 0.1
+# It's part of the development of VanderBot 0.8
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
@@ -457,50 +457,16 @@ for table in tables:
                                 responseData = attemptPost(endpointUrl, parameterDictionary)
                                 print('Write confirmation: ', responseData)
                                 print()
-# LEFT OFF HERE *************            
-            if newItem:
-                # extract the entity Q number from the response JSON
-                tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
-                
-            # fill into the table the values of newly created claims and references
-            for statementIndex in range(0, len(statementPropertyIdList)):
-                #print(tableData[rowNumber][statementValueColumnList[statementIndex]])
-                # only add the claim if the UUID cell for that row is empty
-                if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
-                    found = False
-                    for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
-                        #print(statement)
-
-                        # does the value in the cell equal the mainsnak value of the claim?
-                        # it's necessary to check this because there could be other previous claims for that property
-                        if statementValueTypeList[statementIndex] == 'literal':
-                            found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
-                        elif statementValueTypeList[statementIndex] == 'entity':
-                            found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
-                        else:
-                            pass
-                        if found:
-                            tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
-                            # in the case where the statement had no reference, the 'references' key won't be found
-                            # so just leave the reference hash cell blank in the table
-                            try: 
-                                tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
-                            except:
-                                pass
-                            # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
-                            break
-                    # print this error message only if there is not match to any of the values after looping through all of them
-                    if not found:
-                        print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
-        
-            # Replace the table with a new one containing any new IDs
-            # Note: I'm writing after every line so that if the script crashes, no data will be lost
-            with open(tableFileName, 'w', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for rowNumber in range(0, len(tableData)):
-                    writer.writerow(tableData[rowNumber])
             
-            # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
-            sleep(10)
-'''
+                                tableData[rowNumber][refHashColumn] = responseData['reference']['hash']
+                            
+                                # Replace the table with a new one containing any new IDs
+                                # Note: I'm writing after every line so that if the script crashes, no data will be lost
+                                with open(tableFileName, 'w', newline='') as csvfile:
+                                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                                    writer.writeheader()
+                                    for rowNumber in range(0, len(tableData)):
+                                        writer.writerow(tableData[rowNumber])
+                                
+                                # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
+                                sleep(10)

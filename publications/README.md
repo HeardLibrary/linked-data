@@ -11,7 +11,7 @@ The author part of the project is related to author disambiguation and associati
 
 The data that feeds from the first set of scripts to the second is stored in CSV format.  The mapping from the CSV headers to Wikidata properties is specified using the [W3C Generating RDF from Tabular Data on the Web](http://www.w3.org/TR/csv2rdf/) Recommendation.  The JSON-LD mapping file is [here](https://github.com/HeardLibrary/linked-data/blob/master/publications/csv-metadata.json).  
 
-VanderBot is under development and subject to continual change.  At this point, it's too new to have any stable releases.
+VanderBot is under development (version 0.8) and subject to continual change.  At this point, it's too new to have any stable releases.
 
 ## Other stuff
 
@@ -20,4 +20,4 @@ The publications part is related to assembling publication metadata and identifi
 The `work-person-figure.png` and powerpoint file is an RDF model to represent institutions (Vanderbilt), people, and their works.
 
 ----
-Revised 2019-12-09
+Revised 2019-12-13
