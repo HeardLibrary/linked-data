@@ -1,4 +1,4 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-12-13
+# Freely available under a CC0 license. Steve Baskauf 2019-12-16
 # It's part of the development of VanderBot 0.8
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
@@ -591,21 +591,19 @@ for table in tables:
             for languageNumber in range(0, len(labelColumnList)):
                 valueString = tableData[rowNumber][labelColumnList[languageNumber]]
                 # if there is a new record with no Q ID...
-                if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-                    if labelDefaults["labels"]["source"] == 'column':
-                        # then use the value from the default label column.
-                        defaultLabelColumn = labelDefaults["labels"]["value"]
-                        valueString = tableData[rowNumber][defaultLabelColumn]
-                    else:
-                        # or use the default label value.
-                        valueString = labelDefaults["labels"]["value"]
+                if newItem:
+                    # add the label in the table for that language to the label dictionary
+                    labelDict[labelLanguageList[languageNumber]] = {
+                        'language': labelLanguageList[languageNumber],
+                        'value': valueString
+                        }
                 else:
                     # not a new record, check if the value in the table is different from what's currently in Wikidata
                     if valueString != existingLabels[languageNumber][rowNumber]:
                         # if they are different check to make sure the table value isn't empty
                         if valueString != '':
                             print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString)
-                            # # write the value in the table
+                            # add the label in the table for that language to the label dictionary
                             labelDict[labelLanguageList[languageNumber]] = {
                                 'language': labelLanguageList[languageNumber],
                                 'value': valueString
@@ -650,21 +648,19 @@ for table in tables:
             for languageNumber in range(0, len(descriptionColumnList)):
                 valueString = tableData[rowNumber][descriptionColumnList[languageNumber]]
                 # if there is a new record with no Q ID...
-                if tableData[rowNumber][subjectWikidataIdColumnHeader] == '':
-                    if labelDefaults['descriptions']['source'] == 'column':
-                        # then use the value from the default description column.
-                        defaultDescriptionColumn = labelDefaults['descriptions']['value']
-                        valueString = tableData[rowNumber][defaultDescriptionColumn]
-                    else:
-                        # or use the default description value.
-                        valueString = labelDefaults['descriptions']['value']
+                if newItem:
+                    # add the description in the table for that language to the description dictionary
+                    descriptionDict[descriptionLanguageList[languageNumber]] = {
+                        'language': descriptionLanguageList[languageNumber],
+                        'value': valueString
+                        }
                 else:
                     # not a new record, check if the value in the table is different from what's currently in Wikidata
                     if valueString != existingDescriptions[languageNumber][rowNumber]:
                         # if they are different check to make sure the table value isn't empty
                         if valueString != '':
                             print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString)
-                            # # write the value in the table
+                            # add the description in the table for that language to the description dictionary
                             descriptionDict[descriptionLanguageList[languageNumber]] = {
                                 'language': descriptionLanguageList[languageNumber],
                                 'value': valueString
