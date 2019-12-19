@@ -1,0 +1,157 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [{
+        "url": "a-and-s-to-write.csv",
+        "tableSchema": {
+            "columns": [{
+              "titles": "wikidataId",
+              "name": "wikidataId",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "name",
+              "name": "name",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "labelEn",
+              "name": "labelEn",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "rdfs:label",
+              "lang": "en"
+            },{
+              "titles": "alias",
+              "name": "alias",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "skos:altLabel",
+              "lang": "en"
+            },{
+              "titles": "description",
+              "name": "description",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "schema:description",
+              "lang": "en"
+            },{
+              "titles": "parentUnitStatementUuid",
+              "name": "parentUnitStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "parentUnit",
+              "name": "parentUnit",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P749",
+              "valueUrl": "http://www.wikidata.org/entity/{parentUnit}"
+            },{
+              "name": "hasParentUnitStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P749",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{parentUnitStatementUuid}"
+            },{
+              "titles": "parentUnitReferenceHash",
+              "name": "parentUnitReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "parentUnitReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{parentUnitStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{parentUnitReferenceHash}"
+            },{
+              "titles": "parentUnitReferenceSourceUrl",
+              "name": "parentUnitReferenceSourceUrl",
+              "datatype": "anyURI",
+              "aboutUrl": "http://www.wikidata.org/reference/{parentUnitReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            },{
+              "titles": "parentUnitReferenceRetrieved",
+              "name": "parentUnitReferenceRetrieved",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{parentUnitReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "titles": "officialWebsiteStatementUuid",
+              "name": "officialWebsiteStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "officialWebsite",
+              "name": "officialWebsite",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P856"
+            },{
+              "name": "hasOfficialWebsiteStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P856",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}"
+            },{
+              "titles": "officialWebsiteReferenceHash",
+              "name": "officialWebsiteReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "officialWebsiteReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{officialWebsiteReferenceHash}"
+            },{
+              "titles": "officialWebsiteReferenceRetrieved",
+              "name": "officialWebsiteReferenceRetrieved",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{officialWebsiteReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "titles": "instanceOfStatementUuid",
+              "name": "instanceOfStatementUuid",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "titles": "instanceOf",
+              "name": "instanceOf",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/direct/P31",
+              "valueUrl": "http://www.wikidata.org/entity/{instanceOf}"
+            },{
+              "name": "hasInstanceOfStatement",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P31",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfStatementUuid}"
+            },{
+              "titles": "instanceOfReferenceHash",
+              "name": "instanceOfReferenceHash",
+              "datatype": "string", 
+              "suppressOutput": true
+            },{
+              "name": "instanceOfReference",
+              "virtual": true,
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{instanceOfStatementUuid}",
+              "propertyUrl": "prov:wasDerivedFrom",
+              "valueUrl": "http://www.wikidata.org/reference/{instanceOfReferenceHash}"
+            },{
+              "titles": "instanceOfReferenceSourceUrl",
+              "name": "instanceOfReferenceSourceUrl",
+              "datatype": "anyURI",
+              "aboutUrl": "http://www.wikidata.org/reference/{instanceOfReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            },{
+              "titles": "instanceOfReferenceRetrieved",
+              "name": "instanceOfReferenceRetrieved",
+              "datatype": "date",
+              "aboutUrl": "http://www.wikidata.org/reference/{instanceOfReferenceHash}",
+              "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            }]
+        }
+    }]
+}
