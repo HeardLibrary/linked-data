@@ -813,5 +813,5 @@ for table in tables:
                 for rowNumber in range(0, len(tableData)):
                     writer.writerow(tableData[rowNumber])
             
-            # after getting an error, try a 10 second delay. This was OK, a 1 second delay wasn't.
-            sleep(5)
+            # after getting an error, try a 3 second delay. This was OK, a 1 second delay wasn't.
+            sleep(3)
