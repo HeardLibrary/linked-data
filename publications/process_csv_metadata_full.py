@@ -793,12 +793,17 @@ for table in tables:
                             pass
                         if found:
                             tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
+                            print('statementUuidColumnList[statementIndex]=', statementUuidColumnList[statementIndex])
+                            print('tableData[rowNumber][statementUuidColumnList[statementIndex]]=', tableData[rowNumber][statementUuidColumnList[statementIndex]])
                             # in the case where the statement had no reference, the 'references' key won't be found
                             # so just leave the reference hash cell blank in the table
                             try: 
                                 tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
+                                print('referenceHashColumnList[statementIndex]=', referenceHashColumnList[statementIndex])
+                                print('tableData[rowNumber][referenceHashColumnList[statementIndex]]=', tableData[rowNumber][referenceHashColumnList[statementIndex]])
                             except:
                                 pass
+                            print()
                             # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
                             break
                     # print this error message only if there is not match to any of the values after looping through all of them
