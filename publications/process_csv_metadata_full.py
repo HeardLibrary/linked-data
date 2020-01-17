@@ -797,6 +797,9 @@ for table in tables:
                             print('tableData[rowNumber][statementUuidColumnList[statementIndex]]=', tableData[rowNumber][statementUuidColumnList[statementIndex]])
                             # in the case where the statement had no reference, the 'references' key won't be found
                             # so just leave the reference hash cell blank in the table
+                            # !! Here's the problem: if someone else has asserted a reference for a statement but I don't, then it will find the other reference 
+                            # !! and will not have anywhere to put it in the table.  So it will go into a key of '' and later cause an error.  Need to only do this step
+                            # !! if the referenceHashColumnList[statementIndex] != ''
                             try: 
                                 tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
                                 print('referenceHashColumnList[statementIndex]=', referenceHashColumnList[statementIndex])
