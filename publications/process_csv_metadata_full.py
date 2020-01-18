@@ -795,20 +795,21 @@ for table in tables:
                             tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
                             print('statementUuidColumnList[statementIndex]=', statementUuidColumnList[statementIndex])
                             print('tableData[rowNumber][statementUuidColumnList[statementIndex]]=', tableData[rowNumber][statementUuidColumnList[statementIndex]])
-                            # in the case where the statement had no reference, the 'references' key won't be found
-                            # so just leave the reference hash cell blank in the table
-                            # !! Here's the problem: if someone else has asserted a reference for a statement but I don't, then it will find the other reference 
-                            # !! and will not have anywhere to put it in the table.  So it will go into a key of '' and later cause an error.  Need to only do this step
-                            # !! if the referenceHashColumnList[statementIndex] != ''
-                            try: 
-                                tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
-                                print('referenceHashColumnList[statementIndex]=', referenceHashColumnList[statementIndex])
-                                print('tableData[rowNumber][referenceHashColumnList[statementIndex]]=', tableData[rowNumber][referenceHashColumnList[statementIndex]])
-                            except:
-                                pass
-                            print()
-                            # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
-                            break
+                            # Only check for a reference hash if the statement is on for which I'm tracking references. 
+                            # (When we aren't tracking references, some will have them anyway if the statement was asserted by others.)
+                            if referenceHashColumnList[statementIndex] != '':
+                                # in the case where the statement had no reference, the 'references' key won't be found
+                                # so just leave the reference hash cell blank in the table. This can happen when others have already made the statement
+                                # without a reference so we can't add the reference in this script (handled by a followup script).
+                                try: 
+                                    tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
+                                    print('referenceHashColumnList[statementIndex]=', referenceHashColumnList[statementIndex])
+                                    print('tableData[rowNumber][referenceHashColumnList[statementIndex]]=', tableData[rowNumber][referenceHashColumnList[statementIndex]])
+                                except:
+                                    pass
+                                print()
+                                # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
+                                break
                     # print this error message only if there is not match to any of the values after looping through all of them
                     if not found:
                         print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
