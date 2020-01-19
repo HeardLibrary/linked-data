@@ -800,5 +800,5 @@ for table in tables:
                         print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
                         print()
             
-            # after getting an error, try a 3 second delay. This was OK, a 1 second delay wasn't.
-            sleep(3)
+            # after getting an error, try a 2 second delay. This was OK, a 1 second delay wasn't.
+            sleep(2)
