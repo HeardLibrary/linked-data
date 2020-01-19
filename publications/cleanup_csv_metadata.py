@@ -385,9 +385,6 @@ for table in tables:
                     propertiesTypeList.append('literal')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append(valueDatatype)
-
-            print()
-
     print()
 
     # process each row of the table
@@ -468,5 +465,5 @@ for table in tables:
                                     for rowNumber in range(0, len(tableData)):
                                         writer.writerow(tableData[rowNumber])
                                 
-                                # after getting an error, try a 3 second delay. This was OK, a 1 second delay wasn't.
-                                sleep(3)
+                                # after getting an error, try a 2 second delay. This was OK, a 1 second delay wasn't.
+                                sleep(2)
