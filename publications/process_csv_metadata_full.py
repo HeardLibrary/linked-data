@@ -358,29 +358,6 @@ csrfToken = getCsrfToken(endpointUrl)
 # To test the maxlag handler code, set maxlag to a very low number like .1
 maxlag = 5
 
-# this file says where default labels and descriptions should come from.
-# The except clause has an example.  If the source is a column, the value is the header of the column with the values.
-# If the source is constant, the value is the value assigned by default
-try:
-    with open('default_label_desc.json', 'rt', encoding='utf-8') as fileObject:
-        text = fileObject.read()
-    labelDefaults = json.loads(text)
-except:
-    text = '''
-{"labels": 
-    {
-        "source": "column",
-        "value": "name"
-    },
-"descriptions": 
-    {
-        "source": "constant",
-        "value": "biology researcher"
-    }
-}
-'''
-    labelDefaults = json.loads(text)
-
 # This is the schema that maps the CSV column to Wikidata properties
 with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
@@ -552,9 +529,6 @@ for table in tables:
                     propertiesTypeList.append('literal')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append(valueDatatype)
-
-            print()
-
     print()
 
     # process each row of the table
