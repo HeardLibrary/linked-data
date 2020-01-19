@@ -1,0 +1,124 @@
+{ 
+  "deptShortName": "anthropology",
+  "aads": {
+    "categories": [
+      ""
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/aads/people/",
+    "nTables": 1,
+    "departmentSearchString": "African American and Diaspora Studies",
+    "departmentQId": "Q79117444",
+    "testAuthorAffiliation": "African American Diaspora Studies Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "African American and Diaspora Studies scholar"
+    }
+  },
+  "anthropology": {
+    "categories": [
+      "faculty",
+      "affiliated-faculty",
+      "emeriti",
+      "postdoctoral-scholar",
+      "research-assistant"
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/anthropology/people/index.php?group=",
+    "nTables": 1,
+    "departmentSearchString": "Anthropology",
+    "departmentQId": "Q79117746",
+    "testAuthorAffiliation": "Anthropology Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "Anthropology researcher"
+    }
+  },
+  "bsci": {
+    "categories": [
+      "primary-training-faculty",
+      "research-and-teaching-faculty",
+      "secondary-faculty",
+      "postdoc-fellows",
+      "emeriti"
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/biosci/people/index.php?group=",
+    "nTables": 1,
+    "departmentSearchString": "Biological Sciences",
+    "departmentQId": "Q78041310",
+    "testAuthorAffiliation": "Biological Sciences Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "biology researcher"
+    }
+  },
+  "english": {
+    "categories": [
+      "faculty"
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/english/people/index.php?group=",
+    "nTables": 2,
+    "departmentSearchString": "English",
+    "departmentQId": "Q79117817",
+    "testAuthorAffiliation": "English Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "scholar of English"
+    }
+  },
+  "ees": {
+    "categories": [
+      "faculty.php",
+      "affiliatedfaculty.php",
+      "postdocs.php",
+      "emeriti.php"
+    ],
+    "baseUrl": "https://www.vanderbilt.edu/ees/people/",
+    "nTables": 1,
+    "departmentSearchString": "Earth and Environmental Sciences",
+    "departmentQId": "Q79117803",
+    "testAuthorAffiliation": "Earth Environmental Sciences Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "earth and environmental sciences researcher"
+    }
+  },
+  "physics": {
+    "categories": [
+      "faculty",
+      "emeritus-faculty",
+      "academic-research-staff"
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/physics/people/index.php?group=",
+    "nTables": 1,
+    "departmentSearchString": "Physics Astronomy",
+    "departmentQId": "Q78779260",
+    "testAuthorAffiliation": "Physics Astronomy Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "physics/astronomy researcher"
+    }
+  }
+}
