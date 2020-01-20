@@ -767,8 +767,6 @@ for table in tables:
                             pass
                         if found:
                             tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
-                            print('statementUuidColumnList[statementIndex]=', statementUuidColumnList[statementIndex])
-                            print('tableData[rowNumber][statementUuidColumnList[statementIndex]]=', tableData[rowNumber][statementUuidColumnList[statementIndex]])
                             # Only check for a reference hash if the statement is on for which I'm tracking references. 
                             # (When we aren't tracking references, some will have them anyway if the statement was asserted by others.)
                             if referenceHashColumnList[statementIndex] != '':
