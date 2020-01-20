@@ -459,7 +459,7 @@ for table in tables:
                             
                                 # Replace the table with a new one containing any new IDs
                                 # Note: I'm writing after every line so that if the script crashes, no data will be lost
-                                with open(tableFileName, 'w', newline='') as csvfile:
+                                with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
                                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                                     writer.writeheader()
                                     for rowNumber in range(0, len(tableData)):
