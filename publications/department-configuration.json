@@ -1,5 +1,5 @@
 { 
-  "deptShortName": "anthropology",
+  "deptShortName": "classics",
   "aads": {
     "categories": [
       ""
@@ -60,6 +60,26 @@
     "descriptions": {
       "source": "constant",
       "value": "biology researcher"
+    }
+  },
+  "classics": {
+    "categories": [
+      "faculty",
+      "affiliated-faculty",
+      "emeriti"
+    ],
+    "baseUrl": "https://as.vanderbilt.edu/classics/people/index.php?group=",
+    "nTables": 1,
+    "departmentSearchString": "Classical and Mediterranean Studies",
+    "departmentQId": "Q79117777",
+    "testAuthorAffiliation": "Classical Mediterranean Studies Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "classical studies scholar"
     }
   },
   "english": {
