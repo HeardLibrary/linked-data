@@ -777,8 +777,6 @@ for table in tables:
                                 # without a reference so we can't add the reference in this script (handled by a followup script).
                                 try: 
                                     tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
-                                    print('referenceHashColumnList[statementIndex]=', referenceHashColumnList[statementIndex])
-                                    print('tableData[rowNumber][referenceHashColumnList[statementIndex]]=', tableData[rowNumber][referenceHashColumnList[statementIndex]])
                                 except:
                                     pass
                                 print()
