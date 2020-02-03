@@ -2,7 +2,7 @@
     "@type": "TableGroup",
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [{
-        "url": "a-and-s-to-write.csv",
+        "url": "engineering-to-write.csv",
         "tableSchema": {
             "columns": [{
               "titles": "wikidataId",
@@ -110,6 +110,13 @@
               "datatype": "date",
               "aboutUrl": "http://www.wikidata.org/reference/{officialWebsiteReferenceHash}",
               "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            },{
+              "titles": "officialWebsiteLanguageQualifier",
+              "name": "officialWebsiteLanguageQualifier",
+              "datatype": "string",
+              "aboutUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}",
+              "propertyUrl": "http://www.wikidata.org/prop/qualifier/P407",
+              "valueUrl": "http://www.wikidata.org/entity/{officialWebsiteLanguageQualifier}"
             },{
               "titles": "instanceOfStatementUuid",
               "name": "instanceOfStatementUuid",

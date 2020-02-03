@@ -225,10 +225,11 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
 # This is a hack of the createReferences() function, which is very similar
 def createQualifiers(columns, propertyId, rowData):
     statementUuidColumn = ''
-    refPropList = []
-    refValueColumnList = []
-    refTypeList = []
-    refValueTypeList = []
+    qualPropList = []
+    qualValueColumnList = []
+    qualTypeList = []
+    qualValueTypeList = []
+    qualEntityOrLiteral = []
     
     for column in columns:
         if not('suppressOutput' in column):
@@ -245,38 +246,59 @@ def createQualifiers(columns, propertyId, rowData):
                 # find the column that has the statement UUID in the about
                 # and the property is a qualifier property
                 if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
-                # differs from references:
-                # find the columns that have the refHash in the aboutUrl
-                # if refHashColumn in column['aboutUrl']:
-                    refPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
-                    refValueColumnList.append(column['titles'])
-                    if column['datatype'] == 'anyURI':
-                        refTypeList.append('url')
-                        refValueTypeList.append('string')
-                    elif column['datatype'] == 'date':
-                        refTypeList.append('time')
-                        refValueTypeList.append('time')
+                    qualPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
+                    qualValueColumnList.append(column['titles'])
+
+                    # determine whether the qualifier is an entity or literal
+                    if 'valueUrl' in column:
+                        qualEntityOrLiteral.append('entity')
                     else:
-                        refTypeList.append('string')
-                        refValueTypeList.append('string')
+                        qualEntityOrLiteral.append('literal')
+
+                    if column['datatype'] == 'anyURI':
+                        qualTypeList.append('url')
+                        qualValueTypeList.append('string')
+                    elif column['datatype'] == 'date':
+                        qualTypeList.append('time')
+                        qualValueTypeList.append('time')
+                    else:
+                        qualTypeList.append('string')
+                        qualValueTypeList.append('string')
     snakDictionary = {}
-    for refPropNumber in range(0, len(refPropList)):
-        refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue != '':  #skip columns with no value
-            if refValueTypeList[refPropNumber] == 'time':
-                refValue = createTimeReferenceValue(refValue)
-                
-            snakDictionary[refPropList[refPropNumber]] = [
-                {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
-                }
-            ]
+    for qualPropNumber in range(0, len(qualPropList)):
+        qualValue = rowData[qualValueColumnList[qualPropNumber]]
+        if qualValue != '':  #skip columns with no value
+            if qualEntityOrLiteral[qualPropNumber] == 'entity':
+                # case where the value is an entity
+
+                snakDictionary[qualPropList[qualPropNumber]] = [
+                    {
+                        'snaktype': 'value',
+                        'property': qualPropList[qualPropNumber],
+                        'datavalue': {
+                            'value': {
+                                'id': qualValue
+                                },
+                            'type': 'wikibase-entityid'
+                            }
+                    }
+                ]
+            else:
+                # case where the value is a literal or time
+                if qualValueTypeList[qualPropNumber] == 'time':
+                    qualValue = createTimeReferenceValue(qualValue)
+                    
+                snakDictionary[qualPropList[qualPropNumber]] = [
+                    {
+                        'snaktype': 'value',
+                        'property': qualPropList[qualPropNumber],
+                        'datavalue': {
+                            'value': qualValue,
+                            'type': qualValueTypeList[qualPropNumber]
+                        },
+                        'datatype': qualTypeList[qualPropNumber]
+                    }
+                ]
     return snakDictionary
 
 # This function attempts to post and handles maxlag errors
