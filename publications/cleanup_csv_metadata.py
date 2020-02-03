@@ -161,63 +161,6 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
 
-# If there are qualifiers for a statement, return a qualifiers dictionary
-# This is a hack of the createReferences() function, which is very similar
-def createQualifiers(columns, propertyId, rowData):
-    statementUuidColumn = ''
-    refPropList = []
-    refValueColumnList = []
-    refTypeList = []
-    refValueTypeList = []
-    
-    for column in columns:
-        if not('suppressOutput' in column):
-            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
-            if 'prop/' + propertyId in column['propertyUrl']:
-                temp = column['valueUrl'].partition('{')[2]
-                statementUuidColumn = temp.partition('}')[0]
-                # print(statementUuidColumn)
-    if statementUuidColumn == '':
-        return []
-    else:
-        for column in columns:
-           if not('suppressOutput' in column):
-                # find the column that has the statement UUID in the about
-                # and the property is a qualifier property
-                if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
-                # differs from references:
-                # find the columns that have the refHash in the aboutUrl
-                # if refHashColumn in column['aboutUrl']:
-                    refPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
-                    refValueColumnList.append(column['titles'])
-                    if column['datatype'] == 'anyURI':
-                        refTypeList.append('url')
-                        refValueTypeList.append('string')
-                    elif column['datatype'] == 'date':
-                        refTypeList.append('time')
-                        refValueTypeList.append('time')
-                    else:
-                        refTypeList.append('string')
-                        refValueTypeList.append('string')
-    snakDictionary = {}
-    for refPropNumber in range(0, len(refPropList)):
-        refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue != '':  #skip columns with no value
-            if refValueTypeList[refPropNumber] == 'time':
-                refValue = createTimeReferenceValue(refValue)
-                
-            snakDictionary[refPropList[refPropNumber]] = [
-                {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
-                }
-            ]
-    return snakDictionary
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
