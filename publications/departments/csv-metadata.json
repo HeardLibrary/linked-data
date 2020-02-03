@@ -39,7 +39,9 @@
               "titles": "parentUnitStatementUuid",
               "name": "parentUnitStatementUuid",
               "datatype": "string", 
-              "suppressOutput": true
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P749",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{parentUnitStatementUuid}"
             },{
               "titles": "parentUnit",
               "name": "parentUnit",
@@ -48,19 +50,9 @@
               "propertyUrl": "http://www.wikidata.org/prop/direct/P749",
               "valueUrl": "http://www.wikidata.org/entity/{parentUnit}"
             },{
-              "name": "hasParentUnitStatement",
-              "virtual": true,
-              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-              "propertyUrl": "http://www.wikidata.org/prop/P749",
-              "valueUrl": "http://www.wikidata.org/entity/statement/{parentUnitStatementUuid}"
-            },{
               "titles": "parentUnitReferenceHash",
               "name": "parentUnitReferenceHash",
               "datatype": "string", 
-              "suppressOutput": true
-            },{
-              "name": "parentUnitReference",
-              "virtual": true,
               "aboutUrl": "http://www.wikidata.org/entity/statement/{parentUnitStatementUuid}",
               "propertyUrl": "prov:wasDerivedFrom",
               "valueUrl": "http://www.wikidata.org/reference/{parentUnitReferenceHash}"
@@ -80,7 +72,9 @@
               "titles": "officialWebsiteStatementUuid",
               "name": "officialWebsiteStatementUuid",
               "datatype": "string", 
-              "suppressOutput": true
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P856",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}"
             },{
               "titles": "officialWebsite",
               "name": "officialWebsite",
@@ -88,19 +82,9 @@
               "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
               "propertyUrl": "http://www.wikidata.org/prop/direct/P856"
             },{
-              "name": "hasOfficialWebsiteStatement",
-              "virtual": true,
-              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-              "propertyUrl": "http://www.wikidata.org/prop/P856",
-              "valueUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}"
-            },{
               "titles": "officialWebsiteReferenceHash",
               "name": "officialWebsiteReferenceHash",
               "datatype": "string", 
-              "suppressOutput": true
-            },{
-              "name": "officialWebsiteReference",
-              "virtual": true,
               "aboutUrl": "http://www.wikidata.org/entity/statement/{officialWebsiteStatementUuid}",
               "propertyUrl": "prov:wasDerivedFrom",
               "valueUrl": "http://www.wikidata.org/reference/{officialWebsiteReferenceHash}"
@@ -121,7 +105,9 @@
               "titles": "instanceOfStatementUuid",
               "name": "instanceOfStatementUuid",
               "datatype": "string", 
-              "suppressOutput": true
+              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+              "propertyUrl": "http://www.wikidata.org/prop/P31",
+              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfStatementUuid}"
             },{
               "titles": "instanceOf",
               "name": "instanceOf",
@@ -130,19 +116,9 @@
               "propertyUrl": "http://www.wikidata.org/prop/direct/P31",
               "valueUrl": "http://www.wikidata.org/entity/{instanceOf}"
             },{
-              "name": "hasInstanceOfStatement",
-              "virtual": true,
-              "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-              "propertyUrl": "http://www.wikidata.org/prop/P31",
-              "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfStatementUuid}"
-            },{
               "titles": "instanceOfReferenceHash",
               "name": "instanceOfReferenceHash",
               "datatype": "string", 
-              "suppressOutput": true
-            },{
-              "name": "instanceOfReference",
-              "virtual": true,
               "aboutUrl": "http://www.wikidata.org/entity/statement/{instanceOfStatementUuid}",
               "propertyUrl": "prov:wasDerivedFrom",
               "valueUrl": "http://www.wikidata.org/reference/{instanceOfReferenceHash}"
