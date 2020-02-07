@@ -92,7 +92,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     # configuration settings
     endpointUrl = 'https://query.wikidata.org/sparql'
     acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/0.8 (steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/0.8 (https://github.com/HeardLibrary/linked-data/tree/master/publications; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
     'Accept' : acceptMediaType,
     'User-Agent': userAgentHeader
