@@ -11,6 +11,8 @@ The author part of the project is related to author disambiguation and associati
 
 The data that feeds from the first set of scripts to the second is stored in CSV format.  The mapping from the CSV headers to Wikidata properties is specified using the [W3C Generating RDF from Tabular Data on the Web](http://www.w3.org/TR/csv2rdf/) Recommendation.  The JSON-LD mapping file is [here](https://github.com/HeardLibrary/linked-data/blob/master/publications/csv-metadata.json).  
 
+For details about the design and operation of VanderBot, see [this series of blog posts](http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html).
+
 VanderBot is under development (version 0.8) and subject to continual change.  At this point, it's too new to have any stable releases.
 
 ## Other stuff
