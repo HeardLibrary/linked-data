@@ -818,5 +818,6 @@ for table in tables:
                         print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
                         print()
             
-            # after getting an error, try a 2 second delay. This was OK, a 1 second delay wasn't.
-            sleep(2)
+            # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+            # To be safe and avoid getting blocked, use 1.25 s.
+            sleep(1.25)
