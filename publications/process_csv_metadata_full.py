@@ -303,10 +303,13 @@ def createQualifiers(columns, propertyId, rowData):
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
-    maxRetries = 2
+    maxRetries = 3
+    baseDelay = 5 # Wikidata recommends a delay of at least 5 seconds
     retry = 0
     # maximum number of times to retry lagged server = maxRetries
     while retry <= maxRetries:
+        if retry > 0:
+            print('retry:', retry)
         r = session.post(apiUrl, data = parameters)
         data = r.json()
         try:
@@ -314,14 +317,18 @@ def attemptPost(apiUrl, parameters):
             # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
             if data['error']['code'] == 'maxlag':
                 print('Lag of ', data['error']['lag'], ' seconds.')
-                retry += 1
-                recommendedDelay = int(r.headers['Retry-After'])
-                if recommendedDelay < 5:
+                # recommended delay is basically useless
+                # recommendedDelay = int(r.headers['Retry-After'])
+                #if recommendedDelay < 5:
                     # recommendation is to wait at least 5 seconds if server is lagged
-                    recommendedDelay = 5
-                print('Waiting ', recommendedDelay , ' seconds.')
-                print()
-                sleep(recommendedDelay)
+                #    recommendedDelay = 5
+                recommendedDelay = baseDelay*2**retry # double the delay with each retry 
+                if retry != maxRetries:
+                    print('Waiting ', recommendedDelay , ' seconds.')
+                    print()
+                    sleep(recommendedDelay)
+                retry += 1
+
                 # after this, go out of if and try code blocks
             else:
                 # an error code is returned, but it's not maxlag
