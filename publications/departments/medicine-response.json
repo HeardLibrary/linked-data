@@ -1,0 +1,217 @@
+{
+    "entity": {
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Vanderbilt Department of Anesthesiology"
+        }
+      },
+      "descriptions": {
+        "en": {
+          "language": "en",
+          "value": "A department focused on clinical discovery, basic science research, and translational application of new knowledge throughout perioperative medicine."
+        }
+      },
+      "aliases": {},
+      "sitelinks": {},
+      "claims": {
+        "P749": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P749",
+              "hash": "d9cb9d9dfa1e6ff5acfdafd56066c6e1b3060efb",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 7914466,
+                  "id": "Q7914466"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "Q89951871$55EE7619-2E99-44EF-A958-1792219E30D7",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "2216a30e04f02e18dd1b76ec24c786e58143f62c",
+                "snaks": {
+                  "P854": [
+                    {
+                      "snaktype": "value",
+                      "property": "P854",
+                      "hash": "1a5c04e414886b6683e7d6a4f8a915fa16fff094",
+                      "datavalue": {
+                        "value": "https://www.vumc.org/oor/departments-and-centers",
+                        "type": "string"
+                      },
+                      "datatype": "url"
+                    }
+                  ],
+                  "P813": [
+                    {
+                      "snaktype": "value",
+                      "property": "P813",
+                      "hash": "1878ab110f51942f7ec81439035ab04d618b1727",
+                      "datavalue": {
+                        "value": {
+                          "time": "+2020-04-10T00:00:00Z",
+                          "timezone": 0,
+                          "before": 0,
+                          "after": 0,
+                          "precision": 11,
+                          "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                        },
+                        "type": "time"
+                      },
+                      "datatype": "time"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P854",
+                  "P813"
+                ]
+              }
+            ]
+          }
+        ],
+        "P856": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P856",
+              "hash": "d50665246cd46818633197f0a70a4dee01a46475",
+              "datavalue": {
+                "value": "https://www.vumc.org/anesthesiology/",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "Q89951871$52FE70A3-F03E-4DE3-B939-6028DAB239D0",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "69cb836012836fc8c2f4f2e72af6f74d52ba8e77",
+                "snaks": {
+                  "P813": [
+                    {
+                      "snaktype": "value",
+                      "property": "P813",
+                      "hash": "1878ab110f51942f7ec81439035ab04d618b1727",
+                      "datavalue": {
+                        "value": {
+                          "time": "+2020-04-10T00:00:00Z",
+                          "timezone": 0,
+                          "before": 0,
+                          "after": 0,
+                          "precision": 11,
+                          "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                        },
+                        "type": "time"
+                      },
+                      "datatype": "time"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P813"
+                ]
+              }
+            ]
+          }
+        ],
+        "P31": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "0e4a10dc2a212cf298a327da2c1c1b95d8c8b9a8",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 2467461,
+                  "id": "Q2467461"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "Q89951871$E2CF7F09-5500-4219-9327-0D40FFE1F8E1",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "4cb3fa5619427ff2592d241fda426c10933ff7c1",
+                "snaks": {
+                  "P854": [
+                    {
+                      "snaktype": "value",
+                      "property": "P854",
+                      "hash": "53cce1b7bd7dd60b5487329eee261e80070a859d",
+                      "datavalue": {
+                        "value": "https://www.vumc.org/anesthesiology/",
+                        "type": "string"
+                      },
+                      "datatype": "url"
+                    }
+                  ],
+                  "P813": [
+                    {
+                      "snaktype": "value",
+                      "property": "P813",
+                      "hash": "1878ab110f51942f7ec81439035ab04d618b1727",
+                      "datavalue": {
+                        "value": {
+                          "time": "+2020-04-10T00:00:00Z",
+                          "timezone": 0,
+                          "before": 0,
+                          "after": 0,
+                          "precision": 11,
+                          "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                        },
+                        "type": "time"
+                      },
+                      "datatype": "time"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P854",
+                  "P813"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "id": "Q89951871",
+      "type": "item",
+      "lastrevid": 1154048999
+    },
+    "success": 1
+  }

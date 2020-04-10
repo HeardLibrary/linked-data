@@ -2,7 +2,7 @@
     "@type": "TableGroup",
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [{
-        "url": "engineering-to-write.csv",
+        "url": "medicine-to-write.csv",
         "tableSchema": {
             "columns": [{
               "titles": "wikidataId",

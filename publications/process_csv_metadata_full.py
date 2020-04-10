@@ -1,5 +1,5 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-12-16
-# It's part of the development of VanderBot 0.8
+# Freely available under a CC0 license. Steve Baskauf 2020-04-10
+# It's part of the development of VanderBot 0.9
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
@@ -18,6 +18,9 @@
 
 # A stale output file should not be used as input for this script since if others have changed either the label or
 # description, the script will change it back to whatever previous value was in the stale table.  
+
+# Important note: This script only handles the following value types: URI, plain string, and dateTime. It does not currently handle 
+# any other complex value type like geocoordinates.
 
 import json
 import requests
@@ -92,7 +95,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     # configuration settings
     endpointUrl = 'https://query.wikidata.org/sparql'
     acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/0.8 (https://github.com/HeardLibrary/linked-data/tree/master/publications; mailto:steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/0.9 (https://github.com/HeardLibrary/linked-data/tree/master/publications; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
     'Accept' : acceptMediaType,
     'User-Agent': userAgentHeader
@@ -169,108 +172,157 @@ def createTimeReferenceValue(value):
             }
     return dateDict
 
-# If there are references for a statement, return a reference list
-# Currently only handles one reference per statement
-def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashColumn):
-    refPropList = []
-    refValueColumnList = []
-    refTypeList = []
-    refValueTypeList = []
-    
+# Find the column with the UUID for the statement
+def findPropertyUuid(propertyId, columns):
+    statementUuidColumn = '' # start value as empty string in case no UUID column
     for column in columns:
         if not('suppressOutput' in column):
-            # find the columns that have the refHash column name in the aboutUrl
-            if refHashColumn in column['aboutUrl']:
-                refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
-                refValueColumnList.append(column['titles'])
-                if column['datatype'] == 'anyURI':
-                    refTypeList.append('url')
-                    refValueTypeList.append('string')
-                elif column['datatype'] == 'date':
-                    refTypeList.append('time')
-                    refValueTypeList.append('time')
-                else:
-                    refTypeList.append('string')
-                    refValueTypeList.append('string')
-    snakDictionary = {}
-    for refPropNumber in range(0, len(refPropList)):
-        refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue != '':  #skip columns with no value
-            if refValueTypeList[refPropNumber] == 'time':
-                refValue = createTimeReferenceValue(refValue)
-                
-            snakDictionary[refPropList[refPropNumber]] = [
-                {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
-                }
-            ]
-    if snakDictionary != {}:  # don't send an empty snakDictionary
-        referenceDictionary = [
-            {
-                'snaks': snakDictionary
-            }
-        ]
-    else:
-        referenceDictionary = []
-    #print(json.dumps(referenceDictionary, indent = 2))
-    return referenceDictionary
-
-# If there are qualifiers for a statement, return a qualifiers dictionary
-# This is a hack of the createReferences() function, which is very similar
-def createQualifiers(columns, propertyId, rowData):
-    statementUuidColumn = ''
-    qualPropList = []
-    qualValueColumnList = []
-    qualTypeList = []
-    qualValueTypeList = []
-    qualEntityOrLiteral = []
-    
-    for column in columns:
-        if not('suppressOutput' in column):
-            # find the column in the value of the statement that has the prop version of the property as its propertyUrl
+            # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
                 temp = column['valueUrl'].partition('{')[2]
-                statementUuidColumn = temp.partition('}')[0]
-                # print(statementUuidColumn)
+                statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
+                #print(statementUuidColumn)
+    
+    # Give a warning if there isn't any UUID column for the property
     if statementUuidColumn == '':
-        return []
-    else:
-        for column in columns:
-           if not('suppressOutput' in column):
-                # find the column that has the statement UUID in the about
-                # and the property is a qualifier property
-                if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
-                    qualPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
-                    qualValueColumnList.append(column['titles'])
+        print('Warning: No UUID column for property ' + propertyId)
+    return statementUuidColumn
 
-                    # determine whether the qualifier is an entity or literal
-                    if 'valueUrl' in column:
-                        qualEntityOrLiteral.append('entity')
-                    else:
-                        qualEntityOrLiteral.append('literal')
+# Each property can have zero to many references. This function searches the column headers to find all of
+# the columns that are references for a particulary property used in statements
+def findReferencesForProperty(statementUuidColumn, columns):
+    # build up a list of dictionaries about references to associate with the property
+    referenceList = []
 
-                    if column['datatype'] == 'anyURI':
-                        qualTypeList.append('url')
-                        qualValueTypeList.append('string')
-                    elif column['datatype'] == 'date':
-                        qualTypeList.append('time')
-                        qualValueTypeList.append('time')
-                    else:
-                        qualTypeList.append('string')
-                        qualValueTypeList.append('string')
+    # Step through the columns looking for references associated with the property
+    for column in columns:
+        if not('suppressOutput' in column):
+            # check if the aboutUrl for the column has the statement subject UUID column as the about value and that the propertyUrl value is wasDerivedFrom
+            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
+                temp = column['valueUrl'].partition('{')[2]
+                refHashColumn = temp.partition('}')[0]
+                #print(refHashColumn)
+
+                # These are the lists that will accumulate data about each property of the reference
+                refPropList = [] # P ID for the property
+                refValueColumnList = [] # column header string for the reference property's value
+                refTypeList = [] # the datatype of the property's value: url, time, or string
+                refValueTypeList = [] # the specific type of a string: time or string
+                # The kind of value in the column (anyURI, date, string?) can be retrieved directly from the column 'datatype' value
+                
+                # Now step throught the columns looking for each of the properties that are associated with the reference
+                for propColumn in columns:
+                    if not('suppressOutput' in propColumn):
+                        # Find the columns that have the refHash column name in the aboutUrl
+                        if refHashColumn in propColumn['aboutUrl']:
+                            refPropList.append(propColumn['propertyUrl'].partition('prop/reference/')[2])
+                            refValueColumnList.append(propColumn['titles'])
+                            if propColumn['datatype'] == 'anyURI':
+                                refTypeList.append('url')
+                                refValueTypeList.append('string')
+                            elif propColumn['datatype'] == 'date':
+                                refTypeList.append('time')
+                                refValueTypeList.append('time')
+                            else:
+                                refTypeList.append('string')
+                                refValueTypeList.append('string')
+                
+                # After all of the properties have been found and their data have been added to the lists, 
+                # insert the lists into the reference list as values in a dictionary
+                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList})
+        
+    # After every column has been searched for references associated with the property, retunr the reference list
+    print('References: ', json.dumps(referenceList, indent=2))
+    return referenceList
+
+
+# Each property can have zero to many qualifiers. This function searches the column headers to find all of
+# the columns that are qualifiers for a particulary property
+def findQualifiersForProperty(statementUuidColumn, columns):
+
+    # These are the lists that will accumulate data about each qualifier
+    qualPropList = [] # P ID for the property
+    qualValueColumnList = [] # column header string for the reference property's value
+    qualEntityOrLiteral = [] # values: entity or literal, determined by presence of a valueUrl key for the column
+    qualTypeList = [] # the datatype of the qualifier's value: url, time, or string
+    qualValueTypeList = [] # the specific type of a string: time or string
+    # The kind of value in the column (anyURI, date, string?) can be retrieved directly from the column 'datatype' value
+
+    for column in columns:
+        if not('suppressOutput' in column):
+            # find the column that has the statement UUID in the about
+            # and the property is a qualifier property
+            if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
+                qualPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
+                qualValueColumnList.append(column['titles'])
+
+                # determine whether the qualifier is an entity or literal
+                if 'valueUrl' in column:
+                    qualEntityOrLiteral.append('entity')
+                else:
+                    qualEntityOrLiteral.append('literal')
+
+                if column['datatype'] == 'anyURI':
+                    qualTypeList.append('url')
+                    qualValueTypeList.append('string')
+                elif column['datatype'] == 'date':
+                    qualTypeList.append('time')
+                    qualValueTypeList.append('time')
+                else:
+                    qualTypeList.append('string')
+                    qualValueTypeList.append('string')
+    # After all of the qualifier columns are found for the property, create a dictionary to pass back
+    qualifierDictionary = {'qualPropList': qualPropList, 'qualValueColumnList': qualValueColumnList, "qualEntityOrLiteral": qualEntityOrLiteral, 'qualTypeList': qualTypeList, 'qualValueTypeList': qualValueTypeList}
+    print('Qualifiers: ', json.dumps(qualifierDictionary, indent=2))
+    return(qualifierDictionary)
+
+# If there are references for a statement, return a reference list
+def createReferences(referenceListForProperty, rowData):
+    referenceListToReturn = []
+    for referenceDict in referenceListForProperty:
+        refPropList = referenceDict['refPropList']
+        refValueColumnList = referenceDict['refValueColumnList']
+        refValueTypeList = referenceDict['refValueTypeList']
+        refTypeList = referenceDict['refTypeList']
+
+        snakDictionary = {}
+        for refPropNumber in range(0, len(refPropList)):
+            refValue = rowData[refValueColumnList[refPropNumber]]
+            if refValue != '':  #skip columns with no value
+                if refValueTypeList[refPropNumber] == 'time':
+                    refValue = createTimeReferenceValue(refValue)
+                    
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                        'snaktype': 'value',
+                        'property': refPropList[refPropNumber],
+                        'datavalue': {
+                            'value': refValue,
+                            'type': refValueTypeList[refPropNumber]
+                        },
+                        'datatype': refTypeList[refPropNumber]
+                    }
+                ]
+        outerSnakDictionary = {
+            'snaks': snakDictionary
+        }
+        referenceListToReturn.append(outerSnakDictionary)
+    return referenceListToReturn
+
+
+# If there are qualifiers for a statement, return a qualifiers dictionary
+def createQualifiers(qualifierDictionaryForProperty, rowData):
+    qualPropList = qualifierDictionaryForProperty['qualPropList']
+    qualValueColumnList = qualifierDictionaryForProperty['qualValueColumnList']
+    qualTypeList = qualifierDictionaryForProperty['qualTypeList']
+    qualValueTypeList = qualifierDictionaryForProperty['qualValueTypeList']
+    qualEntityOrLiteral = qualifierDictionaryForProperty['qualEntityOrLiteral']
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
         qualValue = rowData[qualValueColumnList[qualPropNumber]]
         if qualValue != '':  #skip columns with no value
             if qualEntityOrLiteral[qualPropNumber] == 'entity':
                 # case where the value is an entity
-
                 snakDictionary[qualPropList[qualPropNumber]] = [
                     {
                         'snaktype': 'value',
@@ -300,6 +352,7 @@ def createQualifiers(columns, propertyId, rowData):
                     }
                 ]
     return snakDictionary
+
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
@@ -393,7 +446,7 @@ with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
 metadata = json.loads(text)
 
 tables = metadata['tables']
-for table in tables:
+for table in tables:  # The script can handle multiple tables because that option is in the standard, but as a practical matter I only use one
     tableFileName = table['url']
     print('File name: ', tableFileName)
     tableData = readDict(tableFileName)
@@ -429,15 +482,13 @@ for table in tables:
     aliasLanguageList = []
     descriptionColumnList = []
     descriptionLanguageList = []
-    entityValuedPropertiesList = []
-    entityValueIdList = []
-    literalValuedPropertiesList = []
-    literalValueIdList = []
-    literalValueDatatypeList = []
     propertiesColumnList = []
+    propertiesUuidColumnList = []
     propertiesTypeList = []
     propertiesIdList = []
     propertiesDatatypeList = []
+    propertiesReferencesList = []
+    propertiesQualifiersList = []
 
     # step through all of the columns and sort their headers into the appropriate list
 
@@ -545,6 +596,11 @@ for table in tables:
                     propertiesTypeList.append('entity')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append('')
+                    propertyUuidColumn = findPropertyUuid(propertyId, columns)
+                    propertiesUuidColumnList.append(propertyUuidColumn)
+                    propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
+                    propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
+                    print()
             
             # remaining columns should have properties with literal values
             else:
@@ -558,16 +614,16 @@ for table in tables:
                     propertiesTypeList.append('literal')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append(valueDatatype)
+                    propertyUuidColumn = findPropertyUuid(propertyId, columns)
+                    propertiesUuidColumnList.append(propertyUuidColumn)
+                    propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
+                    propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
+                    print()
     print()
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
         print('processing row ', rowNumber)
-        statementUuidColumnList = []
-        statementPropertyIdList = []
-        statementValueColumnList = []
-        statementValueTypeList = []
-        referenceHashColumnList = []
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
@@ -679,31 +735,11 @@ for table in tables:
             # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
             for propertyNumber in range(0, len(propertiesColumnList)):
                 propertyId = propertiesIdList[propertyNumber]
-                
-                # find the column with the UUID for the statement
-                statementUuidColumn = ''
-                for column in columns:
-                    if not('suppressOutput' in column):
-                        # find the column in the value of the statement that has the prop version of the property as its propertyUrl
-                        if 'prop/' + propertyId in column['propertyUrl']:
-                            temp = column['valueUrl'].partition('{')[2]
-                            statementUuidColumn = temp.partition('}')[0]
-                            #print(statementUuidColumn)
-                            
+                statementUuidColumn = propertiesUuidColumnList[propertyNumber]
                 # If there is already a UUID, then don't write that property to the API
                 if tableData[rowNumber][statementUuidColumn] != '':
                     continue  # skip the rest of this iteration and go onto the next property
-                            
-                # find the column with the hash for the reference (handles only one reference per statement)
-                refHashColumn = ''
-                for column in columns:
-                    if not('suppressOutput' in column):
-                        # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
-                        if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
-                            temp = column['valueUrl'].partition('{')[2]
-                            refHashColumn = temp.partition('}')[0]
-                            #print(refHashColumn)
-                
+
                 valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
                 if valueString != '':
                     if propertiesTypeList[propertyNumber] == 'literal':
@@ -737,20 +773,14 @@ for table in tables:
                     else:
                         print('This should not happen')
                         
-                    statementUuidColumnList.append(statementUuidColumn)
-                    statementPropertyIdList.append(propertyId)
-                    referenceHashColumnList.append(refHashColumn)
-                    statementValueColumnList.append(propertiesColumnList[propertyNumber])
-                    statementValueTypeList.append(propertiesTypeList[propertyNumber])
-                    
-                    if refHashColumn != '':  # don't create references if there isn't a reference hash column
-                        references = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
-                        if references != []:
+                    if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
+                        references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
+                        if references != []: # additional check to avoid setting references for an empty reference list
                             snakDict['references'] = references
-
-                    qualifiers = createQualifiers(columns, propertiesIdList[propertyNumber], tableData[rowNumber])
-                    if qualifiers != {}:
-                        snakDict['qualifiers'] = qualifiers
+                    if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
+                        qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
+                        if qualifiers != {}:
+                            snakDict['qualifiers'] = qualifiers
                         
                     claimsList.append(snakDict)
                     
@@ -761,7 +791,7 @@ for table in tables:
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-
+   
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -772,46 +802,90 @@ for table in tables:
             responseData = attemptPost(endpointUrl, parameterDictionary)
             print('Write confirmation: ', responseData)
             print()
-            
+
             if newItem:
                 # extract the entity Q number from the response JSON
                 tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
                 
             # fill into the table the values of newly created claims and references
-            for statementIndex in range(0, len(statementPropertyIdList)):
-                #print(tableData[rowNumber][statementValueColumnList[statementIndex]])
+            for statementIndex in range(0, len(propertiesIdList)):
+                referencesForStatement = propertiesReferencesList[statementIndex]
+                #print(tableData[rowNumber][propertiesColumnList[statementIndex]])
                 # only add the claim if the UUID cell for that row is empty
-                if tableData[rowNumber][statementUuidColumnList[statementIndex]] =='':
-                    found = False
-                    for statement in responseData['entity']['claims'][statementPropertyIdList[statementIndex]]:
+                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='':
+                    count = 0
+                    statementFound = False
+                    # If there are multiple values for a property, this will loop through more than one statement
+                    for statement in responseData['entity']['claims'][propertiesIdList[statementIndex]]:
                         #print(statement)
 
                         # does the value in the cell equal the mainsnak value of the claim?
-                        # it's necessary to check this because there could be other previous claims for that property
-                        if statementValueTypeList[statementIndex] == 'literal':
-                            found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
-                        elif statementValueTypeList[statementIndex] == 'entity':
-                            found = tableData[rowNumber][statementValueColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
+                        # it's necessary to check this because there could be other previous claims for that property (i.e. multiple values)
+                        if propertiesTypeList[statementIndex] == 'literal':
+                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
+                        elif propertiesTypeList[statementIndex] == 'entity':
+                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
                         else:
                             pass
-                        if found:
-                            tableData[rowNumber][statementUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
-                            # Only check for a reference hash if the statement is on for which I'm tracking references. 
-                            # (When we aren't tracking references, some will have them anyway if the statement was asserted by others.)
-                            if referenceHashColumnList[statementIndex] != '':
-                                # in the case where the statement had no reference, the 'references' key won't be found
-                                # so just leave the reference hash cell blank in the table. This can happen when others have already made the statement
-                                # without a reference so we can't add the reference in this script (handled by a followup script).
-                                try: 
-                                    tableData[rowNumber][referenceHashColumnList[statementIndex]] = statement['references'][0]['hash']
-                                except:
-                                    pass
-                                print()
-                                # when the correct value is found, stop the loop to avoid grabbing the hash for incorrect values that come later
-                                break
-                    # print this error message only if there is not match to any of the values after looping through all of them
-                    if not found:
-                        print('did not find', tableData[rowNumber][statementValueColumnList[statementIndex]])
+                        if statementFound:
+                            count += 1
+                            if count > 1:
+                                # I don't think this should actually happen, since if there were already at least one statement with this value,
+                                # it would have already been downloaded in the processing prior to running this script.
+                                print('Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                            tableData[rowNumber][propertiesUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
+
+                            # Search for each reference type (set of reference properties) that's being tracked for a particular property's statements
+                            for tableReference in referencesForStatement: # loop will not be executed when length of referenceForStatement = 0 (no references tracked for this property)
+                                # Check for an exact match of reference properties and their values (since we're looking for reference for a statement that was written)
+                                # Step through each reference that came back for the statement we are interested in
+                                for responseReference in statement['references']: # "outer loop"
+                                    # Perform a screening process on each returned reference by stepping through each property associated with a refernce type
+                                    # and trying to match it. If the path to the value doesn't exist, there will be an exception and that reference 
+                                    # can be ignored. Only if the values for all of the reference properties match will the hash be recorded.
+                                    referenceMatch = True
+                                    for referencePropertyIndex in range(0, len(tableReference['refPropList'])): # "inner loop" to check each property in the reference
+                                        try:
+                                            # First try to see if the values in the response JSON for the property match
+
+                                            # The values for times are buried a layer deeper in the JSON than other types.
+                                            if tableReference['refTypeList'][referencePropertyIndex] == 'time':
+                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
+                                                    referenceMatch = False
+                                                    break # kill the inner loop because this value doesn't match
+                                            else: # Values for types other than time have direct literal values of 'value'
+                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
+                                                    referenceMatch = False
+                                                    break # kill the inner loop because this value doesn't match
+                                            # So far, so good -- the value for this property matches
+                                        except:
+                                            # An exception occured because the JSON "path" to the value didn't match. So this isn't the right property
+                                            referenceMatch = False
+                                            break # kill the inner loop because the property doesn't match
+                                        
+                                        # OK, we got all the way through on this property with it and its value matching, so referenceMatch will still be True
+                                        # The inner loop can continue on to the next property to see if it and its value match.
+
+                                    # If we got to this point, the inner loop completed withoug being killed. referenceMatch should still be True
+                                    # So this is a match to the reference that we wrote and we need to grab the reference hash
+                                    tableData[rowNumber][tableReference['refHashColumn']] = responseReference['hash']
+                                    # It is not necessary to continue on with the next iteration of the outer loop since we found the reference we wanted.
+                                    # So we can kill the outer loop with the value of referenceMatch being True
+                                    break
+
+                                # At this point, the outer loop is finished. Either a response reference has matched or all response references have been checked.
+                                # Since this check only happens for newly written statements, referenceMatch should always be True since the exact reference was written.
+                                # But better give an error message if for some reason no reference matched.
+                                if referenceMatch == False:
+                                    print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                                    print('Reference  ', tableReference)
+                                
+                                # The script will now move on to checking the next reference in the table.
+
+                    # Print this error message only if there is not match to any of the values after looping through all of the matching properties
+                    # This should never happen because this code is only executed when the statement doesn't have a UUID (i.e. not previously written)
+                    if count == 0:
+                        print('did not find', tableData[rowNumber][propertiesColumnList[statementIndex]])
         
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost
@@ -828,3 +902,4 @@ for table in tables:
             # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
             # To be safe and avoid getting blocked, use 1.25 s.
             sleep(1.25)
+print('done')
