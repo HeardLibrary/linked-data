@@ -630,7 +630,14 @@ for table in tables:  # The script can handle multiple tables because that optio
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
-        print('processing row ', rowNumber)
+        status_message = 'processing row: ' + str(rowNumber)
+        if len(labelColumnList) > 0: # skip printing a label if there aren't any
+            status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
+        if tableData[rowNumber][subjectWikidataIdColumnHeader] != '': # only list existing record IDs
+            status_message += '  qID: ' + tableData[rowNumber][subjectWikidataIdColumnHeader]
+        else:
+            status_message += '  new record'
+        print(status_message)
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
@@ -818,8 +825,8 @@ for table in tables:  # The script can handle multiple tables because that optio
             for statementIndex in range(0, len(propertiesIdList)):
                 referencesForStatement = propertiesReferencesList[statementIndex]
                 #print(tableData[rowNumber][propertiesColumnList[statementIndex]])
-                # only add the claim if the UUID cell for that row is empty
-                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='':
+                # only add the claim if the UUID cell for that row is empty AND there is a value for the property
+                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and tableData[rowNumber][propertiesColumnList[statementIndex]] !='':
                     count = 0
                     statementFound = False
                     # If there are multiple values for a property, this will loop through more than one statement
