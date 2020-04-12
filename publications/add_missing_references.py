@@ -386,60 +386,51 @@ for table in tables:
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
         print('processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader])
-        statementUuidColumnList = []
-        statementPropertyIdList = []
-        statementValueColumnList = []
-        statementValueTypeList = []
-        referenceHashColumnList = []
+        
+        for propertyNumber in range(0, len(propertiesColumnList)):
+            propertyId = propertiesIdList[propertyNumber]
+            statementUuidColumn = propertiesUuidColumnList[propertyNumber]     
+            # We are only interested in writing references for statements that already have UUIDs
+            if tableData[rowNumber][statementUuidColumn] != '':
+                if len(propertiesReferencesList[propertyNumber]) != 0:  # skip that claim if it doesn't have references
 
-        # Handle claims. This test should always be true, otherwise, why would you be running this script?
-        if len(propertiesColumnList) > 0:
-            
-            for propertyNumber in range(0, len(propertiesColumnList)):
-                propertyId = propertiesIdList[propertyNumber]
-                statementUuidColumn = propertiesUuidColumnList[propertyNumber]
-                            
-                # We are only interested in writing references for statements that already have UUIDs
-                if tableData[rowNumber][statementUuidColumn] != '':
-                    
-                    if len(propertiesReferencesList[propertyNumber]) != 0:  # skip that claim if it doesn't have references
-                        for reference in propertiesReferencesList[propertyNumber]:
-                            if tableData[rowNumber][reference['refHashColumn']] == '': # process only new references
-                                # in this script, the createReferences function returns a snak dictionary, not a list
-                                referencesDict = createReferenceSnak(reference, tableData[rowNumber])
-                                if referencesDict == {}:
-                                    print('no data to write')
-                                    print()
-                                else:
-                                    # print(json.dumps(referencesDict, indent=2))
-                                    # build the parameter string to be posted to the API
-                                    parameterDictionary = {
-                                        'action': 'wbsetreference',
-                                        'statement': tableData[rowNumber][subjectWikidataIdColumnHeader] + "$" + tableData[rowNumber][statementUuidColumn],
-                                        'format':'json',
-                                        'token': csrfToken,
-                                        'snaks': json.dumps(referencesDict)
-                                        }
-                                    if maxlag > 0:
-                                        parameterDictionary['maxlag'] = maxlag
-                                    # print(json.dumps(parameterDictionary, indent = 2))
-                                    
-                                    print('ref:', reference['refValueColumnList'])
-                                    responseData = attemptPost(endpointUrl, parameterDictionary)
-                                    print('Write confirmation: ', responseData)
-                                    print()
-                
-                                    tableData[rowNumber][reference['refHashColumn']] = responseData['reference']['hash']
+                    for reference in propertiesReferencesList[propertyNumber]:
+                        if tableData[rowNumber][reference['refHashColumn']] == '': # process only new references
+                            # in this script, the createReferences function returns a snak dictionary, not a list
+                            referencesDict = createReferenceSnak(reference, tableData[rowNumber])
+                            if referencesDict == {}:
+                                print('no data to write')
+                                print()
+                            else:
+                                # print(json.dumps(referencesDict, indent=2))
+                                # build the parameter string to be posted to the API
+                                parameterDictionary = {
+                                    'action': 'wbsetreference',
+                                    'statement': tableData[rowNumber][subjectWikidataIdColumnHeader] + "$" + tableData[rowNumber][statementUuidColumn],
+                                    'format':'json',
+                                    'token': csrfToken,
+                                    'snaks': json.dumps(referencesDict)
+                                    }
+                                if maxlag > 0:
+                                    parameterDictionary['maxlag'] = maxlag
+                                # print(json.dumps(parameterDictionary, indent = 2))
                                 
-                                    # Replace the table with a new one containing any new IDs
-                                    # Note: I'm writing after every line so that if the script crashes, no data will be lost
-                                    with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-                                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                                        writer.writeheader()
-                                        for writeRowNumber in range(0, len(tableData)):
-                                            writer.writerow(tableData[writeRowNumber])
-                                    
-                                    # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-                                    # To be safe and avoid getting blocked, use 1.25 s.
-                                    sleep(1.25)
-        print()
+                                print('ref:', reference['refValueColumnList'])
+                                responseData = attemptPost(endpointUrl, parameterDictionary)
+                                print('Write confirmation: ', responseData)
+                                print()
+            
+                                tableData[rowNumber][reference['refHashColumn']] = responseData['reference']['hash']
+                            
+                                # Replace the table with a new one containing any new IDs
+                                # Note: I'm writing after every line so that if the script crashes, no data will be lost
+                                with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+                                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                                    writer.writeheader()
+                                    for writeRowNumber in range(0, len(tableData)):
+                                        writer.writerow(tableData[writeRowNumber])
+                                
+                                # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+                                # To be safe and avoid getting blocked, use 1.25 s.
+                                sleep(1.25)
+    print()
