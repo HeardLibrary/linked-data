@@ -1,29 +1,15 @@
-# Freely available under a CC0 license. Steve Baskauf 2019-12-13
-# It's part of the development of VanderBot 0.8
+# Freely available under a CC0 license. Steve Baskauf 2019-04-11
+# It's part of the development of VanderBot 0.9
 
-# See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
-# for a general explanation about writing to the Wikidata API
-
-# See https://github.com/HeardLibrary/digital-scholarship/blob/master/code/wikibase/api/write-statements.py
-# for details of how to write to a Wikibase API and comments on the authentication functions
-
-# The most important reference for formatting the data JSON to be sent to the API is:
-# https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
-
-# Usage note: the script that generates the input file downloads all of the labels and descriptions from Wikidata
-# So if you want to change either of them, just edit the input table before running the script.
-# If an alias is listed in the table, it will replace current aliases, then removed from the output table.  
-# This means that if you don't like the label that gets downloaded from Wikidata, you can move it to the alias column
-# and replace the label with your preferred version.  NOTE: it doesn't add an alias, it replaces.  See notes in code!
-
-# A stale output file should not be used as input for this script since if others have changed either the label or
-# description, the script will change it back to whatever previous value was in the stale table.  
+# See the notes in https://github.com/HeardLibrary/linked-data/blob/master/publications/process_csv_metadata_full.py
+# for background on this script. It's hacked from that one.
 
 import json
 import requests
 import csv
 from pathlib import Path
 from time import sleep
+import sys
 
 # -----------------------------------------------------------------
 # function definitions
@@ -117,33 +103,87 @@ def createTimeReferenceValue(value):
             }
     return dateDict
 
-# NOTE: this differs from the createReferences function in the main program in that it returns
-# a dictionary of snaks, NOT a list
-def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashColumn):
-    refPropList = []
-    refValueColumnList = []
-    refTypeList = []
-    refValueTypeList = []
-    
+
+# Find the column with the UUID for the statement
+def findPropertyUuid(propertyId, columns):
+    statementUuidColumn = '' # start value as empty string in case no UUID column
     for column in columns:
         if not('suppressOutput' in column):
-            # find the columns that have the refHash column name in the aboutUrl
-            if refHashColumn in column['aboutUrl']:
-                refPropList.append(column['propertyUrl'].partition('prop/reference/')[2])
-                refValueColumnList.append(column['titles'])
-                if column['datatype'] == 'anyURI':
-                    refTypeList.append('url')
-                    refValueTypeList.append('string')
-                elif column['datatype'] == 'date':
-                    refTypeList.append('time')
-                    refValueTypeList.append('time')
-                else:
-                    refTypeList.append('string')
-                    refValueTypeList.append('string')
+            # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
+            if 'prop/' + propertyId in column['propertyUrl']:
+                temp = column['valueUrl'].partition('{')[2]
+                statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
+                #print(statementUuidColumn)
+    
+    # Give a warning if there isn't any UUID column for the property
+    if statementUuidColumn == '':
+        print('Warning: No UUID column for property ' + propertyId)
+    return statementUuidColumn
+
+
+# Each property can have zero to many references. This function searches the column headers to find all of
+# the columns that are references for a particulary property used in statements
+def findReferencesForProperty(statementUuidColumn, columns):
+    # build up a list of dictionaries about references to associate with the property
+    referenceList = []
+
+    # Step through the columns looking for references associated with the property
+    for column in columns:
+        if not('suppressOutput' in column):
+            # check if the aboutUrl for the column has the statement subject UUID column as the about value and that the propertyUrl value is wasDerivedFrom
+            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
+                temp = column['valueUrl'].partition('{')[2]
+                refHashColumn = temp.partition('}')[0]
+                #print(refHashColumn)
+
+                # These are the lists that will accumulate data about each property of the reference
+                refPropList = [] # P ID for the property
+                refValueColumnList = [] # column header string for the reference property's value
+                refTypeList = [] # the datatype of the property's value: url, time, or string
+                refValueTypeList = [] # the specific type of a string: time or string
+                # The kind of value in the column (anyURI, date, string?) can be retrieved directly from the column 'datatype' value
+                
+                # Now step throught the columns looking for each of the properties that are associated with the reference
+                for propColumn in columns:
+                    if not('suppressOutput' in propColumn):
+                        # Find the columns that have the refHash column name in the aboutUrl
+                        if refHashColumn in propColumn['aboutUrl']:
+                            refPropList.append(propColumn['propertyUrl'].partition('prop/reference/')[2])
+                            refValueColumnList.append(propColumn['titles'])
+                            if propColumn['datatype'] == 'anyURI':
+                                refTypeList.append('url')
+                                refValueTypeList.append('string')
+                            elif propColumn['datatype'] == 'date':
+                                refTypeList.append('time')
+                                refValueTypeList.append('time')
+                            else:
+                                refTypeList.append('string')
+                                refValueTypeList.append('string')
+                
+                # After all of the properties have been found and their data have been added to the lists, 
+                # insert the lists into the reference list as values in a dictionary
+                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList})
+        
+    # After every column has been searched for references associated with the property, retunr the reference list
+    print('References: ', json.dumps(referenceList, indent=2))
+    return referenceList
+
+
+# NOTE: this differs from the createReferences function in the main program in that it returns
+# a dictionary of snaks for a single reference, NOT a list for many references
+def createReferenceSnak(referenceDict, rowData):
+    refPropList = referenceDict['refPropList']
+    refValueColumnList = referenceDict['refValueColumnList']
+    refValueTypeList = referenceDict['refValueTypeList']
+    refTypeList = referenceDict['refTypeList']
+    
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue != '':  #skip columns with no value
+        if refValue == '':  # Do not write the record if it's missing a reference!
+            print('Reference value missing! Cannot write the record.')
+            sys.exit()
+        else:
             if refValueTypeList[refPropNumber] == 'time':
                 refValue = createTimeReferenceValue(refValue)
                 
@@ -164,10 +204,13 @@ def createReferences(columns, propertyId, rowData, statementUuidColumn, refHashC
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
-    maxRetries = 2
+    maxRetries = 5
+    baseDelay = 5 # Wikidata recommends a delay of at least 5 seconds
     retry = 0
     # maximum number of times to retry lagged server = maxRetries
     while retry <= maxRetries:
+        if retry > 0:
+            print('retry:', retry)
         r = session.post(apiUrl, data = parameters)
         data = r.json()
         try:
@@ -175,14 +218,18 @@ def attemptPost(apiUrl, parameters):
             # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
             if data['error']['code'] == 'maxlag':
                 print('Lag of ', data['error']['lag'], ' seconds.')
-                retry += 1
-                recommendedDelay = int(r.headers['Retry-After'])
-                if recommendedDelay < 5:
+                # recommended delay is basically useless
+                # recommendedDelay = int(r.headers['Retry-After'])
+                #if recommendedDelay < 5:
                     # recommendation is to wait at least 5 seconds if server is lagged
-                    recommendedDelay = 5
-                print('Waiting ', recommendedDelay , ' seconds.')
-                print()
-                sleep(recommendedDelay)
+                #    recommendedDelay = 5
+                recommendedDelay = baseDelay*2**retry # double the delay with each retry 
+                if retry != maxRetries:
+                    print('Waiting ', recommendedDelay , ' seconds.')
+                    print()
+                    sleep(recommendedDelay)
+                retry += 1
+
                 # after this, go out of if and try code blocks
             else:
                 # an error code is returned, but it's not maxlag
@@ -277,15 +324,13 @@ for table in tables:
     #print(subjectWikidataIdName)
 
     # make lists of the columns for each kind of property
-    entityValuedPropertiesList = []
-    entityValueIdList = []
-    literalValuedPropertiesList = []
-    literalValueIdList = []
-    literalValueDatatypeList = []
     propertiesColumnList = []
+    propertiesUuidColumnList = []
     propertiesTypeList = []
     propertiesIdList = []
     propertiesDatatypeList = []
+    propertiesReferencesList = []
+    propertiesQualifiersList = []
 
     # step through all of the columns and sort their headers into the appropriate list
 
@@ -315,6 +360,10 @@ for table in tables:
                     propertiesTypeList.append('entity')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append('')
+                    propertyUuidColumn = findPropertyUuid(propertyId, columns)
+                    propertiesUuidColumnList.append(propertyUuidColumn)
+                    propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
+                    print()
             
             # remaining columns should have properties with literal values
             else:
@@ -328,86 +377,69 @@ for table in tables:
                     propertiesTypeList.append('literal')
                     propertiesIdList.append(propertyId)
                     propertiesDatatypeList.append(valueDatatype)
+                    propertyUuidColumn = findPropertyUuid(propertyId, columns)
+                    propertiesUuidColumnList.append(propertyUuidColumn)
+                    propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
+                    print()
     print()
 
     # process each row of the table
     for rowNumber in range(0, len(tableData)):
-        print('processing row ', rowNumber)
+        print('processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader])
         statementUuidColumnList = []
         statementPropertyIdList = []
         statementValueColumnList = []
         statementValueTypeList = []
         referenceHashColumnList = []
 
-        # handle claims
+        # Handle claims. This test should always be true, otherwise, why would you be running this script?
         if len(propertiesColumnList) > 0:
             
             for propertyNumber in range(0, len(propertiesColumnList)):
                 propertyId = propertiesIdList[propertyNumber]
-                
-                # find the column with the UUID for the statement
-                statementUuidColumn = ''
-                for column in columns:
-                    if not('suppressOutput' in column):
-                        # find the column in the value of the statement that has the prop version of the property as its propertyUrl
-                        if 'prop/' + propertyId in column['propertyUrl']:
-                            temp = column['valueUrl'].partition('{')[2]
-                            statementUuidColumn = temp.partition('}')[0]
-                            #print(statementUuidColumn)
+                statementUuidColumn = propertiesUuidColumnList[propertyNumber]
                             
                 # We are only interested in writing references for statements that already have UUIDs
                 if tableData[rowNumber][statementUuidColumn] != '':
-                            
-                    # find the column with the hash for the reference (handles only one reference per statement)
-                    refHashColumn = ''
-                    for column in columns:
-                        if not('suppressOutput' in column):
-                            # find the column in the value of the statement that has the statement UUID in the about and the property wasDerivedFrom
-                            if ('prov:wasDerivedFrom' in column['propertyUrl']) and (statementUuidColumn in column['aboutUrl']):
-                                temp = column['valueUrl'].partition('{')[2]
-                                refHashColumn = temp.partition('}')[0]
                     
-                    statementUuidColumnList.append(statementUuidColumn)
-                    statementPropertyIdList.append(propertyId)
-                    referenceHashColumnList.append(refHashColumn)
-                    statementValueColumnList.append(propertiesColumnList[propertyNumber])
-                    statementValueTypeList.append(propertiesTypeList[propertyNumber])
-                    
-                    uuidValue = tableData[rowNumber][statementUuidColumn]
-                    if refHashColumn != '':  # don't create references if there isn't a reference hash column
-                        if tableData[rowNumber][refHashColumn] == '': # only create new references
-                            # in this script, the createReferences function returns a snak dictionary, not a list
-                            referencesDict = createReferences(columns, propertyId, tableData[rowNumber], statementUuidColumn, refHashColumn)
-                            if referencesDict == {}:
-                                print('no data to write')
-                                print()
-                            else:
-                                #print(json.dumps(referencesDict, indent=2))
-                                # build the parameter string to be posted to the API
-                                parameterDictionary = {
-                                    'action': 'wbsetreference',
-                                    'statement': tableData[rowNumber][subjectWikidataIdColumnHeader] + "$" + uuidValue,
-                                    'format':'json',
-                                    'token': csrfToken,
-                                    'snaks': json.dumps(referencesDict)
-                                    }
-                                #print(parameterDictionary)    
-                                if maxlag > 0:
-                                    parameterDictionary['maxlag'] = maxlag
-                                responseData = attemptPost(endpointUrl, parameterDictionary)
-                                print('Write confirmation: ', responseData)
-                                print()
-            
-                                tableData[rowNumber][refHashColumn] = responseData['reference']['hash']
-                            
-                                # Replace the table with a new one containing any new IDs
-                                # Note: I'm writing after every line so that if the script crashes, no data will be lost
-                                with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-                                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                                    writer.writeheader()
-                                    for rowNumber in range(0, len(tableData)):
-                                        writer.writerow(tableData[rowNumber])
+                    if len(propertiesReferencesList[propertyNumber]) != 0:  # skip that claim if it doesn't have references
+                        for reference in propertiesReferencesList[propertyNumber]:
+                            if tableData[rowNumber][reference['refHashColumn']] == '': # process only new references
+                                # in this script, the createReferences function returns a snak dictionary, not a list
+                                referencesDict = createReferenceSnak(reference, tableData[rowNumber])
+                                if referencesDict == {}:
+                                    print('no data to write')
+                                    print()
+                                else:
+                                    # print(json.dumps(referencesDict, indent=2))
+                                    # build the parameter string to be posted to the API
+                                    parameterDictionary = {
+                                        'action': 'wbsetreference',
+                                        'statement': tableData[rowNumber][subjectWikidataIdColumnHeader] + "$" + tableData[rowNumber][statementUuidColumn],
+                                        'format':'json',
+                                        'token': csrfToken,
+                                        'snaks': json.dumps(referencesDict)
+                                        }
+                                    if maxlag > 0:
+                                        parameterDictionary['maxlag'] = maxlag
+                                    # print(json.dumps(parameterDictionary, indent = 2))
+                                    
+                                    print('ref:', reference['refValueColumnList'])
+                                    responseData = attemptPost(endpointUrl, parameterDictionary)
+                                    print('Write confirmation: ', responseData)
+                                    print()
+                
+                                    tableData[rowNumber][reference['refHashColumn']] = responseData['reference']['hash']
                                 
-                                # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-                                # To be safe and avoid getting blocked, use 1.25 s.
-                                sleep(1.25)
+                                    # Replace the table with a new one containing any new IDs
+                                    # Note: I'm writing after every line so that if the script crashes, no data will be lost
+                                    with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+                                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                                        writer.writeheader()
+                                        for writeRowNumber in range(0, len(tableData)):
+                                            writer.writerow(tableData[writeRowNumber])
+                                    
+                                    # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+                                    # To be safe and avoid getting blocked, use 1.25 s.
+                                    sleep(1.25)
+        print()
