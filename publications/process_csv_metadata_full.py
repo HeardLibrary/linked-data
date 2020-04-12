@@ -1,5 +1,5 @@
-# Freely available under a CC0 license. Steve Baskauf 2020-04-10
-# It's part of the development of VanderBot 0.9
+# Freely available under a CC0 license. Steve Baskauf 2020-xx-xx
+# It's part of the development of VanderBot v1.0
 
 # See http://baskauf.blogspot.com/2019/06/putting-data-into-wikidata-using.html
 # for a general explanation about writing to the Wikidata API
