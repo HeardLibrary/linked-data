@@ -363,8 +363,9 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
 
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
-    maxRetries = 5
+    maxRetries = 10
     baseDelay = 5 # Wikidata recommends a delay of at least 5 seconds
+    delayLimit = 300
     retry = 0
     # maximum number of times to retry lagged server = maxRetries
     while retry <= maxRetries:
@@ -383,6 +384,8 @@ def attemptPost(apiUrl, parameters):
                     # recommendation is to wait at least 5 seconds if server is lagged
                 #    recommendedDelay = 5
                 recommendedDelay = baseDelay*2**retry # double the delay with each retry 
+                if recommendedDelay > delayLimit:
+                    recommendedDelay = delayLimit
                 if retry != maxRetries:
                     print('Waiting ', recommendedDelay , ' seconds.')
                     print()
