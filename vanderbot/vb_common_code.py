@@ -178,7 +178,7 @@ def decodeSexOrGender(code):
         qId = ''
     return qId
 
-def checkOrcid(orcid):
+def checkOrcid(orcid, sparqlSleep):
     namespace = 'https://orcid.org/'
     endpointUrl = namespace + orcid
     acceptMediaType = 'application/ld+json'
@@ -196,7 +196,7 @@ def checkOrcid(orcid):
         dateZ = wholeTimeStringZ.split('T')[0] # form 2019-12-05
         wholeDateZ = '+' + dateZ + 'T00:00:00Z' # form +2019-12-05T00:00:00Z as provided by Wikidata
     # delay a quarter second to avoid hitting the API too rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     return(wholeDateZ)
 
 # query for a single variable that's an item named 'item'
