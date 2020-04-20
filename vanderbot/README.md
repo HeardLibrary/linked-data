@@ -1,6 +1,6 @@
 # VanderBot
 
-Release v1.0 notes
+Release v1.0 (2020-04-20) notes 
 
 This project is currently focused on author disambiguation and association with identifiers.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  There are a number of scripts involved that are run sequentially:
 

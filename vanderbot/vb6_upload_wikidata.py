@@ -1,4 +1,4 @@
-# Freely available under a CC0 license. Steve Baskauf 2020-04-xx
+# Freely available under a CC0 license. Steve Baskauf 2020-04-20
 # It's part of VanderBot v1.0
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
