@@ -48,7 +48,8 @@ print('Department currently set for', deptShortName)
 acceptMediaType = 'application/json'
 requestHeaderDictionary = vbc.generateHeaderDictionary(acceptMediaType)
 wikidataEndpointUrl = 'https://query.wikidata.org/sparql'
-sparqlSleep = 0.25 # number of seconds to wait between queries to SPARQL endpoint
+# see https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual#Query_limits for notes on query limits
+sparqlSleep = 0.1 # number of seconds to wait between queries to SPARQL endpoint
 degreeList = [
     {'string': 'Ph.D.', 'value': 'Ph.D.'},
     {'string': 'PhD', 'value': 'Ph.D.'},
@@ -64,7 +65,7 @@ toolName = 'VanderBot' # give your application a name here
 
 
 # empirically tested fuzzy token set ratios; may need adjustment based on performance in your situation
-previousUploadRatio = 82 # similarity required to detect someone already known from another institutional department
+previousUploadRatio = 87 # similarity required to detect someone already known from another institutional department
 testRatio = 90 # similarity required for a potential match of a generic wikidata match
 nameReversalRatio = 75 # secondary check of regular ratio when token set ratio is high to detect name reversals
 confirmRatio = 95 # detections below this similarity level require human examination before accepting
@@ -808,7 +809,10 @@ def bad_description(qId, orcid):
     if descriptors != {}:
         if descriptors['description'] != '':
             print('description: ', descriptors['description'])
+            # knock out some annoying items
             if descriptors['description'][0:18] == 'Peerage person ID=':
+                return [True, '']
+            elif 'dynasty person' in descriptors['description']:
                 return [True, '']
         for occupation in descriptors['occupation']:
             print('occupation: ', occupation)
