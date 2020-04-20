@@ -1,0 +1,22 @@
+{ 
+  "deptShortName": "medicine",
+  "medicine": {
+    "scrapeType": 0,
+    "categories": [
+      ""
+    ],
+    "baseUrl": "https://wag.app.vanderbilt.edu//PublicPage/Faculty/PickLetter?letter=",
+    "nTables": 1,
+    "departmentSearchString": "Medicine",
+    "departmentQId": "Q89953931",
+    "testAuthorAffiliation": "Medicine Vanderbilt",
+    "labels": {
+      "source": "column",
+      "value": "name"
+    },
+    "descriptions": {
+      "source": "constant",
+      "value": "physician"
+    }
+  }
+}
