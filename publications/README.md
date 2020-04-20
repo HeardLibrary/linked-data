@@ -4,7 +4,7 @@ This directory contains work related to harvesting information about authors and
 
 ## VanderBot
 
-See [this repository]()../vanderbot/) for current information about Vanderbot. The VanderBot code in this repository is no longer maintained and is out of date.
+See [this repository](../vanderbot/) for current information about Vanderbot. The VanderBot code in this repository is no longer maintained and is out of date.
 
 ## Other stuff
 
