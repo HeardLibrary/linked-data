@@ -17,7 +17,7 @@
 # Allowed values (from Wikidata): m=male, f=female, i=intersex, tf=transgender female, tm=transgender male
 
 # After running this script, the output CSV file should be manually edited to fix any stupid descriptions,
-# clean up names (e.g. add periods after middle initials, replace initials with actual names, adding missin Jr.), and add 
+# clean up names (e.g. add periods after middle initials, replace initials with actual names, adding missing Jr.), and add 
 # any aliases (as JSON arrays). Warning: make sure that your CSV editor does not use "smart quotes" 
 # instead of normal double quotes. 
 
@@ -48,6 +48,8 @@ employerQId = 'Q29052' # Vanderbilt University
 deathDateLimit = '2000' # any death dates before this date will be assumed to not be a match
 birthDateLimit = '1920' # any birth dates before this date will be assumed to not be a match
 wikibase_instance_namespace = 'http://www.wikidata.org/entity/'
+
+sparqlSleep = 0.25 # delay to wait between calls to SPARQL endpoint
 
 with open('department-configuration.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
@@ -220,7 +222,7 @@ ref_source_url_fieldname = '' # set to empty if source URL isn't being tracked f
 ref_retrieved_fieldname = 'orcidReferenceValue'
 
 ref_source_url = '' # not tracked for ORCID since the ORCID itself is a dereferenceable IRI
-wikidata_query_data = vbc.Query(pid='P496', vid='').search_statement(qIds, ['P813']) # retrieved
+wikidata_query_data = vbc.Query(pid='P496', vid='', sleep=sparqlSleep).search_statement(qIds, ['P813']) # retrieved
 
 # Note: going into the check, the actual data for this field must already be in the table if it is known.
 # That would be the value of employees[employee_index][field_name]
@@ -239,7 +241,7 @@ for employee_index in range(0,len(employees)):
                 if query_result['referenceValues'][0] == '':
                     # Wikidata doesn't have a retrieved date, so try to retrieve it.
                     # The function returns the current date (to use as the retrieved date) if the ORCID is found, otherwise empty string
-                    orcid_retrieved = vbc.checkOrcid(employees[employee_index]['orcid'])
+                    orcid_retrieved = vbc.checkOrcid(employees[employee_index]['orcid'], sparqlSleep)
                     if orcid_retrieved == '':
                         print('Could not dereference!')
                     else:
@@ -249,7 +251,7 @@ for employee_index in range(0,len(employees)):
                     orcid_retrieved = query_result['referenceValues'][0]
         if not orcid_found:
             # The ORCID we have isn't yet known to Wikidata
-            orcid_retrieved = vbc.checkOrcid(employees[employee_index]['orcid'])
+            orcid_retrieved = vbc.checkOrcid(employees[employee_index]['orcid'], sparqlSleep)
             if orcid_retrieved == '':
                 print('Could not dereference!')
             else:
@@ -274,7 +276,7 @@ reference_hash_fieldname = 'employerReferenceHash' # set to empty if references 
 ref_source_url_fieldname = 'employerReferenceSourceUrl' # set to empty if source URL isn't being tracked for this statement
 ref_retrieved_fieldname = 'employerReferenceRetrieved'
 
-wikidata_query_data = vbc.Query(pid='P108', vid=employerQId).search_statement(qIds, ['P854', 'P813']) # source URL, retrieved
+wikidata_query_data = vbc.Query(pid='P108', vid=employerQId, sleep=sparqlSleep).search_statement(qIds, ['P854', 'P813']) # source URL, retrieved
 
 for employee_index in range(0,len(employees)):
     # Everyone is assigned the employerQId as a value because either they showed up in the SPARQL search for employerQId
@@ -297,7 +299,7 @@ reference_hash_fieldname = 'affiliationReferenceHash' # set to empty if referenc
 ref_source_url_fieldname = 'affiliationReferenceSourceUrl' # set to empty if source URL isn't being tracked for this statement
 ref_retrieved_fieldname = 'affiliationReferenceRetrieved'
 
-wikidata_query_data = vbc.Query(pid='P1416', vid=deptSettings[deptShortName]['departmentQId']).search_statement(qIds, ['P854', 'P813']) # source URL, retrieved
+wikidata_query_data = vbc.Query(pid='P1416', vid=deptSettings[deptShortName]['departmentQId'], sleep=sparqlSleep).search_statement(qIds, ['P854', 'P813']) # source URL, retrieved
 
 for employee_index in range(0,len(employees)):
     # Assign the Q ID from the department settings
@@ -320,7 +322,7 @@ reference_hash_fieldname = '' # set to empty if references aren't tracked for th
 ref_source_url_fieldname = '' # set to empty if source URL isn't being tracked for this statement
 ref_retrieved_fieldname = ''
 
-wikidata_query_data = vbc.Query(pid='P31', vid='Q5').search_statement(qIds, []) # no ref property needed
+wikidata_query_data = vbc.Query(pid='P31', vid='Q5', sleep=sparqlSleep).search_statement(qIds, []) # no ref property needed
 
 for employee_index in range(0,len(employees)):
     # Everybody is a human
@@ -343,7 +345,7 @@ reference_hash_fieldname = '' # set to empty if references aren't tracked for th
 ref_source_url_fieldname = '' # set to empty if source URL isn't being tracked for this statement
 ref_retrieved_fieldname = ''
 
-wikidata_query_data = vbc.Query(pid='P21', vid='').search_statement(qIds, []) # no ref property needed
+wikidata_query_data = vbc.Query(pid='P21', vid='', sleep=sparqlSleep).search_statement(qIds, []) # no ref property needed
 
 # Find assertions of sex/gender where they already exist in Wikidata.
 # Assign the value for the property to all others.
@@ -363,7 +365,7 @@ for employee_index in range(0,len(employees)):
 # get all of the English language labels for the employees that are already in Wikidata
 #labelType = 'label'
 #language = 'en'
-wikidataLabels = vbc.Query().labels_descriptions(qIds) # defaults to labels
+wikidataLabels = vbc.Query(sleep=sparqlSleep).labels_descriptions(qIds) # defaults to labels
 
 # Match people with their labels
 for employeeIndex in range(0, len(employees)):
@@ -385,7 +387,7 @@ for employeeIndex in range(0, len(employees)):
 # get all of the English language descriptions for the employees that are already in Wikidata
 #labelType = 'description'
 #language = 'en'
-wikidataDescriptions = vbc.Query(labeltype='description').labels_descriptions(qIds)
+wikidataDescriptions = vbc.Query(labeltype='description', sleep=sparqlSleep).labels_descriptions(qIds)
 
 # Match people with their descriptions
 for employeeIndex in range(0, len(employees)):
@@ -411,7 +413,7 @@ for employeeIndex in range(0, len(employees)):
 # retrieve the aliases in that language that already exist in Wikidata and match them with table rows
 #labelType = 'alias'
 #language = 'en'
-aliasesAtWikidata = vbc.Query(labeltype='alias').labels_descriptions(qIds)
+aliasesAtWikidata = vbc.Query(labeltype='alias', sleep=sparqlSleep).labels_descriptions(qIds)
 
 for entityIndex in range(0, len(employees)):
     personAliasList = []

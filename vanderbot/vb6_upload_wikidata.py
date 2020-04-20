@@ -39,6 +39,8 @@ from pathlib import Path
 from time import sleep
 import sys
 
+sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
+
 # -----------------------------------------------------------------
 # function definitions
 
@@ -149,7 +151,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
         returnValue.append(resultsDict)
 
     # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     
     return returnValue
 

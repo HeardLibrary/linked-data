@@ -26,6 +26,8 @@ import csv
 
 import vb_common_code as vbc
 
+sparqlSleep = 0.25
+
 with open('department-configuration.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
 deptSettings = json.loads(text)
@@ -44,7 +46,7 @@ for employeeIndex in range(0, len(employees)):
           ?entity schema:description "'''+ employees[employeeIndex]['description'] + '''"@en.
           }'''
         print('Checking label: "' + employees[employeeIndex]['labelEn'] + '", description: "' + employees[employeeIndex]['description'] + '"')
-        match = vbc.Query(uselabel = False).generic_query(query)
+        match = vbc.Query(uselabel = False, sleep=sparqlSleep).generic_query(query)
         if len(match) > 0:
             print('\nWarning! Row ' + str(employeeIndex + 2) + ' is the same as ' + match[0])
             print('This must be fixed before writing to the API !!!\n')

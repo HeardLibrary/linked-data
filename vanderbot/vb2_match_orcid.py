@@ -10,9 +10,6 @@
 # matches the employees with ORCIDs resulting from a search for employees of the focal institution. 
 # It outputs data into a file for ingestion by the next script, vb3_match_wikidata.py .
 
-# NOTE: sexOrGender values must be manually added to the output of this script before it is used in 
-# the next script.
-
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
 import json

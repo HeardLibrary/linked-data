@@ -201,7 +201,7 @@ def checkOrcid(orcid):
 
 # query for a single variable that's an item named 'item'
 # returns a list of results
-def searchWikidataForQIdByOrcid(orcid, wikidataEndpointUrl):
+def searchWikidataForQIdByOrcid(orcid, wikidataEndpointUrl, sparqlSleep):
     query = '''
 select distinct ?item where {
   ?item wdt:P496 "''' + orcid + '''".
@@ -220,7 +220,7 @@ select distinct ?item where {
     except:
         results = [r.text]
     # delay a quarter second to avoid hitting the SPARQL endpoint to rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     return results
 
 # --------------

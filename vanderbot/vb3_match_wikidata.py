@@ -48,6 +48,7 @@ print('Department currently set for', deptShortName)
 acceptMediaType = 'application/json'
 requestHeaderDictionary = vbc.generateHeaderDictionary(acceptMediaType)
 wikidataEndpointUrl = 'https://query.wikidata.org/sparql'
+sparqlSleep = 0.25 # number of seconds to wait between queries to SPARQL endpoint
 degreeList = [
     {'string': 'Ph.D.', 'value': 'Ph.D.'},
     {'string': 'PhD', 'value': 'Ph.D.'},
@@ -71,10 +72,10 @@ departmentTestRatio = 90 # ratio required when a generic name similarity is cros
 variant_similarity_cutoff = 60
 
 # Instantiate SPARQL queries
-retrieve_class_list_query = vbc.Query(pid='P31', uselabel=False)
-retrieve_birth_date_query = vbc.Query(isitem=False, pid='P569')
-retrieve_death_date_query = vbc.Query(isitem=False, pid='P570')
-retrieve_employer_label_query = vbc.Query(pid='P108')
+retrieve_class_list_query = vbc.Query(pid='P31', uselabel=False, sleep=sparqlSleep)
+retrieve_birth_date_query = vbc.Query(isitem=False, pid='P569', sleep=sparqlSleep)
+retrieve_death_date_query = vbc.Query(isitem=False, pid='P570', sleep=sparqlSleep)
+retrieve_employer_label_query = vbc.Query(pid='P108', sleep=sparqlSleep)
 
 
 # -----------------
@@ -198,7 +199,7 @@ FILTER(lang(?label)='en')
     except:
         results = [{'error': r.text}]
     # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     return results
 
 # returns a dictionary of various descriptors of the item with Wikidata ID qId
@@ -246,7 +247,7 @@ def searchWikidataDescription(qId):
     except:
         resultsDict = {'error': r.text}
     # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     return resultsDict
 
 # returns a list of results of articles by person with Wikidata ID qId
@@ -285,7 +286,7 @@ def searchWikidataArticle(qId):
     except:
         resultsList = [r.text]
     # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
-    sleep(0.25)
+    sleep(sparqlSleep)
     return resultsList
 
 def retrievePubMedData(pmid):
@@ -343,7 +344,7 @@ def retrievePubMedData(pmid):
 
     # See https://www.ncbi.nlm.nih.gov/books/NBK25497/ for usage guidelines. 
     # An API key is required for more than 3 requests per second.
-    sleep(0.5) # wait half a second before hitting the API again to avoid getting blocked
+    sleep(0.4) # wait half a second before hitting the API again to avoid getting blocked
     return affiliations
 
 def retrieveCrossRefDoi(doi):
@@ -607,7 +608,7 @@ def match_orcid_of_downloaded_wikidata_search(employee, wikidataData):
 
 def wikidata_orcid_search(employee):
     if employee['orcid'] != '':
-        results = vbc.searchWikidataForQIdByOrcid(employee['orcid'], wikidataEndpointUrl)
+        results = vbc.searchWikidataForQIdByOrcid(employee['orcid'], wikidataEndpointUrl, sparqlSleep)
         if len(results) > 0:
             print('SPARQL ORCID search match for employee: ', employee['name'], results)
             if len(results) == 1:
@@ -1061,15 +1062,15 @@ print('Downloaded Vanderbilt people from Wikidata')
 
 # Download the labels and descriptions of all existing institutional people
 
-org_label_query = vbc.Query(labelscreen='?id wdt:P1416 ?deptOrCollege.?deptOrCollege wdt:P749+ wd:' + employerQId + '.')
+org_label_query = vbc.Query(labelscreen='?id wdt:P1416 ?deptOrCollege.?deptOrCollege wdt:P749+ wd:' + employerQId + '.', sleep=sparqlSleep)
 org_labels = org_label_query.labels_descriptions('')
 print(len(org_labels), 'labels downloaded')
 
-org_description_query = vbc.Query(labeltype='description', labelscreen='?id wdt:P1416 ?deptOrCollege.?deptOrCollege wdt:P749+ wd:' + employerQId + '.')
+org_description_query = vbc.Query(labeltype='description', labelscreen='?id wdt:P1416 ?deptOrCollege.?deptOrCollege wdt:P749+ wd:' + employerQId + '.', sleep=sparqlSleep)
 org_descriptions = org_description_query.labels_descriptions('')
 print(len(org_descriptions), 'descriptions downloaded')
 
-retrieve_orcid_query = vbc.Query(isitem=False, pid='P496')
+retrieve_orcid_query = vbc.Query(isitem=False, pid='P496', sleep = sparqlSleep)
 print('Labels and descriptions of existing employees downloaded from Wikidata')
 
 # ---------------------------
