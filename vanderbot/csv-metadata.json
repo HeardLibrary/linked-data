@@ -1,0 +1,263 @@
+{
+  "@type": "TableGroup",
+  "@context": "http://www.w3.org/ns/csvw",
+  "tables": [
+    {
+      "url": "medicine-employees-to-write.csv",
+      "tableSchema": {
+        "columns": [
+          {
+            "titles": "department",
+            "name": "department",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "wikidataId",
+            "name": "wikidataId",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "name",
+            "name": "name",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "labelEn",
+            "name": "labelEn",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "rdfs:label",
+            "lang": "en"
+          },
+          {
+            "titles": "alias",
+            "name": "alias",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "skos:altLabel",
+            "lang": "en"
+          },
+          {
+            "titles": "description",
+            "name": "description",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "schema:description",
+            "lang": "en"
+          },
+          {
+            "titles": "orcidStatementUuid",
+            "name": "orcidStatementUuid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "orcid",
+            "name": "orcid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P496"
+          },
+          {
+            "name": "hasOrcidStatement",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P496",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{orcidStatementUuid}"
+          },
+          {
+            "titles": "orcidReferenceHash",
+            "name": "orcidReferenceHash",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "name": "orcidReference",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{orcidStatementUuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}"
+          },
+          {
+            "titles": "orcidReferenceValue",
+            "name": "orcidReferenceValue",
+            "datatype": "date",
+            "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+          },
+          {
+            "titles": "employerStatementUuid",
+            "name": "employerStatementUuid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "employer",
+            "name": "employer",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P108",
+            "valueUrl": "http://www.wikidata.org/entity/{employer}"
+          },
+          {
+            "name": "hasEmployerStatement",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P108",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{employerStatementUuid}"
+          },
+          {
+            "titles": "employerReferenceHash",
+            "name": "employerReferenceHash",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "name": "employerReference",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{employerStatementUuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{employerReferenceHash}"
+          },
+          {
+            "titles": "employerReferenceSourceUrl",
+            "name": "employerReferenceSourceUrl",
+            "datatype": "anyURI",
+            "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+          },
+          {
+            "titles": "employerReferenceRetrieved",
+            "name": "employerReferenceRetrieved",
+            "datatype": "date",
+            "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+          },
+          {
+            "titles": "affiliationStatementUuid",
+            "name": "affiliationStatementUuid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "affiliation",
+            "name": "affiliation",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P1416",
+            "valueUrl": "http://www.wikidata.org/entity/{affiliation}"
+          },
+          {
+            "name": "hasAffiliationStatement",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P1416",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{affiliationStatementUuid}"
+          },
+          {
+            "titles": "affiliationReferenceHash",
+            "name": "affiliationReferenceHash",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "name": "affiliationReference",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{affiliationStatementUuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}"
+          },
+          {
+            "titles": "affiliationReferenceSourceUrl",
+            "name": "affiliationReferenceSourceUrl",
+            "datatype": "anyURI",
+            "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+          },
+          {
+            "titles": "affiliationReferenceRetrieved",
+            "name": "affiliationReferenceRetrieved",
+            "datatype": "date",
+            "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+          },
+          {
+            "titles": "instanceOfUuid",
+            "name": "instanceOfUuid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "instanceOf",
+            "name": "instanceOf",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P31",
+            "valueUrl": "http://www.wikidata.org/entity/{instanceOf}"
+          },
+          {
+            "name": "hasInstanceOfStatement",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P31",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{instanceOfUuid}"
+          },
+          {
+            "titles": "sexOrGenderUuid",
+            "name": "sexOrGenderUuid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "sexOrGenderQId",
+            "name": "sexOrGenderQId",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P21",
+            "valueUrl": "http://www.wikidata.org/entity/{sexOrGenderQId}"
+          },
+          {
+            "name": "hasSexOrGenderStatement",
+            "virtual": true,
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P21",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{sexOrGenderUuid}"
+          },
+          {
+            "titles": "gender",
+            "name": "gender",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "degree",
+            "name": "degree",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "category",
+            "name": "category",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "wikidataStatus",
+            "name": "wikidataStatus",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "role",
+            "name": "role",
+            "datatype": "string",
+            "suppressOutput": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+wikidataId,directory_string,short_name,search_string,test_affil,description
+Q89951871,Anesthesiology,anesthesiology,Anesthesiology,Anesthesiology Vanderbilt,anesthesiologist
+Q89953896,Biochemistry,biochemistry,Biochemistry,Biochemistry Vanderbilt,biochemist
+Q89953900,Biomedical Informatics,bioinformatics,Biomedical Informatics,Biomedical Informatics Vanderbilt,bioinformatician
+Q89953905,Biostatistics,biostats,Biostatistics,Biostatistics Vanderbilt,biostatistician
+Q89953909,Cardiac Surgery,cardiacsurg,Cardiac Surgery,Cardiac Surgery Vanderbilt,cardiac surgeon
+Q89953912,Cell & Developmental Biology,cell,Cell and Developmental Biology,Cell Developmental Biology Vanderbilt,cell biologist
+Q89953915,Dermatology,dermatology,Dermatology,Dermatology Vanderbilt,dermatologist
+Q89953919,Emergency Medicine,emergency,Emergency Medicine,Emergency Medicine Vanderbilt,emergency medicine physician
+Q89953922,Health Policy,healthpol,Health Policy,Health Policy Vanderbilt,health policy researcher
+Q89953926,Hearing & Speech Sciences,hearing,Hearing and Speech Sciences,Hearing Speech Sciences Vanderbilt,hearing and speach specialist
+Q89953931,Medicine,medicine,Medicine,Medicine Vanderbilt,physician
+Q89953935,Molecular Physiology & Biophysics,molphys,Molecular Physiology and Biophysics,Molecular Physiology Biophysics Vanderbilt,molecular physiologist
+Q89953940,Neurological Surgery,neurosurg,Neurological Surgery,Neurological Surgery Vanderbilt,neurosurgeon
+Q89953944,Neurology,neurology,Neurology,Neurology Vanderbilt,neurologist
+Q89953947,Obstetrics & Gynecology,obgyn,Obstetrics and Gynecology,Obstetrics Gynecology Vanderbilt,gynecologist
+Q89953948,Ophthalmology & Visual Sciences,opthalmology,Ophthalmology and Visual Sciences,Ophthalmology Visual Sciences Vanderbilt,opthalmologist
+Q89953951,Oral & Maxillofacial Surgery,oralsurg,Oral and Maxillofacial Surgery,Oral Maxillofacial Surgery Vanderbilt,oral surgeon
+Q89953955,Orthopaedic Surgery,orthosurg,Orthopaedic Surgery,Orthopaedic Surgery Vanderbilt,orthopaedic surgeon
+Q89953958,Otolaryngology - Head and Neck Surgery,otolaryn,Otolaryngology,Otolaryngology Vanderbilt,otolaryngologist
+Q89953964,"Pathology, Microbiology and Immunology",pathology,"Pathology, Microbiology and Immunology",Pathology Microbiology Immunology Vanderbilt,pathologist
+Q89953971,Pediatric Surgery,pedsurg,Pediatric Surgery,Pediatric Surgery Vanderbilt,pediatric surgeon
+Q89953976,Pediatrics,pediatrics,Pediatrics,Pediatrics Vanderbilt,pediatrician
+Q89953981,Pharmacology,pharma,Pharmacology,Pharmacology Vanderbilt,pharmacologist
+Q89953984,Physical Medicine and Rehabilitation,rehab,Physical Medicine and Rehabilitation,Physical Medicine Rehabilitation Vanderbilt,rehabilitation physician
+Q89953990,Plastic Surgery,plastic,Plastic Surgery,Plastic Surgery Vanderbilt,plastic surgeon
+Q89953993,Psychiatry and Behavioral Sciences,psychiatry,Psychiatry and Behavioral Sciences,Psychiatry Behavioral Sciences Vanderbilt,psychiatrist
+Q89953999,Radiation Oncology,radoncology,Radiation Oncology,Radiation Oncology Vanderbilt,radiation oncologist
+Q89954005,Radiology & Radiological Sciences,radiology,Radiology and Radiological Sciences,Radiology Radiological Sciences Vanderbilt,radiologist
+Q89954010,Surgery,surgery,Surgery,Surgery Vanderbilt,surgeon
+Q89954015,Thoracic Surgery,thoracicsurg,Thoracic Surgery,Thoracic Surgery Vanderbilt,thoracic surgeon
+Q89954019,Urology,urology,Urology,Urology Vanderbilt,urologist
