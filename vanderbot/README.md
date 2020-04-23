@@ -18,6 +18,12 @@ Here are some queries that can be run to explore the data:
 
 [Examine gender balance by unit](https://w.wiki/NpG)
 
+[Count the number of works linked to authors by department](https://w.wiki/Nqm)
+
+[Calculate the fraction of works linked to authors by gender](https://w.wiki/Nqr)
+
+## How it works
+
 This [video shows VanderBot in operation](https://youtu.be/4zi9wj7EwRU)
 
 
