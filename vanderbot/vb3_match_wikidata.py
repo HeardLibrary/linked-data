@@ -2,6 +2,9 @@
 # It's part of VanderBot v1.0
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
+# This script has a minor version upgrade to v1.1
+# v1.1 adds functionality for dealing with suffixes (Jr. III, etc.)
+
 # See http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html
 # for a series of blog posts about VanderBot.
 
@@ -65,7 +68,8 @@ toolName = 'VanderBot' # give your application a name here
 
 
 # empirically tested fuzzy token set ratios; may need adjustment based on performance in your situation
-previousUploadRatio = 87 # similarity required to detect someone already known from another institutional department
+#previousUploadRatio = 82 # similarity required to detect someone already known from another institutional department
+previousUploadRatio = 88 # similarity required to detect someone already known from another institutional department
 testRatio = 90 # similarity required for a potential match of a generic wikidata match
 nameReversalRatio = 75 # secondary check of regular ratio when token set ratio is high to detect name reversals
 confirmRatio = 95 # detections below this similarity level require human examination before accepting
@@ -84,10 +88,32 @@ retrieve_employer_label_query = vbc.Query(pid='P108', sleep=sparqlSleep)
 # -----------------
 
 def generateNameAlternatives(name):
+    # treat commas as if they were spaces
+    name = name.replace(',', ' ')
     # get rid of periods
     name = name.replace('.', '')
+
     pieces = name.split(' ')
     
+    # Remove ", Jr.", "III", etc. from end of name
+    if pieces[len(pieces)-1] == 'Jr':
+        pieces = pieces[0:len(pieces)-1]
+        suffix = ', Jr.'
+    elif pieces[len(pieces)-1] == 'II':
+        pieces = pieces[0:len(pieces)-1]
+        suffix = ' II'
+    elif pieces[len(pieces)-1] == 'III':
+        pieces = pieces[0:len(pieces)-1]
+        suffix = ' III'
+    elif pieces[len(pieces)-1] == 'IV':
+        pieces = pieces[0:len(pieces)-1]
+        suffix = ' IV'
+    elif pieces[len(pieces)-1] == 'V':
+        pieces = pieces[0:len(pieces)-1]
+        suffix = ' V'
+    else:
+        suffix = ''
+
     # generate initials for all names
     initials = []
     for piece in pieces:
@@ -98,9 +124,7 @@ def generateNameAlternatives(name):
             piece = piece[1:len(piece)] # remove the first non-alphabetic character
         if len(piece) > 0:
             initials.append(piece[0:1])
-    
-    # NOTE: currently doesn't handle ", Jr.", "III", etc.
-    
+        
     alternatives = []
     # full name
     nameVersion = ''
@@ -108,6 +132,14 @@ def generateNameAlternatives(name):
         nameVersion += pieces[pieceNumber] + ' '
     nameVersion += pieces[len(pieces)-1]
     alternatives.append(nameVersion)
+    
+    # full name with suffix
+    if suffix != '':
+        nameVersion = ''
+        for pieceNumber in range(0, len(pieces)-1):
+            nameVersion += pieces[pieceNumber] + ' '
+        nameVersion += pieces[len(pieces)-1] + suffix
+        alternatives.append(nameVersion)
     
     # first and last name with initials
     nameVersion = pieces[0] + ' '
@@ -858,7 +890,7 @@ def similar_name(employeeName, nameVariant, orcid):
             score = name_variant_testing(employeeName, nameVariant)
             if score < variant_similarity_cutoff:
                 print()
-                print(nameVariant, ' not similar to ', employeeName)
+                print(employeeName, ' not similar to ', nameVariant)
             
         responseChoice = input('Press Enter to reject and skip reference check or enter anything to continue checking.')
         if responseChoice == '':
@@ -1085,12 +1117,12 @@ print('Labels and descriptions of existing employees downloaded from Wikidata')
 # Vanderbilt Wikidata date is loaded from a file.
 #filename = 'vanderbilt_wikidata.csv'
 #wikidataData = vbc.readDict(filename)
-
+#
 # empirically tested fuzzy token set ratios
-previousUploadRatio = 82 # similarity required to detect someone already known from another VU department
-testRatio = 90 # similarity required for a potential match of a generic wikidata match
-confirmRatio = 95 # detections below this similarity level require human examination before accepting
-departmentTestRatio = 90
+#previousUploadRatio = 82 # similarity required to detect someone already known from another VU department
+#testRatio = 90 # similarity required for a potential match of a generic wikidata match
+#confirmRatio = 95 # detections below this similarity level require human examination before accepting
+#departmentTestRatio = 90
 
 filename = deptShortName + '-employees-with-wikidata.csv'
 employees = vbc.readDict(filename)
