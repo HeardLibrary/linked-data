@@ -1,5 +1,7 @@
 # VanderBot
 
+The short link to this page is [vanderbi.lt/vanderbot](http://vanderbi.lt/vanderbot)
+
 ## Description
 
 This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
