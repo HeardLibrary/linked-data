@@ -1,6 +1,6 @@
 # VanderBot
 
-# Description
+## Description
 
 This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
 
@@ -18,7 +18,7 @@ This [video shows VanderBot in operation](https://youtu.be/4zi9wj7EwRU)
 
 
 
-# Release v1.0 (2020-04-20) notes 
+## Release v1.0 (2020-04-20) notes 
 
 There are a number of scripts involved that are run sequentially:
 
@@ -37,7 +37,7 @@ For details about the design and operation of VanderBot, see [this series of blo
 
 
 
-# Query() class (defined in `vb_common_code.py`)
+## Query() class (defined in `vb_common_code.py`)
 
 Methods of the general-purpose `Query()` class sends queries to Wikibase instances. It has the following methods:
 
@@ -67,7 +67,7 @@ It has the following attributes:
 | `vid` | value Q ID | empty string | `search_statement` |
 
 
-# Employee matching to Wikidata in `vb3_match_wikidata.py`
+## Employee matching to Wikidata in `vb3_match_wikidata.py`
 
 The script `vb3_match_wikidata.py` attempts to match records of people that Wikidata knows to work at Vanderbilt with departmental employees by matching their ORCIDs, then name strings. If there isn't a match with the downloaded Wikidata records, for employees with ORCIDs the script attempts to find them in Wikidata by directly doing a SPARQL search for their ORCID.
 
@@ -90,9 +90,9 @@ As people are matched (or determined to not have a match), a code is recorded wi
 13=match pre-existing Wikidata entry from another department
 ```
 
-# Downloading existing statements and references from Wikidata in `vb4_download_wikidata.py`
+## Downloading existing statements and references from Wikidata in `vb4_download_wikidata.py`
 
-## Generation of statement values
+### Generation of statement values
 
 There are two categories of statements whose existing data are retrieved from Wikidata.
 
@@ -104,7 +104,7 @@ If a value is not known, this script will record it if it has been discovered in
 
 If discovery is allowed and the known value agrees with the Wikidata value, nothing will happen other than the recording of any relevant reference information. However, if a discovered value is different than the previously known value, the script will issue a warning.
 
-## Assumptions about references
+### Assumptions about references
 
 The generic `.search_statements()` method used in this script to retrieve data about statements does not assume any particular kind or order of reference properties. However, this script assumes that there are zero to two reference properties. The possibilities are:
 
@@ -118,4 +118,4 @@ If there are reference property combinations other than this, the `generate_stat
 
 
 ----
-Revised 2020-04-20
+Revised 2020-04-23
