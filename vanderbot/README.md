@@ -14,6 +14,9 @@ Here are some queries that can be run to explore the data:
 
 [Examine gender balance by unit](https://w.wiki/NpG)
 
+This [video shows VanderBot in operation](https://youtu.be/4zi9wj7EwRU)
+
+
 
 # Release v1.0 (2020-04-20) notes 
 
@@ -32,9 +35,7 @@ The CSV file that feeds data from the fifth script to the sixth uses a mapping f
 
 For details about the design and operation of VanderBot, see [this series of blog posts](http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html).
 
-The following video shows VanderBot in operation
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/4zi9wj7EwRU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 # Query() class (defined in `vb_common_code.py`)
 
