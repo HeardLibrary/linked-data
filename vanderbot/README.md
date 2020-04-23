@@ -1,8 +1,23 @@
 # VanderBot
 
-Release v1.0 (2020-04-20) notes 
+# Description
 
-This project is currently focused on author disambiguation and association with identifiers.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  There are a number of scripts involved that are run sequentially:
+This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
+
+As of 2020-04-23, VanderBot has created or curated records for 4436 scholars or researchers at Vanderbilt and made 4998 record updates. The number includes nearly all researchers in Vanderbilt colleges and schools except the School of Medicine. Records for nearly all of the faculty in the School of medicine have been curated, but research staff and postdocs have not yet been done.
+
+Here are some queries that can be run to explore the data:
+
+[Count the total number of unique affiliates of Vanderbilt in Wikidata](https://w.wiki/NpE)
+
+[List units with the total number of affiliates for each](https://w.wiki/NpF)
+
+[Examine gender balance by unit](https://w.wiki/NpG)
+
+
+# Release v1.0 (2020-04-20) notes 
+
+There are a number of scripts involved that are run sequentially:
 
 - **vb1_process_department.ipynb** - A Jupyter notebook containing a variety of Python scripts used to scrape names of "employees" (researchers/scholars) from departmental websites and directories. The scripts are ideosyncratic to the particular web pages but output to consistently formatted CSV files. There is also a script for downloading data from the ORCID API for all employees associated with a particular institution. Example output file: `medicine-employees.csv`
 - **vb2_match_orcid.py** - A Python script that matches the scraped departmental employee names with the dowloaded ORCID records for the institution. Example output file: `medicine-employees-with-wikidata.csv` (has additional data and `gender` column added by the next script)
@@ -17,6 +32,9 @@ The CSV file that feeds data from the fifth script to the sixth uses a mapping f
 
 For details about the design and operation of VanderBot, see [this series of blog posts](http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html).
 
+The following video shows VanderBot in operation
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4zi9wj7EwRU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 # Query() class (defined in `vb_common_code.py`)
 
