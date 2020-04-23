@@ -14,6 +14,8 @@ Here are some queries that can be run to explore the data:
 
 [List units with the total number of affiliates for each](https://w.wiki/NpF)
 
+[Overall gender balance of scholars and researchers at Vanderbilt (those in Wikidata with known sex/gender)](https://w.wiki/Nph)
+
 [Examine gender balance by unit](https://w.wiki/NpG)
 
 This [video shows VanderBot in operation](https://youtu.be/4zi9wj7EwRU)
