@@ -9,6 +9,12 @@
 # for upload to Wikidata. It inputs data scraped from a departmental website or other source and
 # matches the employees with ORCIDs resulting from a search for employees of the focal institution. 
 # It outputs data into a file for ingestion by the next script, vb3_match_wikidata.py .
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - no changes
+# -----------------------------------------
+# Version 1.2 change notes: 
+# - no changes
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library

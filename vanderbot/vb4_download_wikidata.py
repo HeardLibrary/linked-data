@@ -20,6 +20,14 @@
 # clean up names (e.g. add periods after middle initials, replace initials with actual names, adding missing Jr.), and add 
 # any aliases (as JSON arrays). Warning: make sure that your CSV editor does not use "smart quotes" 
 # instead of normal double quotes. 
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - no changes
+# -----------------------------------------
+# Version 1.2 change notes (2020-07-15):
+# - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
+#   or removed as necessary by the software prior to interactions with the API.
+
 
 
 import requests   # best library to manage HTTP transactions
@@ -186,7 +194,9 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
             if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                 employee_dict[ref_source_url_fieldname] = query_statement['referenceValues'][0]
             # need to add the + in front of dateTime, which is needed by the API for upload
-            employee_dict[ref_retrieved_fieldname] = '+' + query_statement['referenceValues'][ref_retrieved_index]
+            # 2020-07-15 note: In order for the csv2rdf schema to map correctly, the + must not be present. Add it with the upload script instead.
+            #employee_dict[ref_retrieved_fieldname] = '+' + query_statement['referenceValues'][ref_retrieved_index]
+            employee_dict[ref_retrieved_fieldname] = query_statement['referenceValues'][ref_retrieved_index]
     return employee_dict
 
 # -----------------
@@ -196,7 +206,9 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
 # Calculate the reference date retrieved value for all statements
 whole_time_string_z = datetime.datetime.utcnow().isoformat() # form: 2019-12-05T15:35:04.959311
 dateZ = whole_time_string_z.split('T')[0] # form 2019-12-05
-ref_retrieved = '+' + dateZ + 'T00:00:00Z' # form +2019-12-05T00:00:00Z as provided by Wikidata
+# 2020-07-15 note: In order for the csv2rdf schema to map correctly, the + must not be present. Add it with the upload script instead.
+#ref_retrieved = '+' + dateZ + 'T00:00:00Z' # form +2019-12-05T00:00:00Z as provided by Wikidata
+ref_retrieved = dateZ + 'T00:00:00Z' # form 2019-12-05T00:00:00Z as provided by Wikidata, without leading +
 
 filename = deptShortName + '-employees-with-wikidata.csv'
 employees = vbc.readDict(filename)

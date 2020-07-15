@@ -3,7 +3,7 @@
   "@context": "http://www.w3.org/ns/csvw",
   "tables": [
     {
-      "url": "medicine-employees-to-write.csv",
+      "url": "nursing-employees-to-write.csv",
       "tableSchema": {
         "columns": [
           {
@@ -74,7 +74,7 @@
           {
             "titles": "orcidReferenceValue",
             "name": "orcidReferenceValue",
-            "datatype": "date",
+            "datatype": "dateTime",
             "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
             "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
           },
@@ -112,7 +112,7 @@
           {
             "titles": "employerReferenceRetrieved",
             "name": "employerReferenceRetrieved",
-            "datatype": "date",
+            "datatype": "dateTime",
             "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
             "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
           },
@@ -150,7 +150,7 @@
           {
             "titles": "affiliationReferenceRetrieved",
             "name": "affiliationReferenceRetrieved",
-            "datatype": "date",
+            "datatype": "dateTime",
             "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
             "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
           },

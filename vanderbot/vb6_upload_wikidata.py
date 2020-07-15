@@ -31,6 +31,22 @@
 
 # Important note: This script only handles the following value types: URI, plain string, and dateTime. It does not currently handle 
 # any other complex value type like geocoordinates.
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - No changes
+# -----------------------------------------
+# Version 1.2 change notes (2020-07-15):
+# - The data type for dates was changed from 'date' to 'dateTime' since all dates in Wikidata are converted into datetimes. 
+#   This prevents generating an error if the schema is used to convert the CSV data directly to RDF.
+
+# - The method of indicating that a value is a URL was changed from providing an anyURI datatype in the schema to using a
+#   a string datatype and a valueUrl where the entire string is substituted within the curly brackets. This situation is 
+#   detected when the first character in the valuUrl is '{'. This change was necessary in order to make the csv2rdf schema
+#   correctly generate RDF that matches the RDF provided by the SPARQL endpoint. Previously, the generated RDF would have
+#   have a literal value datatyped as 'anyURI', while the SPARQL endpoint would have a non-literal value.
+
+# - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
+#   or removed as necessary by the software prior to interactions with the API.
 
 import json
 import requests
@@ -171,7 +187,10 @@ def createTimeReferenceValue(value):
         precisionNumber = 9 # precision to years
     # date form unknown, don't adjust
     else:
-        timeString = value
+        # 2020-07-15 note: Previously, the leading + was included with the the table value.
+        # However, in order for the csv2rdf schema to be valid, the + must not be included in the tabled value. So it is added here.
+        #timeString = value
+        timeString = '+' + value
         precisionNumber = 11 # assume precision to days
         
     # Q1985727 is the Gregorian calendar
@@ -221,7 +240,7 @@ def findReferencesForProperty(statementUuidColumn, columns):
                 refValueColumnList = [] # column header string for the reference property's value
                 refTypeList = [] # the datatype of the property's value: url, time, or string
                 refValueTypeList = [] # the specific type of a string: time or string
-                # The kind of value in the column (anyURI, date, string?) can be retrieved directly from the column 'datatype' value
+                # The kind of value in the column (dateTime, string) can be retrieved directly from the column 'datatype' value
                 
                 # Now step throught the columns looking for each of the properties that are associated with the reference
                 for propColumn in columns:
@@ -230,10 +249,13 @@ def findReferencesForProperty(statementUuidColumn, columns):
                         if refHashColumn in propColumn['aboutUrl']:
                             refPropList.append(propColumn['propertyUrl'].partition('prop/reference/')[2])
                             refValueColumnList.append(propColumn['titles'])
-                            if propColumn['datatype'] == 'anyURI':
-                                refTypeList.append('url')
-                                refValueTypeList.append('string')
-                            elif propColumn['datatype'] == 'date':
+                            # Note: I don't think references typically have item values so don't need to check if value is an item.
+                            # URIs are detected when there is a valueUrl whose value has a first character of "{"
+                            if 'valueUrl' in propColumn:
+                                if propColumn['valueUrl'][0] == '{':
+                                    refTypeList.append('url')
+                                    refValueTypeList.append('string')
+                            elif propColumn['datatype'] == 'dateTime':
                                 refTypeList.append('time')
                                 refValueTypeList.append('time')
                             else:
@@ -259,7 +281,7 @@ def findQualifiersForProperty(statementUuidColumn, columns):
     qualEntityOrLiteral = [] # values: entity or literal, determined by presence of a valueUrl key for the column
     qualTypeList = [] # the datatype of the qualifier's value: url, time, or string
     qualValueTypeList = [] # the specific type of a string: time or string
-    # The kind of value in the column (anyURI, date, string?) can be retrieved directly from the column 'datatype' value
+    # The kind of value in the column (dateTime, string) can be retrieved directly from the column 'datatype' value
 
     for column in columns:
         if not('suppressOutput' in column):
@@ -269,21 +291,25 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                 qualPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
                 qualValueColumnList.append(column['titles'])
 
-                # determine whether the qualifier is an entity or literal
+                # determine whether the qualifier is an entity/URI or time/string
                 if 'valueUrl' in column:
-                    qualEntityOrLiteral.append('entity')
+                    # URIs are detected when there is a valueUrl whose value has a first character of "{"
+                    if column['valueUrl'][0] == '{':
+                        qualEntityOrLiteral.append('literal')
+                        qualTypeList.append('url')
+                        qualValueTypeList.append('string')
+                    else:
+                        qualEntityOrLiteral.append('entity')
+                        qualTypeList.append('wikibase-item')
+                        qualValueTypeList.append('wikibase-entityid')
                 else:
                     qualEntityOrLiteral.append('literal')
-
-                if column['datatype'] == 'anyURI':
-                    qualTypeList.append('url')
-                    qualValueTypeList.append('string')
-                elif column['datatype'] == 'date':
-                    qualTypeList.append('time')
-                    qualValueTypeList.append('time')
-                else:
-                    qualTypeList.append('string')
-                    qualValueTypeList.append('string')
+                    if column['datatype'] == 'dateTime':
+                        qualTypeList.append('time')
+                        qualValueTypeList.append('time')
+                    else:
+                        qualTypeList.append('string')
+                        qualValueTypeList.append('string')
     # After all of the qualifier columns are found for the property, create a dictionary to pass back
     qualifierDictionary = {'qualPropList': qualPropList, 'qualValueColumnList': qualValueColumnList, "qualEntityOrLiteral": qualEntityOrLiteral, 'qualTypeList': qualTypeList, 'qualValueTypeList': qualValueTypeList}
     #print('Qualifiers: ', json.dumps(qualifierDictionary, indent=2))
@@ -379,6 +405,7 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
                     {
                         'snaktype': 'value',
                         'property': qualPropList[qualPropNumber],
+                        'datatype': 'wikibase-item',
                         'datavalue': {
                             'value': {
                                 'id': qualValue
@@ -388,7 +415,7 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
                     }
                 ]
             else:
-                # case where the value is a literal or time
+                # case where the value is a literal, time, or url
                 if qualValueTypeList[qualPropNumber] == 'time':
                     qualValue = createTimeReferenceValue(qualValue)
                     
@@ -539,9 +566,10 @@ for table in tables:  # The script can handle multiple tables because that optio
     descriptionLanguageList = []
     propertiesColumnList = []
     propertiesUuidColumnList = []
-    propertiesTypeList = []
+    propertiesEntityOrLiteral = [] # determines whether value of property is an "entity" (i.e. item) or "literal" (which includes strings, dates, and URLs that aren't actually literals)
     propertiesIdList = []
-    propertiesDatatypeList = []
+    propertiesTypeList = [] # the 'datatype' given to a mainsnak. Currently supported types are: "wikibase-item", "url", "time", or "string"
+    propertiesValueTypeList = [] # the 'type' given to values of 'datavalue' in the mainsnak. Can be "wikibase-entityid", "string" or "time" 
     propertiesReferencesList = []
     propertiesQualifiersList = []
 
@@ -640,35 +668,52 @@ for table in tables:  # The script can handle multiple tables because that optio
                 # add all of the found labels for that language to the list of labels in various languages
                 existingDescriptions.append(tempLabels)
 
-            # find columns that contain properties with entity values
+            # find columns that contain properties with entity values or literal values that are URLs
             elif 'valueUrl' in column:
                 # only add columns that have direct properties
                 if 'prop/direct/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
                     propertyId = column['propertyUrl'].partition('prop/direct/')[2]
-                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId)
                     propertiesColumnList.append(propColumnHeader)
-                    propertiesTypeList.append('entity')
                     propertiesIdList.append(propertyId)
-                    propertiesDatatypeList.append('')
+
+                    # URLs are detected when there is a valueUrl whose value has a first character of "{"
+                    if column['valueUrl'][0] == '{':
+                        propertiesEntityOrLiteral.append('literal')
+                        propertiesTypeList.append('url')
+                        propertiesValueTypeList.append('string')
+                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: url')
+                    # Otherwise having a valueUrl indicates that it's an item
+                    else:
+                        propertiesEntityOrLiteral.append('entity')
+                        propertiesTypeList.append('wikibase-item')
+                        propertiesValueTypeList.append('wikibase-entityid')
+                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId)
+
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
                     propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
                     propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
                     print()
-            
+
             # remaining columns should have properties with literal values
             else:
                 # only add columns that have direct properties
                 if 'prop/direct/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
                     propertyId = column['propertyUrl'].partition('prop/direct/')[2]
-                    valueDatatype = column['datatype']
-                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', valueDatatype)
+                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', column['datatype'])
                     propertiesColumnList.append(propColumnHeader)
-                    propertiesTypeList.append('literal')
                     propertiesIdList.append(propertyId)
-                    propertiesDatatypeList.append(valueDatatype)
+
+                    propertiesEntityOrLiteral.append('literal')
+                    if column['datatype'] == 'dateTime':
+                        propertiesTypeList.append('time')
+                        propertiesValueTypeList.append('time')
+                    else:
+                        propertiesTypeList.append('string')
+                        propertiesValueTypeList.append('string')
+
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
                     propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
@@ -807,24 +852,31 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                 valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
                 if valueString != '':
-                    if propertiesTypeList[propertyNumber] == 'literal':
+                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
+
+                        if propertiesValueTypeList[propertyNumber] == 'time':
+                            valueString = createTimeReferenceValue(valueString)
+
                         snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
                                 'datavalue':{
                                     'value': valueString,
-                                    'type': propertiesDatatypeList[propertyNumber]
-                                    }
+                                    'type': propertiesValueTypeList[propertyNumber]
+                                    },
+                                'datatype': propertiesTypeList[propertyNumber]
                                 },
                             'type': 'statement',
                             'rank': 'normal'
                             }
-                    elif propertiesTypeList[propertyNumber] == 'entity':
+
+                    elif propertiesEntityOrLiteral[propertyNumber] == 'entity':
                         snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
+                                'datatype': 'wikibase-item',
                                 'datavalue': {
                                     'value': {
                                         'id': valueString
@@ -856,7 +908,7 @@ for table in tables:  # The script can handle multiple tables because that optio
         parameterDictionary['data'] = json.dumps(dataStructure)
         #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-   
+        
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -886,9 +938,9 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                         # does the value in the cell equal the mainsnak value of the claim?
                         # it's necessary to check this because there could be other previous claims for that property (i.e. multiple values)
-                        if propertiesTypeList[statementIndex] == 'literal':
+                        if propertiesEntityOrLiteral[statementIndex] == 'literal':
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
-                        elif propertiesTypeList[statementIndex] == 'entity':
+                        elif propertiesEntityOrLiteral[statementIndex] == 'entity':
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
                         else:
                             pass
@@ -915,7 +967,9 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                                             # The values for times are buried a layer deeper in the JSON than other types.
                                             if tableReference['refTypeList'][referencePropertyIndex] == 'time':
-                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
+                                                # Note on 2020-07-15: the leading + is not being recorded in the data table any more, so '+' must be prepended to local values when comparing to API values
+                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
+                                                # if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
                                                     referenceMatch = False
                                                     break # kill the inner loop because this value doesn't match
                                             else: # Values for types other than time have direct literal values of 'value'

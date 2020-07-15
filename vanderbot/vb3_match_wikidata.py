@@ -2,9 +2,6 @@
 # It's part of VanderBot v1.0
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
-# This script has a minor version upgrade to v1.1
-# v1.1 adds functionality for dealing with suffixes (Jr. III, etc.)
-
 # See http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html
 # for a series of blog posts about VanderBot.
 
@@ -14,6 +11,12 @@
 # It outputs data into a file for ingestion by the next script, vb4_download_wikidata.py . 
 # NOTE: read the comments at the start of the next script to learn about modifications that
 # should be made to the CSV output of this script. 
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - adds functionality for dealing with suffixes (Jr. III, etc.)
+# -----------------------------------------
+# Version 1.2 change notes: 
+# - No changes
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library

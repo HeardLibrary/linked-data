@@ -7,6 +7,13 @@
 
 # This file contains common code called by five scripts that prepare data for upload to Wikidata.
 # A key defined component is the Query() class whose instances are used to carry out a variety of SPARQL queries.
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - No changes
+# -----------------------------------------
+# Version 1.2 change notes (2020-07-15):
+# - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
+#   or removed as necessary by the software prior to interactions with the API.
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
@@ -194,7 +201,9 @@ def checkOrcid(orcid, sparqlSleep):
         #print('Successfully retrieved')
         wholeTimeStringZ = datetime.datetime.utcnow().isoformat() # form: 2019-12-05T15:35:04.959311
         dateZ = wholeTimeStringZ.split('T')[0] # form 2019-12-05
-        wholeDateZ = '+' + dateZ + 'T00:00:00Z' # form +2019-12-05T00:00:00Z as provided by Wikidata
+        # 2020-07-15 note: In order for the csv2rdf schema to map correctly, the + must not be present. Add it with the upload script instead.
+        #wholeDateZ = '+' + dateZ + 'T00:00:00Z' # form +2019-12-05T00:00:00Z as provided by Wikidata
+        wholeDateZ = dateZ + 'T00:00:00Z' # form 2019-12-05T00:00:00Z as provided by Wikidata, without leading +
     # delay a quarter second to avoid hitting the API too rapidly
     sleep(sparqlSleep)
     return(wholeDateZ)

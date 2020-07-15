@@ -13,12 +13,12 @@
 
 # The last part of the script sets the deptShortName in the csv-metadata.json file, a necessary
 # precursor before running the upload script. 
-
-# After running this script, the output CSV file should be manually edited to fix any stupid descriptions,
-# clean up names (e.g. add periods after middle initials, replace initials with actual names, adding missin Jr.), and add 
-# any aliases (as JSON arrays). Warning: make sure that your CSV editor does not use "smart quotes" 
-# instead of normal double quotes. 
-
+# -----------------------------------------
+# Version 1.1 change notes: 
+# - no changes
+# -----------------------------------------
+# Version 1.2 change notes: 
+# - No substantive changes
 
 import json
 from time import sleep
