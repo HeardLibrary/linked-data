@@ -1,0 +1,64 @@
+{
+  "@type": "TableGroup",
+  "@context": "http://www.w3.org/ns/csvw",
+  "tables": [
+    {
+      "url": "links_edited.csv",
+      "tableSchema": {
+        "columns": [
+          {
+            "titles": "NCTId",
+            "name": "NCTId",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "wikidataId",
+            "name": "wikidataId",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+         {
+            "titles": "pi_uuid",
+            "name": "pi_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P8329",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{pi_uuid}"
+          },
+          {
+            "titles": "pi",
+            "name": "pi",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P8329",
+            "valueUrl": "http://www.wikidata.org/entity/{pi}"
+          },
+          {
+            "titles": "pi_reference_hash",
+            "name": "pi_reference_hash",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{pi_uuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{pi_reference_hash}"
+          },
+          {
+            "titles": "pi_reference_url",
+            "name": "pi_reference_url",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/reference/{pi_reference_hash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+            "valueUrl": "{pi_reference_url}"
+          },
+          {
+            "titles": "pi_retrieved",
+            "name": "pi_retrieved",
+            "datatype": "dateTime",
+            "aboutUrl": "http://www.wikidata.org/reference/{pi_reference_hash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+          }
+        ]
+      }
+    }
+  ]
+}
