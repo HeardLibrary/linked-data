@@ -105,9 +105,10 @@
           {
             "titles": "employerReferenceSourceUrl",
             "name": "employerReferenceSourceUrl",
-            "datatype": "anyURI",
+            "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+            "valueUrl": "{employerReferenceSourceUrl}"
           },
           {
             "titles": "employerReferenceRetrieved",
@@ -143,9 +144,10 @@
           {
             "titles": "affiliationReferenceSourceUrl",
             "name": "affiliationReferenceSourceUrl",
-            "datatype": "anyURI",
+            "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P854"
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+            "valueUrl": "{affiliationReferenceSourceUrl}"
           },
           {
             "titles": "affiliationReferenceRetrieved",
