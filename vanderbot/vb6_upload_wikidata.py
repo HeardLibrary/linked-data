@@ -48,6 +48,8 @@
 # - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
 #   or removed as necessary by the software prior to interactions with the API.
 
+# - The requirement that there be a value for every reference and qualifier property was removed.
+
 import json
 import requests
 import csv
@@ -323,6 +325,46 @@ def findQualifiersForProperty(statementUuidColumn, columns):
     #print('Qualifiers: ', json.dumps(qualifierDictionary, indent=2))
     return(qualifierDictionary)
 
+# The form of snaks is the same for references and qualifiers, so they can be generated systematically
+# Although the variable names include "ref", they apply the same to the analagous "qual" variables.
+def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral):
+    if refValue == '':  
+        if require_references: # Do not write the record if it's missing a reference.
+            print('Reference value missing! Cannot write the record.')
+            sys.exit()
+    else:
+        if refEntityOrLiteral[refPropNumber] == 'entity':
+            # case where the value is an entity
+            snakDictionary[refPropList[refPropNumber]] = [
+                {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datatype': 'wikibase-item',
+                    'datavalue': {
+                        'value': {
+                            'id': refValue
+                            },
+                        'type': 'wikibase-entityid'
+                        }
+                }
+            ]
+        else:
+            if refValueTypeList[refPropNumber] == 'time':
+                refValue = createTimeReferenceValue(refValue)
+                
+            snakDictionary[refPropList[refPropNumber]] = [
+                {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datavalue': {
+                        'value': refValue,
+                        'type': refValueTypeList[refPropNumber]
+                    },
+                    'datatype': refTypeList[refPropNumber]
+                }
+            ]
+    return snakDictionary
+
 # If there are references for a statement, return a reference list
 def createReferences(referenceListForProperty, rowData):
     referenceListToReturn = []
@@ -336,41 +378,7 @@ def createReferences(referenceListForProperty, rowData):
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
             refValue = rowData[refValueColumnList[refPropNumber]]
-            if refValue == '':  
-                if require_references: # Do not write the record if it's missing a reference.
-                    print('Reference value missing! Cannot write the record.')
-                    sys.exit()
-            else:
-                if refEntityOrLiteral[refPropNumber] == 'entity':
-                    # case where the value is an entity
-                    snakDictionary[refPropList[refPropNumber]] = [
-                        {
-                            'snaktype': 'value',
-                            'property': refPropList[refPropNumber],
-                            'datatype': 'wikibase-item',
-                            'datavalue': {
-                                'value': {
-                                    'id': refValue
-                                    },
-                                'type': 'wikibase-entityid'
-                                }
-                        }
-                    ]
-                else:
-                    if refValueTypeList[refPropNumber] == 'time':
-                        refValue = createTimeReferenceValue(refValue)
-                        
-                    snakDictionary[refPropList[refPropNumber]] = [
-                        {
-                            'snaktype': 'value',
-                            'property': refPropList[refPropNumber],
-                            'datavalue': {
-                                'value': refValue,
-                                'type': refValueTypeList[refPropNumber]
-                            },
-                            'datatype': refTypeList[refPropNumber]
-                        }
-                    ]
+            snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
         if snakDictionary != {}: # If any references were added, create the outer dict and add to list
             outerSnakDictionary = {
                 'snaks': snakDictionary
@@ -391,42 +399,7 @@ def createReferenceSnak(referenceDict, rowData):
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue == '':  
-            if require_references: # Do not write the record if it's missing a reference!
-                print('Reference value missing! Cannot write the record.')
-                sys.exit()
-        else:
-            if refEntityOrLiteral[refPropNumber] == 'entity':
-                # case where the value is an entity
-                snakDictionary[refPropList[refPropNumber]] = [
-                    {
-                        'snaktype': 'value',
-                        'property': refPropList[refPropNumber],
-                        'datatype': 'wikibase-item',
-                        'datavalue': {
-                            'value': {
-                                'id': refValue
-                                },
-                            'type': 'wikibase-entityid'
-                            }
-                    }
-                ]
-            else:
-                # case where the value is a literal, time, or url
-                if refValueTypeList[refPropNumber] == 'time':
-                    refValue = createTimeReferenceValue(refValue)
-                    
-                snakDictionary[refPropList[refPropNumber]] = [
-                    {
-                        'snaktype': 'value',
-                        'property': refPropList[refPropNumber],
-                        'datavalue': {
-                            'value': refValue,
-                            'type': refValueTypeList[refPropNumber]
-                        },
-                        'datatype': refTypeList[refPropNumber]
-                    }
-                ]
+        snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
 
@@ -441,42 +414,7 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
         qualValue = rowData[qualValueColumnList[qualPropNumber]]
-        if qualValue == '':
-            if require_qualifiers: # Do not write the record if it's missing a qualifier!
-                print('Qualifier value missing! Cannot write the record.')
-                sys.exit()
-        else:
-            if qualEntityOrLiteral[qualPropNumber] == 'entity':
-                # case where the value is an entity
-                snakDictionary[qualPropList[qualPropNumber]] = [
-                    {
-                        'snaktype': 'value',
-                        'property': qualPropList[qualPropNumber],
-                        'datatype': 'wikibase-item',
-                        'datavalue': {
-                            'value': {
-                                'id': qualValue
-                                },
-                            'type': 'wikibase-entityid'
-                            }
-                    }
-                ]
-            else:
-                # case where the value is a literal, time, or url
-                if qualValueTypeList[qualPropNumber] == 'time':
-                    qualValue = createTimeReferenceValue(qualValue)
-                    
-                snakDictionary[qualPropList[qualPropNumber]] = [
-                    {
-                        'snaktype': 'value',
-                        'property': qualPropList[qualPropNumber],
-                        'datavalue': {
-                            'value': qualValue,
-                            'type': qualValueTypeList[qualPropNumber]
-                        },
-                        'datatype': qualTypeList[qualPropNumber]
-                    }
-                ]
+        snakDictionary = generateSnaks(snakDictionary, require_qualifiers, qualValue, qualPropNumber, qualPropList, qualValueColumnList, qualValueTypeList, qualTypeList, qualEntityOrLiteral)
     return snakDictionary
 
 
@@ -958,7 +896,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        print(json.dumps(dataStructure, indent = 2))
+        #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
         
         # don't try to write if there aren't any data to send
