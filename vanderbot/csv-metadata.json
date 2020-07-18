@@ -3,7 +3,7 @@
   "@context": "http://www.w3.org/ns/csvw",
   "tables": [
     {
-      "url": "nursing-employees-to-write.csv",
+      "url": "medicine-employees-to-write.csv",
       "tableSchema": {
         "columns": [
           {
@@ -36,9 +36,8 @@
             "titles": "alias",
             "name": "alias",
             "datatype": "string",
-            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-            "propertyUrl": "skos:altLabel",
-            "lang": "en"
+            "lang": "en",
+            "suppressOutput": true
           },
           {
             "titles": "description",

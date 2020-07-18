@@ -35,7 +35,7 @@
 # Version 1.1 change notes: 
 # - No changes
 # -----------------------------------------
-# Version 1.2 change notes (2020-07-15):
+# Version 1.2 change notes (2020-07-18):
 # - The data type for dates was changed from 'date' to 'dateTime' since all dates in Wikidata are converted into datetimes. 
 #   This prevents generating an error if the schema is used to convert the CSV data directly to RDF.
 
@@ -49,6 +49,8 @@
 #   or removed as necessary by the software prior to interactions with the API.
 
 # - The requirement that there be a value for every reference and qualifier property was removed.
+
+# - Changed handling of the alias column so that the JSON schema will produce valid RDF consistent with the Wikibase model.
 
 import json
 import requests
@@ -581,7 +583,38 @@ for table in tables:  # The script can handle multiple tables because that optio
     existingDescriptions = [] # a list to hold lists of descriptions in various languages
     existingAliases = [] # a list to hold lists of lists of aliases in various languages
     for column in columns:
-        if not('suppressOutput' in column):
+
+        # special handling for alias column
+        # In order to allow for multiple aliases to be listed as a JSON string, the alias column is handled idiosyncratically and
+        # not as with the labels and description columns. It must me named exactly "alias" and have output suppressed.
+        # This hack allows aliases to be processed by the script, but also to allow a csv2rdf to serialize the CSV data as valid RDF.
+        # However, it limits aliases to a single language.
+        if 'suppressOutput' in column:
+            # find columns that contain aliases and ignor any others with suppressOutput
+            # GUI calls it "Also known as"; RDF as skos:altLabel
+            if column['name'] == 'alias':
+                altLabelColumnHeader = column['titles']
+                altLabelLanguage = column['lang']
+                print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
+                aliasColumnList.append(altLabelColumnHeader)
+                aliasLanguageList.append(altLabelLanguage)
+
+                # retrieve the aliases in that language that already exist in Wikidata and match them with table rows
+                languageAliases = []
+                aliasesAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'alias', labelLanguage)
+                for entityIndex in range(0, len(tableData)):
+                    personAliasList = []
+                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                        for wikiLabel in aliasesAtWikidata:
+                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
+                                personAliasList.append(wikiLabel['string'])
+                    # if not found, the personAliasList list will remain empty
+                    languageAliases.append(personAliasList)
+                
+                # add all of the found aliases for that language to the list of aliases in various languages
+                existingAliases.append(languageAliases)
+        # handle all other non-suppressed columns.
+        else:
 
             # find the columns (if any) that provide labels
             if column['propertyUrl'] == 'rdfs:label':
@@ -607,30 +640,6 @@ for table in tables:  # The script can handle multiple tables because that optio
                 
                 # add all of the found labels for that language to the list of labels in various languages
                 existingLabels.append(tempLabels)
-
-            # find columns that contain aliases
-            # GUI calls it "Also known as"; RDF as skos:altLabel
-            elif column['propertyUrl'] == 'skos:altLabel':
-                altLabelColumnHeader = column['titles']
-                altLabelLanguage = column['lang']
-                print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
-                aliasColumnList.append(altLabelColumnHeader)
-                aliasLanguageList.append(altLabelLanguage)
-
-                # retrieve the aliases in that language that already exist in Wikidata and match them with table rows
-                languageAliases = []
-                aliasesAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'alias', labelLanguage)
-                for entityIndex in range(0, len(tableData)):
-                    personAliasList = []
-                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
-                        for wikiLabel in aliasesAtWikidata:
-                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
-                                personAliasList.append(wikiLabel['string'])
-                    # if not found, the personAliasList list will remain empty
-                    languageAliases.append(personAliasList)
-                
-                # add all of the found aliases for that language to the list of aliases in various languages
-                existingAliases.append(languageAliases)
 
             # find columns that contain descriptions
             # Note: if descriptions exist for a language, they will be overwritten
