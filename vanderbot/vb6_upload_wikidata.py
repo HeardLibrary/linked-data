@@ -336,9 +336,10 @@ def createReferences(referenceListForProperty, rowData):
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
             refValue = rowData[refValueColumnList[refPropNumber]]
-            if refValue == '':  # Do not write the record if it's missing a reference!
-                print('Reference value missing! Cannot write the record.')
-                sys.exit()
+            if refValue == '':  
+                if require_references: # Do not write the record if it's missing a reference.
+                    print('Reference value missing! Cannot write the record.')
+                    sys.exit()
             else:
                 if refEntityOrLiteral[refPropNumber] == 'entity':
                     # case where the value is an entity
@@ -370,10 +371,11 @@ def createReferences(referenceListForProperty, rowData):
                             'datatype': refTypeList[refPropNumber]
                         }
                     ]
-        outerSnakDictionary = {
-            'snaks': snakDictionary
-        }
-        referenceListToReturn.append(outerSnakDictionary)
+        if snakDictionary != {}: # If any references were added, create the outer dict and add to list
+            outerSnakDictionary = {
+                'snaks': snakDictionary
+            }
+            referenceListToReturn.append(outerSnakDictionary)
     return referenceListToReturn
 
 
@@ -389,9 +391,10 @@ def createReferenceSnak(referenceDict, rowData):
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         refValue = rowData[refValueColumnList[refPropNumber]]
-        if refValue == '':  # Do not write the record if it's missing a reference!
-            print('Reference value missing! Cannot write the record.')
-            sys.exit()
+        if refValue == '':  
+            if require_references: # Do not write the record if it's missing a reference!
+                print('Reference value missing! Cannot write the record.')
+                sys.exit()
         else:
             if refEntityOrLiteral[refPropNumber] == 'entity':
                 # case where the value is an entity
@@ -438,9 +441,10 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
         qualValue = rowData[qualValueColumnList[qualPropNumber]]
-        if qualValue == '':  # Do not write the record if it's missing a qualifier!
-            print('Qualifier value missing! Cannot write the record.')
-            sys.exit()
+        if qualValue == '':
+            if require_qualifiers: # Do not write the record if it's missing a qualifier!
+                print('Qualifier value missing! Cannot write the record.')
+                sys.exit()
         else:
             if qualEntityOrLiteral[qualPropNumber] == 'entity':
                 # case where the value is an entity
@@ -557,6 +561,11 @@ csrfToken = getCsrfToken(endpointUrl)
 
 # -------------------------------------------
 # Beginning of script to process the tables
+
+# There are options to require values for every mapped reference column or every mapped qualifier column.
+# By default, these are turned off, but they can be turned on by changing these flags:
+require_references = False
+require_qualifiers = False
 
 # Set the value of the maxlag parameter to back off when the server is lagged
 # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
@@ -935,11 +944,11 @@ for table in tables:  # The script can handle multiple tables because that optio
                         
                     if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
                         references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
-                        if references != []: # additional check to avoid setting references for an empty reference list
+                        if references != []: # check to avoid setting references for an empty reference list
                             snakDict['references'] = references
                     if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
                         qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
-                        if qualifiers != {}:
+                        if qualifiers != {}: # check for situation where no qualifier statements were made for that record
                             snakDict['qualifiers'] = qualifiers
                         
                     claimsList.append(snakDict)
@@ -949,7 +958,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        #print(json.dumps(dataStructure, indent = 2))
+        print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
         
         # don't try to write if there aren't any data to send
@@ -1085,7 +1094,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                         if tableData[rowNumber][reference['refHashColumn']] == '': # process only new references
                             # in this script, the createReferences function returns a snak dictionary, not a list
                             referencesDict = createReferenceSnak(reference, tableData[rowNumber])
-                            if referencesDict == {}:
+                            if referencesDict == {}: # Check for the case where no references were specified for this record
                                 print('no data to write')
                                 print()
                             else:
