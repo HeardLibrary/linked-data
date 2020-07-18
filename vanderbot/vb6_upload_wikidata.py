@@ -238,6 +238,7 @@ def findReferencesForProperty(statementUuidColumn, columns):
                 # These are the lists that will accumulate data about each property of the reference
                 refPropList = [] # P ID for the property
                 refValueColumnList = [] # column header string for the reference property's value
+                refEntityOrLiteral = [] # values: entity or literal, determined by presence of a valueUrl key for the column
                 refTypeList = [] # the datatype of the property's value: url, time, or string
                 refValueTypeList = [] # the specific type of a string: time or string
                 # The kind of value in the column (dateTime, string) can be retrieved directly from the column 'datatype' value
@@ -249,22 +250,28 @@ def findReferencesForProperty(statementUuidColumn, columns):
                         if refHashColumn in propColumn['aboutUrl']:
                             refPropList.append(propColumn['propertyUrl'].partition('prop/reference/')[2])
                             refValueColumnList.append(propColumn['titles'])
-                            # Note: I don't think references typically have item values so don't need to check if value is an item.
-                            # URIs are detected when there is a valueUrl whose value has a first character of "{"
                             if 'valueUrl' in propColumn:
+                                # URIs are detected when there is a valueUrl whose value has a first character of "{"
                                 if propColumn['valueUrl'][0] == '{':
+                                    refEntityOrLiteral.append('literal')
                                     refTypeList.append('url')
                                     refValueTypeList.append('string')
-                            elif propColumn['datatype'] == 'dateTime':
-                                refTypeList.append('time')
-                                refValueTypeList.append('time')
+                                else:
+                                    refEntityOrLiteral.append('entity')
+                                    refTypeList.append('wikibase-item')
+                                    refValueTypeList.append('wikibase-entityid')
                             else:
-                                refTypeList.append('string')
-                                refValueTypeList.append('string')
+                                refEntityOrLiteral.append('literal')
+                                if propColumn['datatype'] == 'dateTime':
+                                    refTypeList.append('time')
+                                    refValueTypeList.append('time')
+                                else:
+                                    refTypeList.append('string')
+                                    refValueTypeList.append('string')
                 
                 # After all of the properties have been found and their data have been added to the lists, 
                 # insert the lists into the reference list as values in a dictionary
-                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList})
+                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refEntityOrLiteral': refEntityOrLiteral, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList})
         
     # After every column has been searched for references associated with the property, return the reference list
     #print('References: ', json.dumps(referenceList, indent=2))
@@ -310,6 +317,7 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                     else:
                         qualTypeList.append('string')
                         qualValueTypeList.append('string')
+
     # After all of the qualifier columns are found for the property, create a dictionary to pass back
     qualifierDictionary = {'qualPropList': qualPropList, 'qualValueColumnList': qualValueColumnList, "qualEntityOrLiteral": qualEntityOrLiteral, 'qualTypeList': qualTypeList, 'qualValueTypeList': qualValueTypeList}
     #print('Qualifiers: ', json.dumps(qualifierDictionary, indent=2))
@@ -323,6 +331,7 @@ def createReferences(referenceListForProperty, rowData):
         refValueColumnList = referenceDict['refValueColumnList']
         refValueTypeList = referenceDict['refValueTypeList']
         refTypeList = referenceDict['refTypeList']
+        refEntityOrLiteral = referenceDict['refEntityOrLiteral']
 
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
@@ -331,20 +340,36 @@ def createReferences(referenceListForProperty, rowData):
                 print('Reference value missing! Cannot write the record.')
                 sys.exit()
             else:
-                if refValueTypeList[refPropNumber] == 'time':
-                    refValue = createTimeReferenceValue(refValue)
-                    
-                snakDictionary[refPropList[refPropNumber]] = [
-                    {
-                        'snaktype': 'value',
-                        'property': refPropList[refPropNumber],
-                        'datavalue': {
-                            'value': refValue,
-                            'type': refValueTypeList[refPropNumber]
-                        },
-                        'datatype': refTypeList[refPropNumber]
-                    }
-                ]
+                if refEntityOrLiteral[refPropNumber] == 'entity':
+                    # case where the value is an entity
+                    snakDictionary[refPropList[refPropNumber]] = [
+                        {
+                            'snaktype': 'value',
+                            'property': refPropList[refPropNumber],
+                            'datatype': 'wikibase-item',
+                            'datavalue': {
+                                'value': {
+                                    'id': refValue
+                                    },
+                                'type': 'wikibase-entityid'
+                                }
+                        }
+                    ]
+                else:
+                    if refValueTypeList[refPropNumber] == 'time':
+                        refValue = createTimeReferenceValue(refValue)
+                        
+                    snakDictionary[refPropList[refPropNumber]] = [
+                        {
+                            'snaktype': 'value',
+                            'property': refPropList[refPropNumber],
+                            'datavalue': {
+                                'value': refValue,
+                                'type': refValueTypeList[refPropNumber]
+                            },
+                            'datatype': refTypeList[refPropNumber]
+                        }
+                    ]
         outerSnakDictionary = {
             'snaks': snakDictionary
         }
@@ -359,6 +384,7 @@ def createReferenceSnak(referenceDict, rowData):
     refValueColumnList = referenceDict['refValueColumnList']
     refValueTypeList = referenceDict['refValueTypeList']
     refTypeList = referenceDict['refTypeList']
+    refEntityOrLiteral = referenceDict['refEntityOrLiteral']
     
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
@@ -367,20 +393,37 @@ def createReferenceSnak(referenceDict, rowData):
             print('Reference value missing! Cannot write the record.')
             sys.exit()
         else:
-            if refValueTypeList[refPropNumber] == 'time':
-                refValue = createTimeReferenceValue(refValue)
-                
-            snakDictionary[refPropList[refPropNumber]] = [
-                {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
-                }
-            ]
+            if refEntityOrLiteral[refPropNumber] == 'entity':
+                # case where the value is an entity
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                        'snaktype': 'value',
+                        'property': refPropList[refPropNumber],
+                        'datatype': 'wikibase-item',
+                        'datavalue': {
+                            'value': {
+                                'id': refValue
+                                },
+                            'type': 'wikibase-entityid'
+                            }
+                    }
+                ]
+            else:
+                # case where the value is a literal, time, or url
+                if refValueTypeList[refPropNumber] == 'time':
+                    refValue = createTimeReferenceValue(refValue)
+                    
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                        'snaktype': 'value',
+                        'property': refPropList[refPropNumber],
+                        'datavalue': {
+                            'value': refValue,
+                            'type': refValueTypeList[refPropNumber]
+                        },
+                        'datatype': refTypeList[refPropNumber]
+                    }
+                ]
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
 
