@@ -26,6 +26,10 @@ Here are some queries that can be run to explore the data:
 
 [Calculate the fraction of works linked to authors by gender](https://w.wiki/Nqr)
 
+[Number of clinical trials by Vanderbilt departmental affiliation of their principal investigators](https://w.wiki/XKJ)
+
+[Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
+
 The current release is [v1.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.2).
 
 ## How it works
