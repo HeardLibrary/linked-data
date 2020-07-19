@@ -1,2 +1,2 @@
-name,wikidataId,academicAppointmentUuid,academicAppointment,academicAppointmentHash,academicAppointmentSourceUrl,academicAppointmentReferenceRetrieved,academicAppointmentStartTime,academicAppointmentEndTime,academicAppointmentOrdinal
-Ken Catania,Q6389929,CB3F25D5-5B75-499D-9911-2DE13285FCF3,Q78041310,f8ec4d80911685cb41294aeef07527be752365bb,https://as.vanderbilt.edu/biosci/people/index.php?group=primary-training-faculty,2020-07-18T00:00:00Z,,,1
+name,wikidataId,worldcatIdUuid,worldcatId,worldcatIdHash,worldcatIdViafId,worldcatIdReferenceRetrieved,worldcatIdStatedIn
+Suzana Herculano-Houzel,Q10375239,15948DE3-92F8-4642-8616-C49C18E7B0ED,viaf-208186153,212c597031b99b13eb8838c8682bdba529590cc8,208186153,2020-07-18T00:00:00Z,Q54919

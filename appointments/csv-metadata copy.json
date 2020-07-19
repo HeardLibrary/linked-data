@@ -1,0 +1,85 @@
+{
+  "@type": "TableGroup",
+  "@context": "http://www.w3.org/ns/csvw",
+  "tables": [
+    {
+      "url": "appointments-to-write.csv",
+      "tableSchema": {
+        "columns": [
+          {
+            "titles": "name",
+            "name": "name",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "wikidataId",
+            "name": "wikidataId",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+         {
+            "titles": "academicAppointmentUuid",
+            "name": "academicAppointmentUuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/P8413",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}"
+          },
+          {
+            "titles": "academicAppointment",
+            "name": "academicAppointment",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P8413",
+            "valueUrl": "http://www.wikidata.org/entity/{academicAppointment}"
+          },
+          {
+            "titles": "academicAppointmentHash",
+            "name": "academicAppointmentHash",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}"
+          },
+          {
+            "titles": "academicAppointmentSourceUrl",
+            "name": "academicAppointmentSourceUrl",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+            "valueUrl": "{academicAppointmentSourceUrl}"
+          },
+          {
+            "titles": "academicAppointmentReferenceRetrieved",
+            "name": "academicAppointmentReferenceRetrieved",
+            "datatype": "dateTime",
+            "aboutUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+          },
+          {
+            "titles": "academicAppointmentStartTime",
+            "name": "academicAppointmentStartTime",
+            "datatype": "dateTime",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
+          },
+          {
+            "titles": "academicAppointmentEndTime",
+            "name": "academicAppointmentEndTime",
+            "datatype": "dateTime",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
+          },
+          {
+            "titles": "academicAppointmentOrdinal",
+            "name": "academicAppointmentOrdinal",
+            "datatype": "literal",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P1545"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -19,64 +19,50 @@
             "suppressOutput": true
           },
          {
-            "titles": "academicAppointmentUuid",
-            "name": "academicAppointmentUuid",
+            "titles": "worldcatIdUuid",
+            "name": "worldcatIdUuid",
             "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-            "propertyUrl": "http://www.wikidata.org/prop/P8413",
-            "valueUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}"
+            "propertyUrl": "http://www.wikidata.org/prop/P7859",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{worldcatIdUuid}"
           },
           {
-            "titles": "academicAppointment",
-            "name": "academicAppointment",
+            "titles": "worldcatId",
+            "name": "worldcatId",
             "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-            "propertyUrl": "http://www.wikidata.org/prop/direct/P8413",
-            "valueUrl": "http://www.wikidata.org/entity/{academicAppointment}"
+            "propertyUrl": "http://www.wikidata.org/prop/direct/P7859",
+            "valueUrl": "http://www.wikidata.org/entity/{worldcatId}"
           },
           {
-            "titles": "academicAppointmentHash",
-            "name": "academicAppointmentHash",
+            "titles": "worldcatIdHash",
+            "name": "worldcatIdHash",
             "datatype": "string",
-            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{worldcatIdUuid}",
             "propertyUrl": "prov:wasDerivedFrom",
-            "valueUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}"
+            "valueUrl": "http://www.wikidata.org/reference/{worldcatIdHash}"
           },
           {
-            "titles": "academicAppointmentSourceUrl",
-            "name": "academicAppointmentSourceUrl",
+            "titles": "worldcatIdViafId",
+            "name": "worldcatIdViafId",
             "datatype": "string",
-            "aboutUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
-            "valueUrl": "{academicAppointmentSourceUrl}"
+            "aboutUrl": "http://www.wikidata.org/reference/{worldcatIdHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P214"
           },
           {
-            "titles": "academicAppointmentReferenceRetrieved",
-            "name": "academicAppointmentReferenceRetrieved",
+            "titles": "worldcatIdReferenceRetrieved",
+            "name": "worldcatIdReferenceRetrieved",
             "datatype": "dateTime",
-            "aboutUrl": "http://www.wikidata.org/reference/{academicAppointmentHash}",
+            "aboutUrl": "http://www.wikidata.org/reference/{worldcatIdHash}",
             "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
           },
           {
-            "titles": "academicAppointmentStartTime",
-            "name": "academicAppointmentStartTime",
-            "datatype": "dateTime",
-            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
-            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
-          },
-          {
-            "titles": "academicAppointmentEndTime",
-            "name": "academicAppointmentEndTime",
-            "datatype": "dateTime",
-            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
-            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
-          },
-          {
-            "titles": "academicAppointmentOrdinal",
-            "name": "academicAppointmentOrdinal",
-            "datatype": "literal",
-            "aboutUrl": "http://www.wikidata.org/entity/statement/{academicAppointmentUuid}",
-            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P1545"
+            "titles": "worldcatIdStatedIn",
+            "name": "worldcatIdStatedIn",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/reference/{worldcatIdHash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P248",
+            "valueUrl": "http://www.wikidata.org/entity/{worldcatIdStatedIn}"
           }
         ]
       }
