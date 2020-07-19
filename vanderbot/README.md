@@ -4,7 +4,7 @@ The short link to this page is [vanderbi.lt/vanderbot](http://vanderbi.lt/vander
 
 ## Summary
 
-VanderBot is a set of Python scripts that scrapes data from departmental websites, then creates or updates researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what entities and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C "Generating RDF from Tabular Data on the Web" Recommendation, making it possible to write data about any kind of item using the Wikidata API. 
+VanderBot is a set of Python scripts that scrapes data from departmental websites, then creates or updates researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C "Generating RDF from Tabular Data on the Web" Recommendation, making it possible to write data about any kind of item using the Wikidata API. 
 
 ## Description
 
