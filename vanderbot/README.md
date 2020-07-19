@@ -6,7 +6,7 @@ The short link to this page is [vanderbi.lt/vanderbot](http://vanderbi.lt/vander
 
 This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
 
-As of 2020-04-23, VanderBot has created or curated records for 4436 scholars or researchers at Vanderbilt and made 4998 record updates. The number includes nearly all researchers in Vanderbilt colleges and schools except the School of Medicine. Records for nearly all of the faculty in the School of medicine have been curated, but research staff and postdocs have not yet been done.
+As of 2020-07-18, VanderBot has created or curated records for over 4500 scholars or researchers at Vanderbilt and made over 8000 edits. The number includes nearly all researchers in Vanderbilt colleges and schools except the School of Medicine. Records for nearly all of the faculty in the School of medicine have been curated, but research staff and postdocs have not yet been done.
 
 Here are some queries that can be run to explore the data:
 
@@ -22,10 +22,11 @@ Here are some queries that can be run to explore the data:
 
 [Calculate the fraction of works linked to authors by gender](https://w.wiki/Nqr)
 
+The current release is [v1.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.2).
+
 ## How it works
 
 This [video shows VanderBot in operation](https://youtu.be/4zi9wj7EwRU)
-
 
 
 ## Release v1.0 (2020-04-20) notes 
