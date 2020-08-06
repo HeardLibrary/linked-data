@@ -51,6 +51,13 @@
 # - The requirement that there be a value for every reference and qualifier property was removed.
 
 # - Changed handling of the alias column so that the JSON schema will produce valid RDF consistent with the Wikibase model.
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-05):
+# - Change  GET request to the SPARQL endpoint to POST to avoid size limitations of the query based on URL length
+# - This requires adding the correct Content-Type header (application/sparql-query)
+# - Correct the form of the IRI for statements (add Q ID before UUID in IRI). This required a slight modification in the 
+#   part of the script that searches the mapping template for statements (look for -} instead of just } )
+
 
 import json
 import requests
@@ -128,8 +135,9 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     # configuration settings
     endpointUrl = 'https://query.wikidata.org/sparql'
     acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/1.2 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/1.3 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
+    'Content-Type': 'application/sparql-query',
     'Accept' : acceptMediaType,
     'User-Agent': userAgentHeader
     }
@@ -160,7 +168,8 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     #print(query)
 
     returnValue = []
-    r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    # r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    r = requests.post(endpointUrl, data=query, headers=requestHeaderDictionary)
     data = r.json()
     results = data['results']['bindings']
     for result in results:

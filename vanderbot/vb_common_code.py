@@ -14,6 +14,10 @@
 # Version 1.2 change notes (2020-07-15):
 # - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
 #   or removed as necessary by the software prior to interactions with the API.
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-05):
+# - Change all GET requests to the SPARQL endpoint to POST to avoid size limitations of the query based on URL length
+# - This requires adding the correct Content-Type header (application/sparql-query)
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
@@ -125,8 +129,9 @@ toolName = 'VanderBot' # give your application a name here
 '''
 # generates a dictionary to be passed in a requests GET method to generate the request header
 def generateHeaderDictionary(acceptMediaType):
-    userAgentHeader = 'VanderBot/1.0 (https://github.com/HeardLibrary/linked-data/tree/master/publications; mailto:steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/1.3 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
+        'Content-Type': 'application/sparql-query',
         'Accept' : acceptMediaType,
         'User-Agent': userAgentHeader
     }
@@ -218,7 +223,8 @@ select distinct ?item where {
 '''
     results = []
     acceptMediaType = 'application/json'
-    r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers = generateHeaderDictionary(acceptMediaType))
+    # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers = generateHeaderDictionary(acceptMediaType))
+    r = requests.post(wikidataEndpointUrl, data=query, headers = generateHeaderDictionary(acceptMediaType))
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -254,8 +260,9 @@ class Query:
         try:
             self.useragent = kwargs['useragent']
         except:
-            self.useragent = 'VanderBot/1.0 (https://github.com/HeardLibrary/linked-data/tree/master/publications; mailto:steve.baskauf@vanderbilt.edu)' 
+            self.useragent = 'VanderBot/1.3 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)' 
         self.requestheader = {
+        'Content-Type': 'application/sparql-query',
         'Accept' : self.mediatype,
         'User-Agent': self.useragent
         }
@@ -296,7 +303,8 @@ class Query:
             
     # send a generic query and return a list of Q IDs
     def generic_query(self, query):
-        r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
         results_list = []
         try:
         #if 1==1: # replace try: to let errors occur, also comment out the except: clause
@@ -335,7 +343,8 @@ select distinct ?object where {
         query +=  '''
     }'''
         #print(query)
-        r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
         results_list = []
         try:
         #if 1==1: # replace try: to let errors occur, also comment out the except: clause
@@ -400,7 +409,8 @@ select distinct ?id ?string where {'''
         #print(query)
 
         results_list = []
-        r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
         data = r.json()
         results = data['results']['bindings']
         for result in results:
@@ -458,7 +468,8 @@ select distinct ?id ?statement '''
         #print(query)
 
         results_list = []
-        r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
         data = r.json()
         results = data['results']['bindings']
         # NOTE: There may be more than one reference per statement.
