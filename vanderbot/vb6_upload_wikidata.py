@@ -215,7 +215,8 @@ def findPropertyUuid(propertyId, columns):
         if not('suppressOutput' in column):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
-                temp = column['valueUrl'].partition('{')[2]
+                temp = column['valueUrl'].partition('-{')[2]
+                print(temp)
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
                 #print(statementUuidColumn)
     
