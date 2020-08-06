@@ -27,6 +27,9 @@
 # Version 1.2 change notes (2020-07-15):
 # - The leading + required for dateTime values by the Wikidata API has been removed from the data in the CSV table and added 
 #   or removed as necessary by the software prior to interactions with the API.
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-06):
+# - no changes
 
 
 

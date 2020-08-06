@@ -137,6 +137,15 @@ def generateHeaderDictionary(acceptMediaType):
     }
     return requestHeaderDictionary
 
+# generates a dictionary to be passed in a requests GET method to generate the request header
+def generateHeaderDictionaryNonSparql(acceptMediaType):
+    userAgentHeader = 'VanderBot/1.3 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    requestHeaderDictionary = {
+        'Accept' : acceptMediaType,
+        'User-Agent': userAgentHeader
+    }
+    return requestHeaderDictionary
+
 # write a list of lists to a CSV file
 def writeListsToCsv(fileName, array):
     with open(fileName, 'w', newline='', encoding='utf-8') as fileObject:

@@ -19,6 +19,9 @@
 # -----------------------------------------
 # Version 1.2 change notes: 
 # - No substantive changes
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-06):
+# - no changes
 
 import json
 from time import sleep

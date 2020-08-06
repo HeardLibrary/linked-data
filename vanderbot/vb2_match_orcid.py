@@ -15,6 +15,9 @@
 # -----------------------------------------
 # Version 1.2 change notes: 
 # - no changes
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-06):
+# - no changes
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
