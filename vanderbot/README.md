@@ -32,7 +32,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current release is [v1.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.2).
+The current release is [v1.3](https://github.com/HeardLibrary/linked-data/releases/tag/v1.3).
 
 ## How it works
 

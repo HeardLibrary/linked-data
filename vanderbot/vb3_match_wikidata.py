@@ -17,6 +17,9 @@
 # -----------------------------------------
 # Version 1.2 change notes: 
 # - No changes
+# -----------------------------------------
+# Version 1.3 change notes (2020-08-06):
+# - Change SPARQL queries from GET to POST
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
@@ -220,7 +223,8 @@ FILTER(lang(?label)='en')
     #print(query)
     #print('searching for ', name)
     results = []
-    r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -255,7 +259,8 @@ def searchWikidataDescription(qId):
         optional {wd:'''+ qId + ''' wdt:P496 ?orcid.}
       }'''
     #print(query)
-    r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -300,7 +305,8 @@ def searchWikidataArticle(qId):
       optional {?article wdt:P356 ?doi.}
       }'''
     #print(query)
-    r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -389,7 +395,7 @@ def retrieveCrossRefDoi(doi):
     encodedDoi = urllib.parse.quote(doi)
     searchUrl = crossRefEndpointUrl + encodedDoi
     acceptMediaType = 'application/json'
-    response = requests.get(searchUrl, headers=vbc.generateHeaderDictionary(acceptMediaType))
+    response = requests.get(searchUrl, headers=vbc.generateHeaderDictionaryNonSparql(acceptMediaType))
     if response.status_code == 404:
         authorList = [] # return an empty list if the DOI won't dereference at CrossRef
     else:
@@ -1062,7 +1068,8 @@ query = '''select distinct  ?person ?name ?orcid ?startDate ?endDate ?descriptio
   }'''
 
 # The endpoint defaults to returning XML, so the Accept: header is required
-r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers={'Accept' : 'application/json'})
+# r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers={'Accept' : 'application/json'})
+r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
 
 data = r.json()
 #print(json.dumps(data,indent = 2))
