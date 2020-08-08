@@ -225,7 +225,6 @@ def findPropertyUuid(propertyId, columns):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
                 temp = column['valueUrl'].partition('-{')[2]
-                print(temp)
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
                 #print(statementUuidColumn)
     
@@ -679,10 +678,10 @@ for table in tables:  # The script can handle multiple tables because that optio
 
             # find columns that contain properties with entity values or literal values that are URLs
             elif 'valueUrl' in column:
-                # only add columns that have direct properties
-                if 'prop/direct/' in column['propertyUrl']:
+                # only add columns that have "statement" properties
+                if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
-                    propertyId = column['propertyUrl'].partition('prop/direct/')[2]
+                    propertyId = column['propertyUrl'].partition('prop/statement/')[2]
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
 
@@ -707,10 +706,10 @@ for table in tables:  # The script can handle multiple tables because that optio
 
             # remaining columns should have properties with literal values
             else:
-                # only add columns that have direct properties
-                if 'prop/direct/' in column['propertyUrl']:
+                # only add columns that have "statement" properties
+                if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
-                    propertyId = column['propertyUrl'].partition('prop/direct/')[2]
+                    propertyId = column['propertyUrl'].partition('prop/statement/')[2]
                     print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', column['datatype'])
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
