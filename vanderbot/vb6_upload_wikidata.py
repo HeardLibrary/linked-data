@@ -57,7 +57,11 @@
 # - This requires adding the correct Content-Type header (application/sparql-query)
 # - Correct the form of the IRI for statements (add Q ID before UUID in IRI). This required a slight modification in the 
 #   part of the script that searches the mapping template for statements (look for -} instead of just } )
-
+# -----------------------------------------
+# Version 1.4 change notes (2020-08-17):
+# - In csv-metadata.json, replace wdt: namespace properties with ps: properties, 
+#   e.g. https://github.com/HeardLibrary/linked-data/blob/v1-4/vanderbot/csv-metadata.json#L187
+# - Modify vb6_upload_wikidata.py (this script) to fine those ps: properties instead of the wdt: ones.
 
 import json
 import requests
@@ -225,7 +229,6 @@ def findPropertyUuid(propertyId, columns):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
                 temp = column['valueUrl'].partition('-{')[2]
-                print(temp)
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
                 #print(statementUuidColumn)
     
@@ -679,10 +682,10 @@ for table in tables:  # The script can handle multiple tables because that optio
 
             # find columns that contain properties with entity values or literal values that are URLs
             elif 'valueUrl' in column:
-                # only add columns that have direct properties
-                if 'prop/direct/' in column['propertyUrl']:
+                # only add columns that have "statement" properties
+                if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
-                    propertyId = column['propertyUrl'].partition('prop/direct/')[2]
+                    propertyId = column['propertyUrl'].partition('prop/statement/')[2]
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
 
@@ -707,10 +710,10 @@ for table in tables:  # The script can handle multiple tables because that optio
 
             # remaining columns should have properties with literal values
             else:
-                # only add columns that have direct properties
-                if 'prop/direct/' in column['propertyUrl']:
+                # only add columns that have "statement" properties
+                if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
-                    propertyId = column['propertyUrl'].partition('prop/direct/')[2]
+                    propertyId = column['propertyUrl'].partition('prop/statement/')[2]
                     print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', column['datatype'])
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
