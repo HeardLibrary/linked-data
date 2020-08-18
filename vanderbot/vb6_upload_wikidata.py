@@ -57,7 +57,11 @@
 # - This requires adding the correct Content-Type header (application/sparql-query)
 # - Correct the form of the IRI for statements (add Q ID before UUID in IRI). This required a slight modification in the 
 #   part of the script that searches the mapping template for statements (look for -} instead of just } )
-
+# -----------------------------------------
+# Version 1.4 change notes (2020-08-17):
+# - In csv-metadata.json, replace wdt: namespace properties with ps: properties, 
+#   e.g. https://github.com/HeardLibrary/linked-data/blob/v1-4/vanderbot/csv-metadata.json#L187
+# - Modify vb6_upload_wikidata.py (this script) to fine those ps: properties instead of the wdt: ones.
 
 import json
 import requests
