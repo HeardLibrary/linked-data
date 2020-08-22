@@ -142,14 +142,14 @@
                             "titles": "positionHeld_startTime",
                             "name": "positionHeld_startTime",
                             "datatype": "dateTime",
-                            "aboutUrl": "http://www.wikidata.org/entity/statement/{positionHeld_uuid}",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}",
                             "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
                         },
                         {
                             "titles": "positionHeld_endTime",
                             "name": "positionHeld_endTime",
                             "datatype": "dateTime",
-                            "aboutUrl": "http://www.wikidata.org/entity/statement/{positionHeld_uuid}",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}",
                             "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
                         },
                         {
