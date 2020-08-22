@@ -1,0 +1,188 @@
+{
+        "@type": "TableGroup",
+        "@context": "http://www.w3.org/ns/csvw",
+        "tables": [
+            {
+                "url": "bluffton_presidents.csv",
+                "tableSchema": {
+                    "columns": [ 
+                        {
+                            "titles": "wikidataId",
+                            "name": "wikidataId",
+                            "datatype": "string",
+                            "suppressOutput": true
+                        },
+                        {
+                            "titles": "labelEn",
+                            "name": "labelEn",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "rdfs:label",
+                            "lang": "en"
+                        },
+                        {
+                            "titles": "descriptionEn",
+                            "name": "descriptionEn",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "schema:description",
+                            "lang": "en"
+                        },
+                        {
+                            "titles": "instanceOf",
+                            "name": "instanceOf",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{instanceOf_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P31",
+                            "valueUrl": "http://www.wikidata.org/entity/{instanceOf}"
+                        },
+                        {
+                            "titles": "instanceOf_uuid",
+                            "name": "instanceOf_uuid",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P31",
+                            "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{instanceOf_uuid}"
+                        },
+                        {
+                            "titles": "sexOrGender",
+                            "name": "sexOrGender",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{sexOrGender_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P21",
+                            "valueUrl": "http://www.wikidata.org/entity/{sexOrGender}"
+                        },
+                        {
+                            "titles": "sexOrGender_uuid",
+                            "name": "sexOrGender_uuid",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P21",
+                            "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{sexOrGender_uuid}"
+                        },
+                        {
+                            "titles": "sexOrGenderRef_hash",
+                            "name": "sexOrGenderRef_hash",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{sexOrGender_uuid}",
+                            "propertyUrl": "prov:wasDerivedFrom",
+                            "valueUrl": "http://www.wikidata.org/reference/{sexOrGenderRef_hash}"
+                        },
+                        {
+                            "titles": "sexOrGender_refUrl",
+                            "name": "sexOrGender_refUrl",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/reference/{sexOrGenderRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+                            "valueUrl": "{+sexOrGender_refUrl}"
+                        },
+                        {
+                            "titles": "sexOrGender_retrieved",
+                            "name": "sexOrGender_retrieved",
+                            "datatype": "dateTime",
+                            "aboutUrl": "http://www.wikidata.org/reference/{sexOrGenderRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+                        },
+                        {
+                            "titles": "employer",
+                            "name": "employer",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{employer_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P108",
+                            "valueUrl": "http://www.wikidata.org/entity/{employer}"
+                        },
+                        {
+                            "titles": "employer_uuid",
+                            "name": "employer_uuid",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P108",
+                            "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{employer_uuid}"
+                        },
+                        {
+                            "titles": "employerRef_hash",
+                            "name": "employerRef_hash",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{employer_uuid}",
+                            "propertyUrl": "prov:wasDerivedFrom",
+                            "valueUrl": "http://www.wikidata.org/reference/{employerRef_hash}"
+                        },
+                        {
+                            "titles": "employer_refUrl",
+                            "name": "employer_refUrl",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/reference/{employerRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+                            "valueUrl": "{+employer_refUrl}"
+                        },
+                        {
+                            "titles": "employer_retrieved",
+                            "name": "employer_retrieved",
+                            "datatype": "dateTime",
+                            "aboutUrl": "http://www.wikidata.org/reference/{employerRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+                        },
+                        {
+                            "titles": "positionHeld",
+                            "name": "positionHeld",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P39",
+                            "valueUrl": "http://www.wikidata.org/entity/{positionHeld}"
+                        },
+                        {
+                            "titles": "positionHeld_uuid",
+                            "name": "positionHeld_uuid",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
+                            "propertyUrl": "http://www.wikidata.org/prop/statement/P39",
+                            "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}"
+                        },
+                        {
+                            "titles": "positionHeld_startTime",
+                            "name": "positionHeld_startTime",
+                            "datatype": "dateTime",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{positionHeld_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P580"
+                        },
+                        {
+                            "titles": "positionHeld_endTime",
+                            "name": "positionHeld_endTime",
+                            "datatype": "dateTime",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{positionHeld_uuid}",
+                            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P582"
+                        },
+                        {
+                            "titles": "positionHeldRef_hash",
+                            "name": "positionHeldRef_hash",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}",
+                            "propertyUrl": "prov:wasDerivedFrom",
+                            "valueUrl": "http://www.wikidata.org/reference/{positionHeldRef_hash}"
+                        },
+                        {
+                            "titles": "positionHeld_refUrl",
+                            "name": "positionHeld_refUrl",
+                            "datatype": "string",
+                            "aboutUrl": "http://www.wikidata.org/reference/{positionHeldRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+                            "valueUrl": "{+positionHeld_refUrl}"
+                        },
+                        {
+                            "titles": "positionHeld_retrieved",
+                            "name": "positionHeld_retrieved",
+                            "datatype": "dateTime",
+                            "aboutUrl": "http://www.wikidata.org/reference/{positionHeldRef_hash}",
+                            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+                        },
+                        {
+                            "titles": "notes",
+                            "name": "notes",
+                            "datatype": "string",
+                            "suppressOutput": true
+                        }
+                    ]
+                }
+            }
+        ]
+}
