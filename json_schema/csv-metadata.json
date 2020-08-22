@@ -41,7 +41,7 @@
                             "name": "instanceOf_uuid",
                             "datatype": "string",
                             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-                            "propertyUrl": "http://www.wikidata.org/prop/statement/P31",
+                            "propertyUrl": "http://www.wikidata.org/prop/P31",
                             "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{instanceOf_uuid}"
                         },
                         {
@@ -57,7 +57,7 @@
                             "name": "sexOrGender_uuid",
                             "datatype": "string",
                             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-                            "propertyUrl": "http://www.wikidata.org/prop/statement/P21",
+                            "propertyUrl": "http://www.wikidata.org/prop/P21",
                             "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{sexOrGender_uuid}"
                         },
                         {
@@ -96,7 +96,7 @@
                             "name": "employer_uuid",
                             "datatype": "string",
                             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-                            "propertyUrl": "http://www.wikidata.org/prop/statement/P108",
+                            "propertyUrl": "http://www.wikidata.org/prop/P108",
                             "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{employer_uuid}"
                         },
                         {
@@ -135,7 +135,7 @@
                             "name": "positionHeld_uuid",
                             "datatype": "string",
                             "aboutUrl": "http://www.wikidata.org/entity/{wikidataId}",
-                            "propertyUrl": "http://www.wikidata.org/prop/statement/P39",
+                            "propertyUrl": "http://www.wikidata.org/prop/P39",
                             "valueUrl": "http://www.wikidata.org/entity/statement/{wikidataId}-{positionHeld_uuid}"
                         },
                         {
