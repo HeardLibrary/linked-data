@@ -18,7 +18,8 @@
 
 <http://www.wikidata.org/entity/statement/Q71157201-2e321872-4e52-7b30-35a8-ae7ab4bf8b79> <http://www.wikidata.org/prop/statement/P31> <http://www.wikidata.org/entity/Q5> .
 
-<http://www.wikidata.org/entity/statement/Q71157201-481413dc-4f90-9109-4980-1779f4951248> <http://www.wikidata.org/prop/statement/P21> <http://www.wikidata.org/entity/Q6581072> .
+<http://www.wikidata.org/entity/statement/Q71157201-481413dc-4f90-9109-4980-1779f4951248> prov:wasDerivedFrom <http://www.wikidata.org/reference/bf9783db5acbbfa81e76408dd71b8322a0acbd38>;
+  <http://www.wikidata.org/prop/statement/P21> <http://www.wikidata.org/entity/Q6581072> .
 
 <http://www.wikidata.org/entity/statement/Q71157201-d2503e45-45ce-3104-fc56-9adb8933b47d> prov:wasDerivedFrom <http://www.wikidata.org/reference/bf9783db5acbbfa81e76408dd71b8322a0acbd38>;
   <http://www.wikidata.org/prop/statement/P108> <http://www.wikidata.org/entity/Q886141> .
@@ -32,13 +33,12 @@
       a csvw:Table;
       csvw:row [
         a csvw:Row;
-        csvw:describes <http://www.wikidata.org/entity/Q71157201>,
-          <http://www.wikidata.org/entity/statement/Q71157201-481413dc-4f90-9109-4980-1779f4951248>,
-          <http://www.wikidata.org/entity/statement/Q71157201-162f4888-4277-294f-a9e4-9cc8f7abfece>,
-          <http://www.wikidata.org/reference/bf9783db5acbbfa81e76408dd71b8322a0acbd38>,
+        csvw:describes <http://www.wikidata.org/entity/statement/Q71157201-481413dc-4f90-9109-4980-1779f4951248>,
           <http://www.wikidata.org/entity/statement/Q71157201-2e321872-4e52-7b30-35a8-ae7ab4bf8b79>,
+          <http://www.wikidata.org/entity/Q71157201>,
           <http://www.wikidata.org/entity/statement/Q71157201-d2503e45-45ce-3104-fc56-9adb8933b47d>,
-          <http://www.wikidata.org/reference/>;
+          <http://www.wikidata.org/reference/bf9783db5acbbfa81e76408dd71b8322a0acbd38>,
+          <http://www.wikidata.org/entity/statement/Q71157201-162f4888-4277-294f-a9e4-9cc8f7abfece>;
         csvw:rownum 1;
         csvw:url <file:bluffton_presidents.csv#row=2>
       ];
@@ -46,17 +46,17 @@
     ];
     prov:wasGeneratedBy [
       a prov:Activity;
-      prov:endedAtTime "2020-08-22T20:49:36.993-05:00"^^xsd:dateTime;
+      prov:endedAtTime "2020-08-22T21:10:39.842-05:00"^^xsd:dateTime;
       prov:qualifiedUsage [
-        a prov:Usage;
-        prov:entity <file:bluffton_presidents.csv>;
-        prov:hadRole csvw:csvEncodedTabularData
-      ], [
         a prov:Usage;
         prov:entity <file:csv-metadata.json>;
         prov:hadRole csvw:tabularMetadata
+      ], [
+        a prov:Usage;
+        prov:entity <file:bluffton_presidents.csv>;
+        prov:hadRole csvw:csvEncodedTabularData
       ];
-      prov:startedAtTime "2020-08-22T20:49:36.951-05:00"^^xsd:dateTime;
+      prov:startedAtTime "2020-08-22T21:10:39.796-05:00"^^xsd:dateTime;
       prov:wasAssociatedWith <http://rubygems.org/gems/rdf-tabular>
     ]
   ] .
