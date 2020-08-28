@@ -1,5 +1,6 @@
-# Freely available under a CC0 license. Steve Baskauf 2020-04-20
-# It's part of VanderBot v1.0
+# VanderBot v1.4 (2020-08-17) vb5_check_labels_descriptions.py
+# (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
 # See http://baskauf.blogspot.com/2020/02/vanderbot-python-script-for-writing-to.html
