@@ -615,7 +615,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                 # retrieve the aliases in that language that already exist in Wikidata and match them with table rows
                 languageAliases = []
-                aliasesAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'alias', labelLanguage)
+                aliasesAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'alias', altLabelLanguage)
                 for entityIndex in range(0, len(tableData)):
                     personAliasList = []
                     if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
@@ -666,7 +666,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                 # retrieve the descriptions in that language that already exist in Wikidata and match them with table rows
                 tempLabels = []
-                descriptionsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'description', labelLanguage)
+                descriptionsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'description', descriptionLanguage)
                 for entityIndex in range(0, len(tableData)):
                     found = False
                     if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
