@@ -450,42 +450,63 @@ def findQualifiersForProperty(statementUuidColumn, columns):
 # The form of snaks is the same for references and qualifiers, so they can be generated systematically
 # Although the variable names include "ref", they apply the same to the analagous "qual" variables.
 def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral):
-    if refValue == '':  
+    if not(refValue):  # evaluates both empty strings for direct values or empty dict for node-valued values
         if require_references: # Do not write the record if it's missing a reference.
             print('Reference value missing! Cannot write the record.')
             sys.exit()
     else:
-        if refEntityOrLiteral[refPropNumber] == 'entity':
+        if refEntityOrLiteral[refPropNumber] == 'value':
+            # Currently time is the only kind of value node handled
+            if refTypeList[refPropNumber] == 'time':
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datavalue':{
+                        'value': {
+                            'time': '+' + refValue['timeValue'],
+                            'timezone': 0,
+                            'before': 0,
+                            'after': 0,
+                            'precision': refValue['timePrecision'],
+                            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                            },
+                        'type': 'time'
+                        },
+                    'datatype': 'time'
+                    }
+                ]
+
+            # In the future handle other types here
+            else:
+                pass
+
+        elif refEntityOrLiteral[refPropNumber] == 'entity':
             # case where the value is an entity
             snakDictionary[refPropList[refPropNumber]] = [
                 {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datatype': 'wikibase-item',
-                    'datavalue': {
-                        'value': {
-                            'id': refValue
-                            },
-                        'type': 'wikibase-entityid'
-                        }
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': {
+                        'id': refValue
+                        },
+                    'type': 'wikibase-entityid'
+                    },
+                'datatype': 'wikibase-item'
                 }
             ]
         else:
-            if refEntityOrLiteral[refPropNumber] == 'value':
-                if refValueTypeList[refPropNumber] == 'time':
-                    refValue = createTimeReferenceValue(refValue)
-                else: # in the future, handle other kinds of value nodes besides time
-                    pass
-                
+            # case where value is a string of some kind
             snakDictionary[refPropList[refPropNumber]] = [
                 {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': refValue,
+                    'type': refValueTypeList[refPropNumber]
+                },
+                'datatype': refTypeList[refPropNumber]
                 }
             ]
     return snakDictionary
@@ -502,7 +523,15 @@ def createReferences(referenceListForProperty, rowData):
 
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
-            refValue = rowData[refValueColumnList[refPropNumber]]
+            if refEntityOrLiteral[refPropNumber] == 'value':
+                # currently time is the only supported node-valued type
+                if refTypeList[refPropNumber] == 'time':
+                    refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                # other node-valued types will be handled here
+                else:
+                    pass
+            else:
+                refValue = rowData[refValueColumnList[refPropNumber]]
             snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
         if snakDictionary != {}: # If any references were added, create the outer dict and add to list
             outerSnakDictionary = {
@@ -523,7 +552,15 @@ def createReferenceSnak(referenceDict, rowData):
     
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
-        refValue = rowData[refValueColumnList[refPropNumber]]
+        if refEntityOrLiteral[refPropNumber] == 'value':
+            # currently time is the only supported node-valued type
+            if refTypeList[refPropNumber] == 'time':
+                refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+            # other node-valued types will be handled here
+            else:
+                pass
+        else:
+            refValue = rowData[refValueColumnList[refPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
@@ -538,7 +575,15 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     qualEntityOrLiteral = qualifierDictionaryForProperty['qualEntityOrLiteral']
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
-        qualValue = rowData[qualValueColumnList[qualPropNumber]]
+        if qualEntityOrLiteral[qualPropNumber] == 'value':
+            # currently time is the only supported node-valued type
+            if qualTypeList[qualPropNumber] == 'time':
+                qualValue = {'timeValue': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'timePrecision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
+            # other node-valued types will be handled here
+            else:
+                pass
+        else:
+            qualValue = rowData[qualValueColumnList[qualPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_qualifiers, qualValue, qualPropNumber, qualPropList, qualValueColumnList, qualValueTypeList, qualTypeList, qualEntityOrLiteral)
     return snakDictionary
 
@@ -1038,14 +1083,44 @@ for table in tables:  # The script can handle multiple tables because that optio
                 if tableData[rowNumber][statementUuidColumn] != '':
                     continue  # skip the rest of this iteration and go onto the next property
 
-                valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
-                if valueString != '':
-                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
-
-                        if propertiesValueTypeList[propertyNumber] == 'time':
-                            valueString = createTimeReferenceValue(valueString)
-
+                # The columns whose properties have value node contain only the column name root, so must be handled differently
+                if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                    valueString = tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val']
+                    if valueString == '':
+                        continue  # skip the rest of this iteration and go onto the next property
+                    # Currently time is the only kind of value node supported
+                    if propertiesTypeList[propertyNumber] == 'time':
                         snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue':{
+                                    'value': {
+                                        'time': '+' + valueString,
+                                        'timezone': 0,
+                                        'before': 0,
+                                        'after': 0,
+                                        'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
+                                        'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                                        },
+                                    'type': 'time'
+                                    },
+                                'datatype': 'time'
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
+                    # If globe coordinate value or quantities become supported, they will be handled here.
+                    else:
+                        pass
+
+                # For other property columns, the column name is stored directly in the propertiesColumnList
+                else:
+                    valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
+                    if valueString == '':
+                        continue  # skip the rest of this iteration and go onto the next property
+                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
+                            snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
@@ -1078,16 +1153,17 @@ for table in tables:  # The script can handle multiple tables because that optio
                     else:
                         print('This should not happen')
                         
-                    if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
-                        references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
-                        if references != []: # check to avoid setting references for an empty reference list
-                            snakDict['references'] = references
-                    if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
-                        qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
-                        if qualifiers != {}: # check for situation where no qualifier statements were made for that record
-                            snakDict['qualifiers'] = qualifiers
-                        
-                    claimsList.append(snakDict)
+                # Look for references and qualifiers for all properties whose values are being written
+                if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
+                    references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
+                    if references != []: # check to avoid setting references for an empty reference list
+                        snakDict['references'] = references
+                if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
+                    qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
+                    if qualifiers != {}: # check for situation where no qualifier statements were made for that record
+                        snakDict['qualifiers'] = qualifiers
+                    
+                claimsList.append(snakDict)
                     
             if claimsList != []:
                 dataStructure['claims'] = claimsList
