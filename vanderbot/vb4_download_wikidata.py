@@ -1,4 +1,4 @@
-# VanderBot v1.4 (2020-08-17) vb4_download_wikidata.py
+# VanderBot v1.5 (2020-09-08) vb4_download_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -31,6 +31,12 @@
 # -----------------------------------------
 # Version 1.3 change notes (2020-08-06):
 # - no changes
+# -----------------------------------------
+# Version 1.5 change notes (2020-09-08):
+# - When a date is retrieved, three columns are generated instead of just a column for the date value. This allows for
+#   one of the new columns to contain the date precision. The third column has a random UUID to serve as the date node
+#   identifier. Eventually, this needs to be replaced with the actual node identifier, but I currently don't know 
+#   how to get that from the API, so this is a stopgap.
 
 
 
@@ -46,6 +52,7 @@ import xml.etree.ElementTree as et # library to traverse XML tree
 import urllib
 import datetime
 import string
+import uuid
 
 import vb_common_code as vbc
 
@@ -160,12 +167,16 @@ def generate_statement_data(employee_dict, wikidata_query_data, field_name, disc
                 # When the value isn't known, the source URL and retrieved date should be empty
                 if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                     employee_dict[ref_source_url_fieldname] = ''
-                employee_dict[ref_retrieved_fieldname] = ''
+                employee_dict[ref_retrieved_fieldname + '_nodeid'] = ''
+                employee_dict[ref_retrieved_fieldname + '_val'] = ''
+                employee_dict[ref_retrieved_fieldname + '_prec'] = ''
             else:
                 # If the value is known, then the reference URL and retrieved dates need to be set (if tracked)
                 if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                     employee_dict[ref_source_url_fieldname] = ref_source_url
-                employee_dict[ref_retrieved_fieldname] = ref_retrieved
+                employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+                employee_dict[ref_retrieved_fieldname + '_val'] = ref_retrieved
+                employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
     return employee_dict
 
 def notify_previous_query_status(employee_uuid, query_uuid, field_name, statement_value_string, employee_name):
@@ -189,7 +200,9 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
             employee_dict[reference_hash_fieldname] = ''
             if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                 employee_dict[ref_source_url_fieldname] = ref_source_url
-            employee_dict[ref_retrieved_fieldname] = ref_retrieved
+            employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+            employee_dict[ref_retrieved_fieldname + '_val'] = ref_retrieved
+            employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
         else:
             # Capture the reference data from Wikidata. The script doesn't mess with references
             # that have been added by others. If you don't like the existing reference,
@@ -197,10 +210,9 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
             employee_dict[reference_hash_fieldname] = query_statement['referenceHash']
             if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                 employee_dict[ref_source_url_fieldname] = query_statement['referenceValues'][0]
-            # need to add the + in front of dateTime, which is needed by the API for upload
-            # 2020-07-15 note: In order for the csv2rdf schema to map correctly, the + must not be present. Add it with the upload script instead.
-            #employee_dict[ref_retrieved_fieldname] = '+' + query_statement['referenceValues'][ref_retrieved_index]
-            employee_dict[ref_retrieved_fieldname] = query_statement['referenceValues'][ref_retrieved_index]
+            employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+            employee_dict[ref_retrieved_fieldname + '_val'] = query_statement['referenceValues'][ref_retrieved_index]
+            employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
     return employee_dict
 
 # -----------------
