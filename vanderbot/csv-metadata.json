@@ -71,11 +71,26 @@
             "valueUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}"
           },
           {
-            "titles": "orcidReferenceValue",
-            "name": "orcidReferenceValue",
-            "datatype": "dateTime",
+            "titles": "orcidReferenceValue_nodeId",
+            "name": "orcidReferenceValue_nodeId",
+            "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/reference/{orcidReferenceHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            "propertyUrl": "http://www.wikidata.org/prop/reference/value/P813",
+            "valueUrl": "http://example.com/.well-known/genid/{orcidReferenceValue_nodeId}"
+          },
+          {
+            "titles": "orcidReferenceValue_val",
+            "name": "orcidReferenceValue_val",
+            "datatype": "dateTime",
+            "aboutUrl": "http://example.com/.well-known/genid/{orcidReferenceValue_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timeValue"
+          },
+          {
+            "titles": "orcidReferenceValue_prec",
+            "name": "orcidReferenceValue_prec",
+            "datatype": "integer",
+            "aboutUrl": "http://example.com/.well-known/genid/{orcidReferenceValue_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timePrecision"
           },
           {
             "titles": "employerStatementUuid",
@@ -110,11 +125,26 @@
             "valueUrl": "{+employerReferenceSourceUrl}"
           },
           {
-            "titles": "employerReferenceRetrieved",
-            "name": "employerReferenceRetrieved",
-            "datatype": "dateTime",
+            "titles": "employerReferenceRetrieved_nodeId",
+            "name": "employerReferenceRetrieved_nodeId",
+            "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/reference/{employerReferenceHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            "propertyUrl": "http://www.wikidata.org/prop/reference/value/P813",
+            "valueUrl": "http://example.com/.well-known/genid/{employerReferenceRetrieved_nodeId}"
+          },
+          {
+            "titles": "employerReferenceRetrieved_val",
+            "name": "employerReferenceRetrieved_val",
+            "datatype": "dateTime",
+            "aboutUrl": "http://example.com/.well-known/genid/{employerReferenceRetrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timeValue"
+          },
+          {
+            "titles": "employerReferenceRetrieved_prec",
+            "name": "employerReferenceRetrieved_prec",
+            "datatype": "integer",
+            "aboutUrl": "http://example.com/.well-known/genid/{employerReferenceRetrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timePrecision"
           },
           {
             "titles": "affiliationStatementUuid",
@@ -149,11 +179,26 @@
             "valueUrl": "{+affiliationReferenceSourceUrl}"
           },
           {
-            "titles": "affiliationReferenceRetrieved",
-            "name": "affiliationReferenceRetrieved",
-            "datatype": "dateTime",
+            "titles": "affiliationReferenceRetrieved_nodeId",
+            "name": "affiliationReferenceRetrieved_nodeId",
+            "datatype": "string",
             "aboutUrl": "http://www.wikidata.org/reference/{affiliationReferenceHash}",
-            "propertyUrl": "http://www.wikidata.org/prop/reference/P813"
+            "propertyUrl": "http://www.wikidata.org/prop/reference/value/P813",
+            "valueUrl": "http://example.com/.well-known/genid/{affiliationReferenceRetrieved_nodeId}"
+          },
+          {
+            "titles": "affiliationReferenceRetrieved_val",
+            "name": "affiliationReferenceRetrieved_val",
+            "datatype": "dateTime",
+            "aboutUrl": "http://example.com/.well-known/genid/{affiliationReferenceRetrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timeValue"
+          },
+          {
+            "titles": "affiliationReferenceRetrieved_prec",
+            "name": "affiliationReferenceRetrieved_prec",
+            "datatype": "integer",
+            "aboutUrl": "http://example.com/.well-known/genid/{affiliationReferenceRetrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timePrecision"
           },
           {
             "titles": "instanceOfUuid",
