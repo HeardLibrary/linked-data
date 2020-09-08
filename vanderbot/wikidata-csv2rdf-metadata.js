@@ -314,7 +314,7 @@ function createJSON() {
             }
         ]
 }`
-    // check for duplicate column headers - this is the one that's being weird
+    // check for duplicate column headers
     if (hasDuplicate(columnList)) {
        alert("You have a duplicate column header.");
        return;
