@@ -1,4 +1,4 @@
-# VanderBot v1.4 (2020-08-17) vb2_match_orcid.py
+# VanderBot v1.5 (2020-09-08)  vb2_match_orcid.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -18,6 +18,9 @@
 # - no changes
 # -----------------------------------------
 # Version 1.3 change notes (2020-08-06):
+# - no changes
+# -----------------------------------------
+# Version 1.5 change notes (2020-09-08):
 # - no changes
 
 import requests   # best library to manage HTTP transactions

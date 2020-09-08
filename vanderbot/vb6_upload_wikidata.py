@@ -1,4 +1,4 @@
-# VanderBot v1.4 (2020-08-17) vb6_upload_wikidata.py
+# VanderBot v1.5 (2020-09-08) vb6_upload_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -63,6 +63,11 @@
 # - In csv-metadata.json, replace wdt: namespace properties with ps: properties, 
 #   e.g. https://github.com/HeardLibrary/linked-data/blob/v1-4/vanderbot/csv-metadata.json#L187
 # - Modify vb6_upload_wikidata.py (this script) to fine those ps: properties instead of the wdt: ones.
+# -----------------------------------------
+# Version 1.5 change notes (2020-08-30):
+# - Correct two bugs involving downloading existing descriptions and aliases
+# - Add code to determine rows with dates based on new metadata mapping schema format
+# - Add code to convert non-standard Wikibase date forms into standard format with precision numbers
 
 import json
 import requests
@@ -70,6 +75,7 @@ import csv
 from pathlib import Path
 from time import sleep
 import sys
+import uuid
 
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
 
@@ -128,6 +134,14 @@ def readDict(filename):
         array.append(row)
     fileObject.close()
     return array
+
+# write the data to a file
+def writeToFile(tableFileName, fieldnames, tableData):
+    with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for writeRowNumber in range(0, len(tableData)):
+            writer.writerow(tableData[writeRowNumber])
 
 # gunction to get local name from an IRI
 def extractFromIri(iri, numberPieces):
@@ -189,6 +203,48 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     
     return returnValue
 
+# Function to convert times to the format required by Wikidata
+def convertDates(rowData, dateColumnNameRoot):
+    error = False
+    # Assume that if the precision column is empty that the dates need to be converted
+    if rowData[dateColumnNameRoot + '_prec'] == '':
+        #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
+
+        # set these two to default to the existing values
+        precisionNumber = rowData[dateColumnNameRoot + '_prec']
+        timeString = rowData[dateColumnNameRoot + '_val']
+
+        value = rowData[dateColumnNameRoot + '_val']
+        # date is YYYY-MM-DD
+        if len(value) == 10:
+            timeString = value + 'T00:00:00Z'
+            precisionNumber = 11 # precision to days
+        # date is YYYY-MM
+        elif len(value) == 7:
+            timeString = value + '-00T00:00:00Z'
+            precisionNumber = 10 # precision to months
+        # date is YYYY
+        elif len(value) == 4:
+            timeString = value + '-00-00T00:00:00Z'
+            precisionNumber = 9 # precision to years
+        # date is xsd:dateTime and doesn't need adjustment
+        elif len(value) == 20:
+            timeString = value
+            precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
+        # date form unknown, don't adjust
+        else:
+            print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+            error = True
+        # assign the changed values back to the dict
+        rowData[dateColumnNameRoot + '_val'] = timeString
+        rowData[dateColumnNameRoot + '_prec'] = precisionNumber
+
+    # If there is no UUID in the _rand column, generate one
+    if rowData[dateColumnNameRoot + '_rand'] == '':
+        rowData[dateColumnNameRoot + '_rand'] = str(uuid.uuid4())
+
+    return rowData, error
+
 # Function to create reference value for times
 def createTimeReferenceValue(value):
     # date is YYYY-MM-DD
@@ -212,8 +268,10 @@ def createTimeReferenceValue(value):
         precisionNumber = 11 # assume precision to days
         
     # Q1985727 is the Gregorian calendar
+    # 2020-07-15 note: Previously, the leading + was included with the the table value.
+    # However, in order for the csv2rdf schema to be valid, the + must not be included in the tabled value. So it is added here.
     dateDict = {
-            'time': timeString,
+            'time': '+' + timeString,
             'timezone': 0,
             'before': 0,
             'after': 0,
@@ -266,23 +324,48 @@ def findReferencesForProperty(statementUuidColumn, columns):
                     if not('suppressOutput' in propColumn):
                         # Find the columns that have the refHash column name in the aboutUrl
                         if refHashColumn in propColumn['aboutUrl']:
-                            refPropList.append(propColumn['propertyUrl'].partition('prop/reference/')[2])
-                            refValueColumnList.append(propColumn['titles'])
-                            if 'valueUrl' in propColumn:
-                                # URIs are detected when there is a valueUrl whose value has a first character of "{"
-                                if propColumn['valueUrl'][0] == '{':
-                                    refEntityOrLiteral.append('literal')
-                                    refTypeList.append('url')
-                                    refValueTypeList.append('string')
-                                else:
-                                    refEntityOrLiteral.append('entity')
-                                    refTypeList.append('wikibase-item')
-                                    refValueTypeList.append('wikibase-entityid')
-                            else:
-                                refEntityOrLiteral.append('literal')
-                                if propColumn['datatype'] == 'dateTime':
-                                    refTypeList.append('time')
-                                    refValueTypeList.append('time')
+                            
+                            # Determine whether the value of the reference is a value node (e.g. dates) or a direct value
+                            valueString = propColumn['propertyUrl'].partition('prop/reference/')[2]
+                            if "value" in valueString: # e.g. value/P813
+                                # The property IRI namespace for references with value nodes is http://www.wikidata.org/prop/reference/value/
+                                refPropList.append(valueString.partition('value/')[2])
+                                # The column title will be something like employer_ref1_retrieved_rand, 
+                                # so get the root of the string to the left of "_rand"
+                                refValueColumnList.append(propColumn['titles'].partition('_rand')[0])
+
+                                # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
+                                for testColumn in columns:
+                                    try:
+                                        if propColumn['titles'] in testColumn['aboutUrl']:
+                                            if 'timeValue' in testColumn['propertyUrl']: # value is a date
+                                                refEntityOrLiteral.append('value')
+                                                refTypeList.append('time')
+                                                refValueTypeList.append('time')
+                                            elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
+                                                pass
+                                            elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
+                                                pass
+                                            else:
+                                                continue
+                                    except:
+                                        pass
+                            else: # e.g. P854
+                                # The property IRI namespace for references with direct values is http://www.wikidata.org/prop/reference/
+                                refPropList.append(valueString)
+                                # Just use the whole column title
+                                refValueColumnList.append(propColumn['titles'])
+
+                                if 'valueUrl' in propColumn:
+                                    # URIs are detected when there is a valueUrl whose value has a first character of "{"
+                                    if propColumn['valueUrl'][0] == '{':
+                                        refEntityOrLiteral.append('literal')
+                                        refTypeList.append('url')
+                                        refValueTypeList.append('string')
+                                    else:
+                                        refEntityOrLiteral.append('entity')
+                                        refTypeList.append('wikibase-item')
+                                        refValueTypeList.append('wikibase-entityid')
                                 else:
                                     refTypeList.append('string')
                                     refValueTypeList.append('string')
@@ -313,25 +396,48 @@ def findQualifiersForProperty(statementUuidColumn, columns):
             # find the column that has the statement UUID in the about
             # and the property is a qualifier property
             if (statementUuidColumn in column['aboutUrl']) and ('qualifier' in column['propertyUrl']):
-                qualPropList.append(column['propertyUrl'].partition('prop/qualifier/')[2])
-                qualValueColumnList.append(column['titles'])
+                # Determine whether the value of the qualifier is a value node (e.g. dates) or a direct value
+                valueString = column['propertyUrl'].partition('prop/qualifier/')[2]
+                if "value" in valueString: # e.g. value/P580
+                    # The property IRI namespace for qualifiers with value nodes is http://www.wikidata.org/prop/qualifier/value/
+                    qualPropList.append(valueString.partition('value/')[2])
+                    # The column title will be something like employer_startDate_rand, 
+                    # so get the root of the string to the left of "_rand"
+                    qualValueColumnList.append(column['titles'].partition('_rand')[0])
 
-                # determine whether the qualifier is an entity/URI or time/string
-                if 'valueUrl' in column:
-                    # URIs are detected when there is a valueUrl whose value has a first character of "{"
-                    if column['valueUrl'][0] == '{':
-                        qualEntityOrLiteral.append('literal')
-                        qualTypeList.append('url')
-                        qualValueTypeList.append('string')
-                    else:
-                        qualEntityOrLiteral.append('entity')
-                        qualTypeList.append('wikibase-item')
-                        qualValueTypeList.append('wikibase-entityid')
-                else:
-                    qualEntityOrLiteral.append('literal')
-                    if column['datatype'] == 'dateTime':
-                        qualTypeList.append('time')
-                        qualValueTypeList.append('time')
+                    # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
+                    for testColumn in columns:
+                        try:
+                            if column['titles'] in testColumn['aboutUrl']:
+                                if 'timeValue' in testColumn['propertyUrl']: # value is a date
+                                    qualEntityOrLiteral.append('value')
+                                    qualTypeList.append('time')
+                                    qualValueTypeList.append('time')
+                                elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
+                                    pass
+                                elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
+                                    pass
+                                else:
+                                    continue
+                        except:
+                            pass
+                else: # e.g. P1545
+                    # The property IRI namespace for qualifiers with direct values is http://www.wikidata.org/prop/qualifier/
+                    qualPropList.append(valueString)
+                    # Just use the whole column title
+                    qualValueColumnList.append(column['titles'])
+
+                    # determine whether the qualifier is an entity/URI or string
+                    if 'valueUrl' in column:
+                        # URIs are detected when there is a valueUrl whose value has a first character of "{"
+                        if column['valueUrl'][0] == '{':
+                            qualEntityOrLiteral.append('literal')
+                            qualTypeList.append('url')
+                            qualValueTypeList.append('string')
+                        else:
+                            qualEntityOrLiteral.append('entity')
+                            qualTypeList.append('wikibase-item')
+                            qualValueTypeList.append('wikibase-entityid')
                     else:
                         qualTypeList.append('string')
                         qualValueTypeList.append('string')
@@ -344,39 +450,63 @@ def findQualifiersForProperty(statementUuidColumn, columns):
 # The form of snaks is the same for references and qualifiers, so they can be generated systematically
 # Although the variable names include "ref", they apply the same to the analagous "qual" variables.
 def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral):
-    if refValue == '':  
+    if not(refValue):  # evaluates both empty strings for direct values or empty dict for node-valued values
         if require_references: # Do not write the record if it's missing a reference.
             print('Reference value missing! Cannot write the record.')
             sys.exit()
     else:
-        if refEntityOrLiteral[refPropNumber] == 'entity':
+        if refEntityOrLiteral[refPropNumber] == 'value':
+            # Currently time is the only kind of value node handled
+            if refTypeList[refPropNumber] == 'time':
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                    'snaktype': 'value',
+                    'property': refPropList[refPropNumber],
+                    'datavalue':{
+                        'value': {
+                            'time': '+' + refValue['timeValue'],
+                            'timezone': 0,
+                            'before': 0,
+                            'after': 0,
+                            'precision': refValue['timePrecision'],
+                            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                            },
+                        'type': 'time'
+                        },
+                    'datatype': 'time'
+                    }
+                ]
+
+            # In the future handle other types here
+            else:
+                pass
+
+        elif refEntityOrLiteral[refPropNumber] == 'entity':
             # case where the value is an entity
             snakDictionary[refPropList[refPropNumber]] = [
                 {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datatype': 'wikibase-item',
-                    'datavalue': {
-                        'value': {
-                            'id': refValue
-                            },
-                        'type': 'wikibase-entityid'
-                        }
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': {
+                        'id': refValue
+                        },
+                    'type': 'wikibase-entityid'
+                    },
+                'datatype': 'wikibase-item'
                 }
             ]
         else:
-            if refValueTypeList[refPropNumber] == 'time':
-                refValue = createTimeReferenceValue(refValue)
-                
+            # case where value is a string of some kind
             snakDictionary[refPropList[refPropNumber]] = [
                 {
-                    'snaktype': 'value',
-                    'property': refPropList[refPropNumber],
-                    'datavalue': {
-                        'value': refValue,
-                        'type': refValueTypeList[refPropNumber]
-                    },
-                    'datatype': refTypeList[refPropNumber]
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': refValue,
+                    'type': refValueTypeList[refPropNumber]
+                },
+                'datatype': refTypeList[refPropNumber]
                 }
             ]
     return snakDictionary
@@ -393,7 +523,15 @@ def createReferences(referenceListForProperty, rowData):
 
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
-            refValue = rowData[refValueColumnList[refPropNumber]]
+            if refEntityOrLiteral[refPropNumber] == 'value':
+                # currently time is the only supported node-valued type
+                if refTypeList[refPropNumber] == 'time':
+                    refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                # other node-valued types will be handled here
+                else:
+                    pass
+            else:
+                refValue = rowData[refValueColumnList[refPropNumber]]
             snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
         if snakDictionary != {}: # If any references were added, create the outer dict and add to list
             outerSnakDictionary = {
@@ -414,7 +552,15 @@ def createReferenceSnak(referenceDict, rowData):
     
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
-        refValue = rowData[refValueColumnList[refPropNumber]]
+        if refEntityOrLiteral[refPropNumber] == 'value':
+            # currently time is the only supported node-valued type
+            if refTypeList[refPropNumber] == 'time':
+                refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+            # other node-valued types will be handled here
+            else:
+                pass
+        else:
+            refValue = rowData[refValueColumnList[refPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
@@ -429,7 +575,15 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     qualEntityOrLiteral = qualifierDictionaryForProperty['qualEntityOrLiteral']
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
-        qualValue = rowData[qualValueColumnList[qualPropNumber]]
+        if qualEntityOrLiteral[qualPropNumber] == 'value':
+            # currently time is the only supported node-valued type
+            if qualTypeList[qualPropNumber] == 'time':
+                qualValue = {'timeValue': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'timePrecision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
+            # other node-valued types will be handled here
+            else:
+                pass
+        else:
+            qualValue = rowData[qualValueColumnList[qualPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_qualifiers, qualValue, qualPropNumber, qualPropList, qualValueColumnList, qualValueTypeList, qualTypeList, qualEntityOrLiteral)
     return snakDictionary
 
@@ -681,27 +835,53 @@ for table in tables:  # The script can handle multiple tables because that optio
                 # add all of the found labels for that language to the list of labels in various languages
                 existingDescriptions.append(tempLabels)
 
-            # find columns that contain properties with entity values or literal values that are URLs
+            # find columns that contain properties with entity values, literal values that are URLs, or value node values
             elif 'valueUrl' in column:
                 # only add columns that have "statement" properties
                 if 'prop/statement/' in column['propertyUrl']:
-                    propColumnHeader = column['titles']
-                    propertyId = column['propertyUrl'].partition('prop/statement/')[2]
-                    propertiesColumnList.append(propColumnHeader)
-                    propertiesIdList.append(propertyId)
+                    if 'prop/statement/value/' in column['propertyUrl']: # value is a value node (e.g. date or geo coordinates)
+                        found = True
+                        propColumnHeader = column['titles'].partition('_rand')[0] # save only the root of the column name for value nodes
+                        propertyId = column['propertyUrl'].partition('prop/statement/value/')[2]
+                        propertiesColumnList.append(propColumnHeader)
+                        propertiesIdList.append(propertyId)
+                        propertiesEntityOrLiteral.append('value')
+                        # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
+                        for testColumn in columns:
+                            try:
+                                if column['titles'] in testColumn['aboutUrl']:
+                                    if 'timeValue' in testColumn['propertyUrl']: # value is a date
+                                        propKind = 'time'
+                                        propertiesTypeList.append('time')
+                                        propertiesValueTypeList.append('time')
+                                    elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
+                                        propKind = 'geocoordinates'
+                                    elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
+                                        propKind = 'quantity'
+                                    else:
+                                        continue
+                                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: ', propKind)
+                            except:
+                                pass
 
-                    # URLs are detected when there is a valueUrl whose value has a first character of "{"
-                    if column['valueUrl'][0] == '{':
-                        propertiesEntityOrLiteral.append('literal')
-                        propertiesTypeList.append('url')
-                        propertiesValueTypeList.append('string')
-                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: url')
-                    # Otherwise having a valueUrl indicates that it's an item
                     else:
-                        propertiesEntityOrLiteral.append('entity')
-                        propertiesTypeList.append('wikibase-item')
-                        propertiesValueTypeList.append('wikibase-entityid')
-                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId)
+                        propColumnHeader = column['titles']
+                        propertyId = column['propertyUrl'].partition('prop/statement/')[2]
+                        propertiesColumnList.append(propColumnHeader)
+                        propertiesIdList.append(propertyId)
+
+                        # URLs are detected when there is a valueUrl whose value has a first character of "{"
+                        if column['valueUrl'][0] == '{':
+                            propertiesEntityOrLiteral.append('literal')
+                            propertiesTypeList.append('url')
+                            propertiesValueTypeList.append('string')
+                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: url')
+                        # Otherwise having a valueUrl indicates that it's an item
+                        else:
+                            propertiesEntityOrLiteral.append('entity')
+                            propertiesTypeList.append('wikibase-item')
+                            propertiesValueTypeList.append('wikibase-entityid')
+                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: item')
 
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
@@ -715,17 +895,13 @@ for table in tables:  # The script can handle multiple tables because that optio
                 if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
                     propertyId = column['propertyUrl'].partition('prop/statement/')[2]
-                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value datatype: ', column['datatype'])
+                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: string')
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
 
                     propertiesEntityOrLiteral.append('literal')
-                    if column['datatype'] == 'dateTime':
-                        propertiesTypeList.append('time')
-                        propertiesValueTypeList.append('time')
-                    else:
-                        propertiesTypeList.append('string')
-                        propertiesValueTypeList.append('string')
+                    propertiesTypeList.append('string')
+                    propertiesValueTypeList.append('string')
 
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
@@ -733,7 +909,51 @@ for table in tables:  # The script can handle multiple tables because that optio
                     propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
                     print()
     print()
+
+    # If there are dates in the table that are not in the format Wikibase requires, they will be converted here
+    print('converting dates')
+
+    # Figure out the column name roots for column sets that are dates
+    dateColumnNameList = []
+    if len(propertiesColumnList) > 0:
+        for propertyNumber in range(0, len(propertiesColumnList)):
+            if propertiesTypeList[propertyNumber] == 'time':
+                #print('property with date:', propertiesColumnList[propertyNumber])
+                dateColumnNameList.append(propertiesColumnList[propertyNumber])
+            
+            if len(propertiesReferencesList[propertyNumber]) != 0:
+                for qualPropNumber in range(0, len(propertiesQualifiersList[propertyNumber]['qualPropList'])):
+                    if propertiesQualifiersList[propertyNumber]['qualTypeList'][qualPropNumber] == 'time':
+                        #print('qualifier property with date:', propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+                        dateColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+            
+            if len(propertiesReferencesList[propertyNumber]) != 0:
+                for referenceNumber in range(0, len(propertiesReferencesList[propertyNumber])):
+                    for refPropNumber in range(0, len(propertiesReferencesList[propertyNumber][referenceNumber]['refPropList'])):
+                        if propertiesReferencesList[propertyNumber][referenceNumber]['refTypeList'][refPropNumber] == 'time':
+                            #print('reference property with date:', propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+                            dateColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+    #print(dateColumnNameList)
+
+    errorFlag = False
+    for rowNumber in range(0, len(tableData)):
+        print('row: ' + str(rowNumber))
+        #print(tableData[rowNumber])
+        for dateColumnName in dateColumnNameList:
+            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+            if error:
+                errorFlag = True
+        #print(tableData[rowNumber])
+        print()
     
+    # Write the file with the converted dates in case the script crashes
+    writeToFile(tableFileName, fieldnames, tableData)
+
+    # If any of the date formats in the table were bad, don't try to write to the API
+    if errorFlag:
+        sys.exit('Fix incorrectly formatted dates in file and restart')
+    print()
+
     # process each row of the table for item writing
     print('Writing items')
     print('--------------------------')
@@ -863,14 +1083,44 @@ for table in tables:  # The script can handle multiple tables because that optio
                 if tableData[rowNumber][statementUuidColumn] != '':
                     continue  # skip the rest of this iteration and go onto the next property
 
-                valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
-                if valueString != '':
-                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
-
-                        if propertiesValueTypeList[propertyNumber] == 'time':
-                            valueString = createTimeReferenceValue(valueString)
-
+                # The columns whose properties have value node contain only the column name root, so must be handled differently
+                if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                    valueString = tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val']
+                    if valueString == '':
+                        continue  # skip the rest of this iteration and go onto the next property
+                    # Currently time is the only kind of value node supported
+                    if propertiesTypeList[propertyNumber] == 'time':
                         snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue':{
+                                    'value': {
+                                        'time': '+' + valueString,
+                                        'timezone': 0,
+                                        'before': 0,
+                                        'after': 0,
+                                        'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
+                                        'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                                        },
+                                    'type': 'time'
+                                    },
+                                'datatype': 'time'
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
+                    # If globe coordinate value or quantities become supported, they will be handled here.
+                    else:
+                        pass
+
+                # For other property columns, the column name is stored directly in the propertiesColumnList
+                else:
+                    valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
+                    if valueString == '':
+                        continue  # skip the rest of this iteration and go onto the next property
+                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
+                            snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
@@ -903,25 +1153,26 @@ for table in tables:  # The script can handle multiple tables because that optio
                     else:
                         print('This should not happen')
                         
-                    if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
-                        references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
-                        if references != []: # check to avoid setting references for an empty reference list
-                            snakDict['references'] = references
-                    if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
-                        qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
-                        if qualifiers != {}: # check for situation where no qualifier statements were made for that record
-                            snakDict['qualifiers'] = qualifiers
-                        
-                    claimsList.append(snakDict)
+                # Look for references and qualifiers for all properties whose values are being written
+                if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
+                    references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
+                    if references != []: # check to avoid setting references for an empty reference list
+                        snakDict['references'] = references
+                if len(propertiesQualifiersList[propertyNumber]['qualPropList']) != 0:
+                    qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
+                    if qualifiers != {}: # check for situation where no qualifier statements were made for that record
+                        snakDict['qualifiers'] = qualifiers
+                    
+                claimsList.append(snakDict)
                     
             if claimsList != []:
                 dataStructure['claims'] = claimsList
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        #print(json.dumps(dataStructure, indent = 2))
+        print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-        
+        '''
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -1021,15 +1272,16 @@ for table in tables:  # The script can handle multiple tables because that optio
         
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost
-            with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for rowNumber in range(0, len(tableData)):
-                    try:
-                        writer.writerow(tableData[rowNumber])
-                    except:
-                        print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
-                        print()
+            writeToFile(tableFileName, fieldnames, tableData)
+            #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+            #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            #    writer.writeheader()
+            #    for rowNumber in range(0, len(tableData)):
+            #        try:
+            #            writer.writerow(tableData[rowNumber])
+            #        except:
+            #            print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
+            #            print()
             
             # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
             # To be safe and avoid getting blocked, use 1.25 s.
@@ -1081,11 +1333,13 @@ for table in tables:  # The script can handle multiple tables because that optio
                             
                                 # Replace the table with a new one containing any new IDs
                                 # Note: I'm writing after every line so that if the script crashes, no data will be lost
-                                with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-                                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                                    writer.writeheader()
-                                    for writeRowNumber in range(0, len(tableData)):
-                                        writer.writerow(tableData[writeRowNumber])
+                                writeToFile(tableFileName, fieldnames, tableData)
+
+                                #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+                                #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                                #    writer.writeheader()
+                                #    for writeRowNumber in range(0, len(tableData)):
+                                #        writer.writerow(tableData[writeRowNumber])
                                 
                                 # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
                                 # To be safe and avoid getting blocked, use 1.25 s.
@@ -1093,3 +1347,4 @@ for table in tables:  # The script can handle multiple tables because that optio
     print()
 
 print('done')
+'''
