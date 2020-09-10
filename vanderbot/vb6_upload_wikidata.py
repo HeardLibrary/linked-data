@@ -1172,7 +1172,7 @@ for table in tables:  # The script can handle multiple tables because that optio
         parameterDictionary['data'] = json.dumps(dataStructure)
         print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
-        '''
+        
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
             print('no data to write')
@@ -1347,4 +1347,3 @@ for table in tables:  # The script can handle multiple tables because that optio
     print()
 
 print('done')
-'''
