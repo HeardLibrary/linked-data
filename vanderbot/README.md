@@ -32,7 +32,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current release is [v1.5](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5).
+The current release is [v1.5.1](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.1).
 
 ## How it works
 
@@ -154,4 +154,4 @@ The major change to the code was to increase the number of table columns per dat
 The other addition is a Javascript script written by Jessie Baskauf that drives [this form](https://heardlibrary.github.io/digital-scholarship/script/wikidata/wikidata-csv2rdf-metadata.html), which can be used to generate a `csv-metadata.json` mapping schema. With such a mapping schema, any CSV can be used as the source date for the **vb6_upload_wikidata.py** upload script.
 
 ----
-Revised 2020-09-08
+Revised 2020-09-10
