@@ -1216,16 +1216,16 @@ for table in tables:  # The script can handle multiple tables because that optio
                 # need to find out if the value is empty. Value-node values must have their nodeId's checked. Otherwise, just check whether the cell is empty.
                 if propertiesEntityOrLiteral[statementIndex] =='value':
                     if tableData[rowNumber][propertiesColumnList[statementIndex] + '_nodeId'] == '':
-                        no_value = True
+                        value = False
                     else:
-                        no_value = False
+                        value = True
                 else:
                     if tableData[rowNumber][propertiesColumnList[statementIndex]] == '':
-                        no_value = True
+                        value = False
                     else:
-                        no_value = False
+                        value = True
                 # only add the claim if the UUID cell for that row is empty AND there is a value for the property
-                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and no_value:
+                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and value:
                     count = 0
                     statementFound = False
                     # If there are multiple values for a property, this will loop through more than one statement
