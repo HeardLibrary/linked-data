@@ -1324,8 +1324,9 @@ for table in tables:  # The script can handle multiple tables because that optio
                             # in this script, the createReferences function returns a snak dictionary, not a list
                             referencesDict = createReferenceSnak(reference, tableData[rowNumber])
                             if referencesDict == {}: # Check for the case where no references were specified for this record
-                                print('no data to write')
-                                print()
+                                #print('no data to write')
+                                #print()
+                                pass
                             else:
                                 # print(json.dumps(referencesDict, indent=2))
                                 # build the parameter string to be posted to the API
