@@ -242,7 +242,7 @@ def convertDates(rowData, dateColumnNameRoot):
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
         else:
             # a pre-existing precisionNumber must be an integer when written to the API
-            rowData[dateColumnNameRoot + '_prec'] = int(precisionNumber)
+            rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
 
         # If there is no UUID in the _nodeId column, generate one
         if rowData[dateColumnNameRoot + '_nodeId'] == '':
