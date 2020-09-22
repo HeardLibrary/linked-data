@@ -1208,8 +1208,20 @@ for table in tables:  # The script can handle multiple tables because that optio
             for statementIndex in range(0, len(propertiesIdList)):
                 referencesForStatement = propertiesReferencesList[statementIndex]
                 #print(tableData[rowNumber][propertiesColumnList[statementIndex]])
+
+                # need to find out if the value is empty. Value-node values must have their nodeId's checked. Otherwise, just check whether the cell is empty.
+                if tableData[rowNumber][propertiesEntityOrLiteral[statementIndex]] =='value':
+                    if tableData[rowNumber][propertiesColumnList[statementIndex] + '_nodeId'] == '':
+                        no_value = True
+                    else:
+                        no_value = False
+                else:
+                    if tableData[rowNumber][propertiesColumnList[statementIndex]] == '':
+                        no_value = True
+                    else:
+                        no_value = False
                 # only add the claim if the UUID cell for that row is empty AND there is a value for the property
-                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and tableData[rowNumber][propertiesColumnList[statementIndex]] !='':
+                if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and no_value:
                     count = 0
                     statementFound = False
                     # If there are multiple values for a property, this will loop through more than one statement
@@ -1222,6 +1234,17 @@ for table in tables:  # The script can handle multiple tables because that optio
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
                         elif propertiesEntityOrLiteral[statementIndex] == 'entity':
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
+                        elif propertiesEntityOrLiteral[statementIndex] == 'value':
+                            if propertiesTypeList[statementIndex] == 'time':
+                                # need to handle negative dates (BCE)
+                                if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                    # make comparison with the leading minus present
+                                    statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['time']
+                                else:
+                                    # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                    statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['time']
+                            else: # in the future, when other node value types are supported, the code here will need to be expanded to cover the other types
+                                pass
                         else:
                             pass
                         if statementFound:
@@ -1244,15 +1267,24 @@ for table in tables:  # The script can handle multiple tables because that optio
                                     for referencePropertyIndex in range(0, len(tableReference['refPropList'])): # "inner loop" to check each property in the reference
                                         try:
                                             # First try to see if the values in the response JSON for the property match
-
-                                            # The values for times are buried a layer deeper in the JSON than other types.
-                                            if tableReference['refTypeList'][referencePropertyIndex] == 'time':
-                                                # Note on 2020-07-15: the leading + is not being recorded in the data table any more, so '+' must be prepended to local values when comparing to API values
-                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
-                                                # if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
-                                                    referenceMatch = False
-                                                    break # kill the inner loop because this value doesn't match
-                                            else: # Values for types other than time have direct literal values of 'value'
+                                            if tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'value':
+                                                # The values for times are buried a layer deeper in the JSON than other types.
+                                                if tableReference['refTypeList'][referencePropertyIndex] == 'time':
+                                                    # need to handle negative dates (BCE)
+                                                    if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                                        # make comparison with the leading minus present
+                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                            referenceMatch = False
+                                                            break # kill the inner loop because this value doesn't match
+                                                    else:
+                                                        # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                                        # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
+                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                            referenceMatch = False
+                                                            break # kill the inner loop because this value doesn't match
+                                                else: # here is where node-valued types other than time will be handled
+                                                    pass
+                                            else: # Values for types other than node-valued have direct literal values of 'value'
                                                 if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
                                                     referenceMatch = False
                                                     break # kill the inner loop because this value doesn't match
