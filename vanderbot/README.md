@@ -8,6 +8,8 @@ VanderBot is a set of Python scripts that scrapes data from departmental website
 
 For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
+**Important note:** The master and tags above v1.5, which implement full support for dates, are broken and in the process of being fixed. If you want to play with the scripts, for now use v1.4.
+
 ## Description
 
 This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
@@ -32,7 +34,9 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current release is [v1.5.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.2).
+The current (unstable) release is [v1.5.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.2).
+
+The last stable release is [v1.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.4).
 
 ## How it works
 
@@ -154,4 +158,4 @@ The major change to the code was to increase the number of table columns per dat
 The other addition is a Javascript script written by Jessie Baskauf that drives [this form](https://heardlibrary.github.io/digital-scholarship/script/wikidata/wikidata-csv2rdf-metadata.html), which can be used to generate a `csv-metadata.json` mapping schema. With such a mapping schema, any CSV can be used as the source date for the **vb6_upload_wikidata.py** upload script.
 
 ----
-Revised 2020-09-10
+Revised 2020-09-22
