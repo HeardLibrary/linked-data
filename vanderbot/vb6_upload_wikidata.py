@@ -239,9 +239,9 @@ def convertDates(rowData, dateColumnNameRoot):
         rowData[dateColumnNameRoot + '_val'] = timeString
         rowData[dateColumnNameRoot + '_prec'] = precisionNumber
 
-    # If there is no UUID in the _rand column, generate one
-    if rowData[dateColumnNameRoot + '_rand'] == '':
-        rowData[dateColumnNameRoot + '_rand'] = str(uuid.uuid4())
+    # If there is no UUID in the _nodeId column, generate one
+    if rowData[dateColumnNameRoot + '_nodeId'] == '':
+        rowData[dateColumnNameRoot + '_nodeId'] = str(uuid.uuid4())
 
     return rowData, error
 
@@ -330,9 +330,9 @@ def findReferencesForProperty(statementUuidColumn, columns):
                             if "value" in valueString: # e.g. value/P813
                                 # The property IRI namespace for references with value nodes is http://www.wikidata.org/prop/reference/value/
                                 refPropList.append(valueString.partition('value/')[2])
-                                # The column title will be something like employer_ref1_retrieved_rand, 
-                                # so get the root of the string to the left of "_rand"
-                                refValueColumnList.append(propColumn['titles'].partition('_rand')[0])
+                                # The column title will be something like employer_ref1_retrieved_nodeId, 
+                                # so get the root of the string to the left of "_nodeId"
+                                refValueColumnList.append(propColumn['titles'].partition('_nodeId')[0])
 
                                 # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
                                 for testColumn in columns:
@@ -401,9 +401,9 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                 if "value" in valueString: # e.g. value/P580
                     # The property IRI namespace for qualifiers with value nodes is http://www.wikidata.org/prop/qualifier/value/
                     qualPropList.append(valueString.partition('value/')[2])
-                    # The column title will be something like employer_startDate_rand, 
-                    # so get the root of the string to the left of "_rand"
-                    qualValueColumnList.append(column['titles'].partition('_rand')[0])
+                    # The column title will be something like employer_startDate_nodeId, 
+                    # so get the root of the string to the left of "_nodeId"
+                    qualValueColumnList.append(column['titles'].partition('_nodeId')[0])
 
                     # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
                     for testColumn in columns:
@@ -841,7 +841,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                 if 'prop/statement/' in column['propertyUrl']:
                     if 'prop/statement/value/' in column['propertyUrl']: # value is a value node (e.g. date or geo coordinates)
                         found = True
-                        propColumnHeader = column['titles'].partition('_rand')[0] # save only the root of the column name for value nodes
+                        propColumnHeader = column['titles'].partition('_nodeId')[0] # save only the root of the column name for value nodes
                         propertyId = column['propertyUrl'].partition('prop/statement/value/')[2]
                         propertiesColumnList.append(propColumnHeader)
                         propertiesIdList.append(propertyId)

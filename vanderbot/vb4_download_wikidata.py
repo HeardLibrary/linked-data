@@ -167,14 +167,14 @@ def generate_statement_data(employee_dict, wikidata_query_data, field_name, disc
                 # When the value isn't known, the source URL and retrieved date should be empty
                 if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                     employee_dict[ref_source_url_fieldname] = ''
-                employee_dict[ref_retrieved_fieldname + '_nodeid'] = ''
+                employee_dict[ref_retrieved_fieldname + '_nodeId'] = ''
                 employee_dict[ref_retrieved_fieldname + '_val'] = ''
                 employee_dict[ref_retrieved_fieldname + '_prec'] = ''
             else:
                 # If the value is known, then the reference URL and retrieved dates need to be set (if tracked)
                 if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                     employee_dict[ref_source_url_fieldname] = ref_source_url
-                employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+                employee_dict[ref_retrieved_fieldname + '_nodeId'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
                 employee_dict[ref_retrieved_fieldname + '_val'] = ref_retrieved
                 employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
     return employee_dict
@@ -200,7 +200,7 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
             employee_dict[reference_hash_fieldname] = ''
             if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                 employee_dict[ref_source_url_fieldname] = ref_source_url
-            employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+            employee_dict[ref_retrieved_fieldname + '_nodeId'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
             employee_dict[ref_retrieved_fieldname + '_val'] = ref_retrieved
             employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
         else:
@@ -210,7 +210,7 @@ def retrieve_statement_data(employee_dict, query_statement, statement_uuid_field
             employee_dict[reference_hash_fieldname] = query_statement['referenceHash']
             if ref_source_url_fieldname != '': # skip this if source URLs aren't being tracked
                 employee_dict[ref_source_url_fieldname] = query_statement['referenceValues'][0]
-            employee_dict[ref_retrieved_fieldname + '_nodeid'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
+            employee_dict[ref_retrieved_fieldname + '_nodeId'] = str(uuid.uuid4()) # generate a random UUID for the node identifier
             employee_dict[ref_retrieved_fieldname + '_val'] = query_statement['referenceValues'][ref_retrieved_index]
             employee_dict[ref_retrieved_fieldname + '_prec'] = '11' # assume retrieved date is precise to day
     return employee_dict
