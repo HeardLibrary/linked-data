@@ -1,0 +1,995 @@
+{
+    "entity": {
+        "labels": {
+            "de": {
+                "language": "de",
+                "value": "Concilium"
+            },
+            "en": {
+                "language": "en",
+                "value": "Concilium"
+            },
+            "es": {
+                "language": "es",
+                "value": "Concilium"
+            },
+            "fr": {
+                "language": "fr",
+                "value": "Concilium"
+            },
+            "it": {
+                "language": "it",
+                "value": "Concilium"
+            },
+            "nl": {
+                "language": "nl",
+                "value": "Concilium"
+            },
+            "fi": {
+                "language": "fi",
+                "value": "Concilium"
+            },
+            "nb": {
+                "language": "nb",
+                "value": "Concilium"
+            },
+            "sv": {
+                "language": "sv",
+                "value": "Concilium"
+            },
+            "nn": {
+                "language": "nn",
+                "value": "Concilium"
+            },
+            "da": {
+                "language": "da",
+                "value": "Concilium"
+            },
+            "pl": {
+                "language": "pl",
+                "value": "Concilium"
+            },
+            "pt": {
+                "language": "pt",
+                "value": "Concilium"
+            },
+            "hr": {
+                "language": "hr",
+                "value": "Concilium"
+            },
+            "zh-hant": {
+                "language": "zh-hant",
+                "value": "會議"
+            },
+            "zh": {
+                "language": "zh",
+                "value": "会议"
+            }
+        },
+        "descriptions": {
+            "en": {
+                "language": "en",
+                "value": "academic journal"
+            },
+            "de": {
+                "language": "de",
+                "value": "Gegenstand"
+            },
+            "ar": {
+                "language": "ar",
+                "value": "مجلة"
+            },
+            "nl": {
+                "language": "nl",
+                "value": "periodiek van uitgeverij Matthias-Grünewald-Verlag"
+            },
+            "zh-hant": {
+                "language": "zh-hant",
+                "value": "期刊"
+            },
+            "zh": {
+                "language": "zh",
+                "value": "期刊"
+            }
+        },
+        "aliases": {
+            "en": [
+                {
+                    "language": "en",
+                    "value": "Concilium: International journal of theology"
+                }
+            ],
+            "zh-hant": [
+                {
+                    "language": "zh-hant",
+                    "value": "會議：國際神學期刊"
+                }
+            ],
+            "zh": [
+                {
+                    "language": "zh",
+                    "value": "会议：国际神学期刊"
+                }
+            ]
+        },
+        "sitelinks": {
+            "dewiki": {
+                "site": "dewiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "enwiki": {
+                "site": "enwiki",
+                "title": "Concilium (journal)",
+                "badges": []
+            },
+            "eswiki": {
+                "site": "eswiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "frwiki": {
+                "site": "frwiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "itwiki": {
+                "site": "itwiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "nlwiki": {
+                "site": "nlwiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "plwiki": {
+                "site": "plwiki",
+                "title": "Concilium",
+                "badges": []
+            },
+            "ptwiki": {
+                "site": "ptwiki",
+                "title": "Concilium (revista)",
+                "badges": []
+            },
+            "hrwiki": {
+                "site": "hrwiki",
+                "title": "Concilium",
+                "badges": []
+            }
+        },
+        "claims": {
+            "P646": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P646",
+                        "hash": "ee3d37892461256a904dc125c13b7920366dc6f4",
+                        "datavalue": {
+                            "value": "/m/026pkp0",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$60577937-6A78-4504-B559-F57E2698A194",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "2b00cb481cddcac7623114367489b5c194901c4a",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "a94b740202b097dd33355e0e6c00e54b9395e5e0",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 15241312,
+                                                "id": "Q15241312"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ],
+                                "P577": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P577",
+                                        "hash": "fde79ecb015112d2f29229ccc1ec514ed3e71fa2",
+                                        "datavalue": {
+                                            "value": {
+                                                "time": "+2013-10-28T00:00:00Z",
+                                                "timezone": 0,
+                                                "before": 0,
+                                                "after": 0,
+                                                "precision": 11,
+                                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                                            },
+                                            "type": "time"
+                                        },
+                                        "datatype": "time"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248",
+                                "P577"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "hash": "5a7e4696633b9e9f5244b9dfb3ca98300d2b0604",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 1002697,
+                                "id": "Q1002697"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$8E9A95A4-7A89-4F88-B357-55B9CA43123C",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+                            "snaks": {
+                                "P143": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P143",
+                                        "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 328,
+                                                "id": "Q328"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P143"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "hash": "bdfc838e854c8c3a2aa80b13defea8cbec4fafde",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 737498,
+                                "id": "Q737498"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$06de59eb-475e-c5ab-5d8c-2dc6bc893b7f",
+                    "rank": "normal"
+                }
+            ],
+            "P1058": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1058",
+                        "hash": "f1d2616ef64227f1b40ecc7b411e463ee0d80bd6",
+                        "datavalue": {
+                            "value": "31384",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$02736FC1-1779-493E-A576-84AA5839A649",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "cb027ec1dd27a771321740db85c04f34345e3922",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "cc68ab6eb4937cd68bb3a5f7e022e3e5f748f774",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 15794938,
+                                                "id": "Q15794938"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P236": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P236",
+                        "hash": "b35b1500dcd0d646218b08847d17fa0652c421f2",
+                        "datavalue": {
+                            "value": "0010-5236",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "qualifiers": {
+                        "P437": [
+                            {
+                                "snaktype": "value",
+                                "property": "P437",
+                                "hash": "740efe54118a78473c6a596896830ec77b53c578",
+                                "datavalue": {
+                                    "value": {
+                                        "entity-type": "item",
+                                        "numeric-id": 1261026,
+                                        "id": "Q1261026"
+                                    },
+                                    "type": "wikibase-entityid"
+                                },
+                                "datatype": "wikibase-item"
+                            }
+                        ]
+                    },
+                    "qualifiers-order": [
+                        "P437"
+                    ],
+                    "id": "Q303410$2F684422-8CBA-4AAB-B701-3F7157111F66",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "cb027ec1dd27a771321740db85c04f34345e3922",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "cc68ab6eb4937cd68bb3a5f7e022e3e5f748f774",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 15794938,
+                                                "id": "Q15794938"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P1250": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1250",
+                        "hash": "47d40faf164cb4da18b6b7bc4dc579344a0b01cb",
+                        "datavalue": {
+                            "value": "19021",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$3B7F60FC-1D63-4C48-94F7-F0FA595A9BE9",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "e05828e3a52a380a8566c836caa2359ef12680db",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "11e3ae0d38894ef4bcef08f92efa2566bcf07b46",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 16335771,
+                                                "id": "Q16335771"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P1240": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1240",
+                        "hash": "10febc0fac337545da0191c59b3640ff5843843a",
+                        "datavalue": {
+                            "value": "1",
+                            "type": "string"
+                        },
+                        "datatype": "string"
+                    },
+                    "type": "statement",
+                    "qualifiers": {
+                        "P585": [
+                            {
+                                "snaktype": "value",
+                                "property": "P585",
+                                "hash": "e2cf53ceb37961b6370aa8159c758a311e91669c",
+                                "datavalue": {
+                                    "value": {
+                                        "time": "+2019-09-00T00:00:00Z",
+                                        "timezone": 0,
+                                        "before": 0,
+                                        "after": 0,
+                                        "precision": 10,
+                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                                    },
+                                    "type": "time"
+                                },
+                                "datatype": "time"
+                            }
+                        ]
+                    },
+                    "qualifiers-order": [
+                        "P585"
+                    ],
+                    "id": "Q303410$75071369-7A24-4289-8D72-35F66260D579",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "e05828e3a52a380a8566c836caa2359ef12680db",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "11e3ae0d38894ef4bcef08f92efa2566bcf07b46",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 16335771,
+                                                "id": "Q16335771"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248"
+                            ]
+                        },
+                        {
+                            "hash": "ba886d7a902185b1e150673af2179d8def9ce5ba",
+                            "snaks": {
+                                "P248": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P248",
+                                        "hash": "6276c35a01bcc541206041e2dde3ac96a5150a53",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 76003087,
+                                                "id": "Q76003087"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P248"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P856": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P856",
+                        "hash": "8a657a2aa53ecd3f7044f0e5cadc4c574f3a6c57",
+                        "datavalue": {
+                            "value": "https://concilium.hymnsam.co.uk/",
+                            "type": "string"
+                        },
+                        "datatype": "url"
+                    },
+                    "type": "statement",
+                    "qualifiers": {
+                        "P407": [
+                            {
+                                "snaktype": "value",
+                                "property": "P407",
+                                "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                                "datavalue": {
+                                    "value": {
+                                        "entity-type": "item",
+                                        "numeric-id": 1860,
+                                        "id": "Q1860"
+                                    },
+                                    "type": "wikibase-entityid"
+                                },
+                                "datatype": "wikibase-item"
+                            }
+                        ]
+                    },
+                    "qualifiers-order": [
+                        "P407"
+                    ],
+                    "id": "Q303410$fe2ec82f-4f83-3687-a978-da6834cb65ad",
+                    "rank": "normal"
+                }
+            ],
+            "P1476": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1476",
+                        "hash": "509b4538f7491bd82942d927fdf412eb49bcf23c",
+                        "datavalue": {
+                            "value": {
+                                "text": "Concilium",
+                                "language": "und"
+                            },
+                            "type": "monolingualtext"
+                        },
+                        "datatype": "monolingualtext"
+                    },
+                    "type": "statement",
+                    "qualifiers": {
+                        "P1680": [
+                            {
+                                "snaktype": "value",
+                                "property": "P1680",
+                                "hash": "c883af42e9e3f2d8e91aec823609111faef9f999",
+                                "datavalue": {
+                                    "value": {
+                                        "text": "International Journal of Theology",
+                                        "language": "en"
+                                    },
+                                    "type": "monolingualtext"
+                                },
+                                "datatype": "monolingualtext"
+                            }
+                        ]
+                    },
+                    "qualifiers-order": [
+                        "P1680"
+                    ],
+                    "id": "Q303410$359E86A2-7B19-4F0A-9E0C-C16532FA7A09",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+                            "snaks": {
+                                "P143": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P143",
+                                        "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 328,
+                                                "id": "Q328"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P143"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P123": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P123",
+                        "hash": "87ceb8745cdceee388620903f08b6928f4d3d044",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 16932752,
+                                "id": "Q16932752"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$1BC41576-21C2-41DA-9075-A72F7642C62F",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "9a24f7c0208b05d6be97077d855671d1dfdbc0dd",
+                            "snaks": {
+                                "P143": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P143",
+                                        "hash": "d38375ffe6fe142663ff55cd783aa4df4301d83d",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 48183,
+                                                "id": "Q48183"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P143"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P571": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P571",
+                        "hash": "acbfe32351a0f23a562c14ccf16761bf0eaa391d",
+                        "datavalue": {
+                            "value": {
+                                "time": "+1964-00-00T00:00:00Z",
+                                "timezone": 0,
+                                "before": 0,
+                                "after": 0,
+                                "precision": 9,
+                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                            },
+                            "type": "time"
+                        },
+                        "datatype": "time"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$8E269E47-9157-4252-816F-C73C574AB7DA",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "aae78861899249e49ef9a449af9198c564680dc8",
+                            "snaks": {
+                                "P854": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P854",
+                                        "hash": "06caec04848b56e7eeaddf7d4f2d5184caac151d",
+                                        "datavalue": {
+                                            "value": "https://www.facebook.com/pg/Concilium-International-Journal-of-Theology-403532689810804/about/",
+                                            "type": "string"
+                                        },
+                                        "datatype": "url"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P854"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P1277": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1277",
+                        "hash": "119cc9a29b67ed91c9e81b551cab178d50595530",
+                        "datavalue": {
+                            "value": "53991",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$45767769-6B37-446F-9B28-4A6D296012BB",
+                    "rank": "normal"
+                }
+            ],
+            "P407": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P407",
+                        "hash": "c757ac6da9712097bc0871742564687f009a3f64",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 20923490,
+                                "id": "Q20923490"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$8DB6130B-07CF-458C-8394-2F1A68249BCE",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "8b47403953995466a76fe5a927fc9984a66d15ef",
+                            "snaks": {
+                                "P143": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P143",
+                                        "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+                                        "datavalue": {
+                                            "value": {
+                                                "entity-type": "item",
+                                                "numeric-id": 328,
+                                                "id": "Q328"
+                                            },
+                                            "type": "wikibase-entityid"
+                                        },
+                                        "datatype": "wikibase-item"
+                                    }
+                                ],
+                                "P813": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P813",
+                                        "hash": "5382ff24e64c9081c889469fded6bd09874875e5",
+                                        "datavalue": {
+                                            "value": {
+                                                "time": "+2019-09-08T00:00:00Z",
+                                                "timezone": 0,
+                                                "before": 0,
+                                                "after": 0,
+                                                "precision": 11,
+                                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                                            },
+                                            "type": "time"
+                                        },
+                                        "datatype": "time"
+                                    }
+                                ],
+                                "P4656": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P4656",
+                                        "hash": "bebba0ea71771d35b3f64e639ccf8d4fb95d61ef",
+                                        "datavalue": {
+                                            "value": "https://en.wikipedia.org/wiki/Category:Multilingual_journals",
+                                            "type": "string"
+                                        },
+                                        "datatype": "url"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P143",
+                                "P813",
+                                "P4656"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P1296": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1296",
+                        "hash": "7417394cd26066c1d2e8c8f5894a387494522842",
+                        "datavalue": {
+                            "value": "0019238",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$E6F0550F-62DE-47AF-ABFA-5903EA084295",
+                    "rank": "normal"
+                }
+            ],
+            "P2013": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P2013",
+                        "hash": "69d987c871bdc42198fdf104e3786800d66265b5",
+                        "datavalue": {
+                            "value": "Concilium-International-Journal-of-Theology-403532689810804",
+                            "type": "string"
+                        },
+                        "datatype": "external-id"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$480302c7-4918-21b6-7390-98748ef2cc6e",
+                    "rank": "normal"
+                }
+            ],
+            "P577": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P577",
+                        "hash": "9e757cf14073228774402c9fe5082f5db1c5dfc1",
+                        "datavalue": {
+                            "value": {
+                                "time": "+1965-00-00T00:00:00Z",
+                                "timezone": 0,
+                                "before": 0,
+                                "after": 0,
+                                "precision": 9,
+                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                            },
+                            "type": "time"
+                        },
+                        "datatype": "time"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$cf5e5f3d-41c7-3f8f-e002-0df40026711b",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "f4fd77cea8dfe1191e719173725ff013734f4806",
+                            "snaks": {
+                                "P854": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P854",
+                                        "hash": "d37010eee9a2025df3fdb00c2bdc624e89faa355",
+                                        "datavalue": {
+                                            "value": "https://concilium.hymnsam.co.uk/",
+                                            "type": "string"
+                                        },
+                                        "datatype": "url"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P854"
+                            ]
+                        },
+                        {
+                            "hash": "55542a023ce80fb602e8a1a193f098563534731a",
+                            "snaks": {
+                                "P854": [
+                                    {
+                                        "snaktype": "value",
+                                        "property": "P854",
+                                        "hash": "b5ec84295c7f2841b192919c3f22bea716662f1b",
+                                        "datavalue": {
+                                            "value": "https://www.facebook.com/pg/Concilium-International-Journal-of-Theology-403532689810804/about/?ref=page_internal",
+                                            "type": "string"
+                                        },
+                                        "datatype": "url"
+                                    }
+                                ]
+                            },
+                            "snaks-order": [
+                                "P854"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "P495": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P495",
+                        "hash": "f22b65529f04812dab8e052ad61b917f13b10f50",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 21,
+                                "id": "Q21"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$00de0747-4440-8403-4392-174a0060435e",
+                    "rank": "normal"
+                }
+            ],
+            "P2896": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P2896",
+                        "hash": "483aa283b6414d705574b4a204ea2735470473a1",
+                        "datavalue": {
+                            "value": {
+                                "amount": "+2.4",
+                                "unit": "http://www.wikidata.org/entity/Q5151"
+                            },
+                            "type": "quantity"
+                        },
+                        "datatype": "quantity"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$81f6a9ab-465c-87d3-c03e-2eda90210c17",
+                    "rank": "normal"
+                }
+            ],
+            "P921": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P921",
+                        "hash": "f565d464bf4dc3329eee1c85ff8886f40bce6705",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 34178,
+                                "id": "Q34178"
+                            },
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q303410$6977adb0-4dde-d16b-b4eb-f26acfe9edf5",
+                    "rank": "normal"
+                }
+            ]
+        },
+        "id": "Q303410",
+        "type": "item",
+        "lastrevid": 1280465130
+    },
+    "success": 1
+}
