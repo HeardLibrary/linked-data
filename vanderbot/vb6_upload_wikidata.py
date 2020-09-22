@@ -1328,7 +1328,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                     parameterDictionary['maxlag'] = maxlag
                                 # print(json.dumps(parameterDictionary, indent = 2))
                                 
-                                print('ref:', reference['refValueColumnList'])
+                                # print('ref:', reference['refValueColumnList'])
                                 responseData = attemptPost(endpointUrl, parameterDictionary)
                                 print('Write confirmation: ', responseData)
                                 print()
