@@ -1170,7 +1170,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        print(json.dumps(dataStructure, indent = 2))
+        #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
         
         # don't try to write if there aren't any data to send
