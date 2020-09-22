@@ -528,12 +528,16 @@ def createReferences(referenceListForProperty, rowData):
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
             if refEntityOrLiteral[refPropNumber] == 'value':
-                # currently time is the only supported node-valued type
-                if refTypeList[refPropNumber] == 'time':
-                    refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
-                # other node-valued types will be handled here
+                # value nodes with no nodeId should be considered to have no value
+                if rowData[refValueColumnList[refPropNumber] + '_nodeId'] == '':
+                    refValue = {}
                 else:
-                    pass
+                    # currently time is the only supported node-valued type
+                    if refTypeList[refPropNumber] == 'time':
+                        refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                    # other node-valued types will be handled here
+                    else:
+                        pass
             else:
                 refValue = rowData[refValueColumnList[refPropNumber]]
             snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
@@ -557,12 +561,16 @@ def createReferenceSnak(referenceDict, rowData):
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
         if refEntityOrLiteral[refPropNumber] == 'value':
-            # currently time is the only supported node-valued type
-            if refTypeList[refPropNumber] == 'time':
-                refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
-            # other node-valued types will be handled here
+            # value nodes with no nodeId should be considered to have no value
+            if rowData[refValueColumnList[refPropNumber] + '_nodeId'] == '':
+                refValue = {}
             else:
-                pass
+                # currently time is the only supported node-valued type
+                if refTypeList[refPropNumber] == 'time':
+                    refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                # other node-valued types will be handled here
+                else:
+                    pass
         else:
             refValue = rowData[refValueColumnList[refPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
@@ -580,12 +588,16 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
         if qualEntityOrLiteral[qualPropNumber] == 'value':
-            # currently time is the only supported node-valued type
-            if qualTypeList[qualPropNumber] == 'time':
-                qualValue = {'timeValue': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'timePrecision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
-            # other node-valued types will be handled here
+            # value nodes with no nodeId should be considered to have no value
+            if rowData[qualValueColumnList[qualPropNumber] + '_nodeId'] == '':
+                qualValue = {}
             else:
-                pass
+                # currently time is the only supported node-valued type
+                if qualTypeList[qualPropNumber] == 'time':
+                    qualValue = {'timeValue': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'timePrecision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
+                # other node-valued types will be handled here
+                else:
+                    pass
         else:
             qualValue = rowData[qualValueColumnList[qualPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_qualifiers, qualValue, qualPropNumber, qualPropList, qualValueColumnList, qualValueTypeList, qualTypeList, qualEntityOrLiteral)
