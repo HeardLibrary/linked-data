@@ -206,45 +206,48 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
 # Function to convert times to the format required by Wikidata
 def convertDates(rowData, dateColumnNameRoot):
     error = False
-    # Assume that if the precision column is empty that the dates need to be converted
-    if rowData[dateColumnNameRoot + '_prec'] == '':
-        #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
+    # Only do something in the case where there is a date. Missing values should be skipped.
+    if rowData[dateColumnNameRoot + '_val'] != '':
+        # Assume that if the precision column is empty that the dates need to be converted
+        if rowData[dateColumnNameRoot + '_prec'] == '':
+            #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
 
-        # set these two to default to the existing values
-        precisionNumber = rowData[dateColumnNameRoot + '_prec']
-        timeString = rowData[dateColumnNameRoot + '_val']
+            # set these two to default to the existing values
+            precisionNumber = rowData[dateColumnNameRoot + '_prec']
+            timeString = rowData[dateColumnNameRoot + '_val']
 
-        value = rowData[dateColumnNameRoot + '_val']
-        # date is YYYY-MM-DD
-        if len(value) == 10:
-            timeString = value + 'T00:00:00Z'
-            precisionNumber = 11 # precision to days
-        # date is YYYY-MM
-        elif len(value) == 7:
-            timeString = value + '-00T00:00:00Z'
-            precisionNumber = 10 # precision to months
-        # date is YYYY
-        elif len(value) == 4:
-            timeString = value + '-00-00T00:00:00Z'
-            precisionNumber = 9 # precision to years
-        # date is xsd:dateTime and doesn't need adjustment
-        elif len(value) == 20:
-            timeString = value
-            precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
-        # date form unknown, don't adjust
-        else:
-            print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
-            error = True
-        # assign the changed values back to the dict
-        rowData[dateColumnNameRoot + '_val'] = timeString
-        rowData[dateColumnNameRoot + '_prec'] = precisionNumber
+            value = rowData[dateColumnNameRoot + '_val']
+            # date is YYYY-MM-DD
+            if len(value) == 10:
+                timeString = value + 'T00:00:00Z'
+                precisionNumber = 11 # precision to days
+            # date is YYYY-MM
+            elif len(value) == 7:
+                timeString = value + '-00T00:00:00Z'
+                precisionNumber = 10 # precision to months
+            # date is YYYY
+            elif len(value) == 4:
+                timeString = value + '-00-00T00:00:00Z'
+                precisionNumber = 9 # precision to years
+            # date is xsd:dateTime and doesn't need adjustment
+            elif len(value) == 20:
+                timeString = value
+                precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
+            # date form unknown, don't adjust
+            else:
+                print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+                error = True
+            # assign the changed values back to the dict
+            rowData[dateColumnNameRoot + '_val'] = timeString
+            rowData[dateColumnNameRoot + '_prec'] = precisionNumber
 
-    # If there is no UUID in the _nodeId column, generate one
-    if rowData[dateColumnNameRoot + '_nodeId'] == '':
-        rowData[dateColumnNameRoot + '_nodeId'] = str(uuid.uuid4())
+        # If there is no UUID in the _nodeId column, generate one
+        if rowData[dateColumnNameRoot + '_nodeId'] == '':
+            rowData[dateColumnNameRoot + '_nodeId'] = str(uuid.uuid4())
 
     return rowData, error
 
+'''
 # Function to create reference value for times
 def createTimeReferenceValue(value):
     # date is YYYY-MM-DD
@@ -279,6 +282,7 @@ def createTimeReferenceValue(value):
             'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
             }
     return dateDict
+'''
 
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
@@ -937,14 +941,14 @@ for table in tables:  # The script can handle multiple tables because that optio
 
     errorFlag = False
     for rowNumber in range(0, len(tableData)):
-        print('row: ' + str(rowNumber))
+        #print('row: ' + str(rowNumber))
         #print(tableData[rowNumber])
         for dateColumnName in dateColumnNameList:
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 errorFlag = True
         #print(tableData[rowNumber])
-        print()
+        #print()
     
     # Write the file with the converted dates in case the script crashes
     writeToFile(tableFileName, fieldnames, tableData)
