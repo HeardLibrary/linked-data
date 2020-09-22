@@ -1214,7 +1214,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                 #print(tableData[rowNumber][propertiesColumnList[statementIndex]])
 
                 # need to find out if the value is empty. Value-node values must have their nodeId's checked. Otherwise, just check whether the cell is empty.
-                if tableData[rowNumber][propertiesEntityOrLiteral[statementIndex]] =='value':
+                if propertiesEntityOrLiteral[statementIndex] =='value':
                     if tableData[rowNumber][propertiesColumnList[statementIndex] + '_nodeId'] == '':
                         no_value = True
                     else:
