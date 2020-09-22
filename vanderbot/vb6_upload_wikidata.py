@@ -213,7 +213,7 @@ def convertDates(rowData, dateColumnNameRoot):
             #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
 
             # set these two to default to the existing values
-            precisionNumber = rowData[dateColumnNameRoot + '_prec']
+            # precisionNumber = int(rowData[dateColumnNameRoot + '_prec']) # not necessary since conditional on value of ''
             timeString = rowData[dateColumnNameRoot + '_val']
 
             value = rowData[dateColumnNameRoot + '_val']
@@ -240,10 +240,14 @@ def convertDates(rowData, dateColumnNameRoot):
             # assign the changed values back to the dict
             rowData[dateColumnNameRoot + '_val'] = timeString
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
+        else:
+            # a pre-existing precisionNumber must be an integer when written to the API
+            rowData[dateColumnNameRoot + '_prec'] = int(precisionNumber)
 
         # If there is no UUID in the _nodeId column, generate one
         if rowData[dateColumnNameRoot + '_nodeId'] == '':
             rowData[dateColumnNameRoot + '_nodeId'] = str(uuid.uuid4())
+
 
     return rowData, error
 
