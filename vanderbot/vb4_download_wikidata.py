@@ -458,7 +458,7 @@ for employeeIndex in range(0, len(employees)):
 
 # write the file
 filename = deptShortName + '-employees-to-write.csv'
-fieldnames = ['department', 'wikidataId', 'name', 'labelEn', 'alias', 'description', 'orcidStatementUuid', 'orcid', 'orcidReferenceHash', 'orcidReferenceValue_nodeId', 'orcidReferenceValue_val', 'orcidReferenceValue_prec',  'employerStatementUuid', 'employer', 'employerReferenceHash', 'employerReferenceSourceUrl', 'employerReferenceRetrieved_val', 'affiliationStatementUuid', 'employerReferenceRetrieved_nodeId', 'employerReferenceRetrieved_val', 'employerReferenceRetrieved_prec', 'affiliation', 'affiliationReferenceHash', 'affiliationReferenceSourceUrl', 'affiliationReferenceRetrieved_nodeId', 'affiliationReferenceRetrieved_prec', 'affiliationReferenceRetrieved_val', 'instanceOfUuid', 'instanceOf', 'sexOrGenderUuid', 'sexOrGenderQId', 'gender', 'degree', 'category', 'wikidataStatus', 'role']
+fieldnames = ['department', 'wikidataId', 'name', 'labelEn', 'alias', 'description', 'orcidStatementUuid', 'orcid', 'orcidReferenceHash', 'orcidReferenceValue_nodeId', 'orcidReferenceValue_val', 'orcidReferenceValue_prec',  'employerStatementUuid', 'employer', 'employerReferenceHash', 'employerReferenceSourceUrl', 'employerReferenceRetrieved_nodeId', 'employerReferenceRetrieved_val', 'employerReferenceRetrieved_prec', 'affiliationStatementUuid', 'affiliation', 'affiliationReferenceHash', 'affiliationReferenceSourceUrl', 'affiliationReferenceRetrieved_nodeId', 'affiliationReferenceRetrieved_prec','affiliationReferenceRetrieved_val','instanceOfUuid', 'instanceOf', 'sexOrGenderUuid', 'sexOrGenderQId', 'gender', 'degree', 'category', 'wikidataStatus', 'role']
 
 vbc.writeDictsToCsv(employees, filename, fieldnames)
 
