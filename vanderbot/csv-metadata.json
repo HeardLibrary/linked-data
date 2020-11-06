@@ -3,7 +3,7 @@
   "@context": "http://www.w3.org/ns/csvw",
   "tables": [
     {
-      "url": "bluffton.csv",
+      "url": "medicine-employees-to-write.csv",
       "tableSchema": {
         "columns": [
           {
