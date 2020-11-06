@@ -1275,7 +1275,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                                 # The values for times are buried a layer deeper in the JSON than other types.
                                                 if tableReference['refTypeList'][referencePropertyIndex] == 'time':
                                                     # need to handle negative dates (BCE)
-                                                    if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                                    if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
                                                         # make comparison with the leading minus present
                                                         if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
                                                             referenceMatch = False
