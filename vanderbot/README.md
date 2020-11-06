@@ -34,7 +34,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current (unstable) release is [v1.5.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.2).
+The current beta release is [v1.5.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.2).
 
 The last stable release is [v1.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.4).
 
