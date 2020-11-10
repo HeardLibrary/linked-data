@@ -1,4 +1,4 @@
-# VanderBot v1.5 (2020-09-08) vb6_upload_wikidata.py
+# VanderBot v1.6 (2020-11-10) vb6_upload_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -68,6 +68,10 @@
 # - Correct two bugs involving downloading existing descriptions and aliases
 # - Add code to determine rows with dates based on new metadata mapping schema format
 # - Add code to convert non-standard Wikibase date forms into standard format with precision numbers
+# -----------------------------------------
+# Version 1.6 change notes (2020-11-10):
+# - Add support for globecoordinate, quantity, and monolingual text.
+# - Fix some outstanding issues related to negative dates.
 
 import json
 import requests
