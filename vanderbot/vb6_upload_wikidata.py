@@ -1032,51 +1032,51 @@ for table in tables:  # The script can handle multiple tables because that optio
                     print()
     print()
 
-# If there are dates in the table that are not in the format Wikibase requires, they will be converted here
-print('converting dates and generating value node IDs')
+    # If there are dates in the table that are not in the format Wikibase requires, they will be converted here
+    print('converting dates and generating value node IDs')
 
-# Figure out the column name roots for column sets that are dates and value nodes
-dateColumnNameList = []
-valueColumnNameList = []
-if len(propertiesColumnList) > 0:
-    for propertyNumber in range(0, len(propertiesColumnList)):
-        if propertiesTypeList[propertyNumber] == 'time':
-            #print('property with date:', propertiesColumnList[propertyNumber])
-            dateColumnNameList.append(propertiesColumnList[propertyNumber])
-        if propertiesEntityOrLiteral[propertyNumber] == 'value':
-            valueColumnNameList.append(propertiesColumnList[propertyNumber])
+    # Figure out the column name roots for column sets that are dates and value nodes
+    dateColumnNameList = []
+    valueColumnNameList = []
+    if len(propertiesColumnList) > 0:
+        for propertyNumber in range(0, len(propertiesColumnList)):
+            if propertiesTypeList[propertyNumber] == 'time':
+                #print('property with date:', propertiesColumnList[propertyNumber])
+                dateColumnNameList.append(propertiesColumnList[propertyNumber])
+            if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                valueColumnNameList.append(propertiesColumnList[propertyNumber])
 
-        if len(propertiesQualifiersList[propertyNumber]) != 0:
-            for qualPropNumber in range(0, len(propertiesQualifiersList[propertyNumber]['qualPropList'])):
-                if propertiesQualifiersList[propertyNumber]['qualTypeList'][qualPropNumber] == 'time':
-                    #print('qualifier property with date:', propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
-                    dateColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
-                if propertiesQualifiersList[propertyNumber]['qualEntityOrLiteral'][qualPropNumber] == 'value':
-                    valueColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+            if len(propertiesQualifiersList[propertyNumber]) != 0:
+                for qualPropNumber in range(0, len(propertiesQualifiersList[propertyNumber]['qualPropList'])):
+                    if propertiesQualifiersList[propertyNumber]['qualTypeList'][qualPropNumber] == 'time':
+                        #print('qualifier property with date:', propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+                        dateColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+                    if propertiesQualifiersList[propertyNumber]['qualEntityOrLiteral'][qualPropNumber] == 'value':
+                        valueColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
 
-        if len(propertiesReferencesList[propertyNumber]) != 0:
-            for referenceNumber in range(0, len(propertiesReferencesList[propertyNumber])):
-                for refPropNumber in range(0, len(propertiesReferencesList[propertyNumber][referenceNumber]['refPropList'])):
-                    if propertiesReferencesList[propertyNumber][referenceNumber]['refTypeList'][refPropNumber] == 'time':
-                        #print('reference property with date:', propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
-                        dateColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
-                    if propertiesReferencesList[propertyNumber][referenceNumber]['refEntityOrLiteral'][refPropNumber] == 'value':
-                        valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
-#print(dateColumnNameList)
+            if len(propertiesReferencesList[propertyNumber]) != 0:
+                for referenceNumber in range(0, len(propertiesReferencesList[propertyNumber])):
+                    for refPropNumber in range(0, len(propertiesReferencesList[propertyNumber][referenceNumber]['refPropList'])):
+                        if propertiesReferencesList[propertyNumber][referenceNumber]['refTypeList'][refPropNumber] == 'time':
+                            #print('reference property with date:', propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+                            dateColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+                        if propertiesReferencesList[propertyNumber][referenceNumber]['refEntityOrLiteral'][refPropNumber] == 'value':
+                            valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+    #print(dateColumnNameList)
 
-errorFlag = False
-for rowNumber in range(0, len(tableData)):
-    #print('row: ' + str(rowNumber))
-    #print(tableData[rowNumber])
-    for dateColumnName in dateColumnNameList:
-        tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-        if error:
-            errorFlag = True
-    for valueColumnName in valueColumnNameList:
-        tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
-    #print(tableData[rowNumber])
-    #print()
-   
+    errorFlag = False
+    for rowNumber in range(0, len(tableData)):
+        #print('row: ' + str(rowNumber))
+        #print(tableData[rowNumber])
+        for dateColumnName in dateColumnNameList:
+            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+            if error:
+                errorFlag = True
+        for valueColumnName in valueColumnNameList:
+            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
+        #print(tableData[rowNumber])
+        #print()
+    
     # Write the file with the converted dates in case the script crashes
     writeToFile(tableFileName, fieldnames, tableData)
 
