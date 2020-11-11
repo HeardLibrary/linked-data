@@ -262,10 +262,12 @@ def convertDates(rowData, dateColumnNameRoot):
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
     statementUuidColumn = '' # start value as empty string in case no UUID column
+    nUuidColumns = 0
     for column in columns:
         if not('suppressOutput' in column):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
+                nUuidColumns += 1
                 temp = column['valueUrl'].partition('-{')[2]
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
                 #print(statementUuidColumn)
@@ -273,6 +275,8 @@ def findPropertyUuid(propertyId, columns):
     # Give a warning if there isn't any UUID column for the property
     if statementUuidColumn == '':
         print('Warning: No UUID column for property ' + propertyId)
+    if nUuidColumns > 1:
+        print('Warning: there are', nUuidColumns,'for property',propertyId)
     return statementUuidColumn
 
 # Each property can have zero to many references. This function searches the column headers to find all of
@@ -1014,7 +1018,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
                     # differentiate between plain literals and language-tagged literals (monolingualtext)
                     if 'lang' in column:
-                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: monolingualtext')
+                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: monolingualtext  Language: ', column['lang'])
                         propertiesEntityOrLiteral.append('monolingualtext')
                         propertiesTypeList.append('monolingualtext')
                         propertiesValueTypeList.append('monolingualtext')
