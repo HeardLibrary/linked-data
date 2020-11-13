@@ -8,7 +8,7 @@ VanderBot is a set of Python scripts that scrapes data from departmental website
 
 For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
-**Important note:** The master and tags above v1.5, which implement full support for dates, are broken and in the process of being fixed. If you want to play with the scripts, for now use v1.4.
+**Important note:** As far as I know, v1.6 has fixed the issues with v1.5 in addition to adding additional capabilities. However, v1.6 should still probably be consiered beta, with v1.4 as the last stable release.
 
 ## Description
 
@@ -34,7 +34,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current beta release is [v1.5.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.5.2).
+The current beta release is [v1.6](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6).
 
 The last stable release is [v1.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.4).
 
@@ -157,5 +157,12 @@ The major change to the code was to increase the number of table columns per dat
 
 The other addition is a Javascript script written by Jessie Baskauf that drives [this form](https://heardlibrary.github.io/digital-scholarship/script/wikidata/wikidata-csv2rdf-metadata.html), which can be used to generate a `csv-metadata.json` mapping schema. With such a mapping schema, any CSV can be used as the source date for the **vb6_upload_wikidata.py** upload script.
 
+## Release v1.6 (2020-11-13)
+
+Version 1.6 only affects the API-writing script (vb6_upload_wikidata.py). The other scripts were unchanged.
+
+- Add support for globecoordinate, quantity, and monolingual text value types. Due to limitations in the csv2rdf Recommendation, it isn't possible to have the language of monolingualtext in a table column. Unfortunately, it has to be hard-coded in the schema. This imposes limitations on including two monolingualtext properties in the same table, since they would have the same property QID. That would make it impossible to differentiate among them in the JSON returned from the API. So they have to be in separate tables.
+- Fix some outstanding issues related to negative dates.
+
 ----
-Revised 2020-09-22
+Revised 2020-11-13

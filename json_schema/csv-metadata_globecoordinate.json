@@ -1,0 +1,80 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [
+        {
+            "url": "globecoordinate_test.csv",
+            "tableSchema": {
+                "columns": [ 
+                    {
+                        "titles": "qid",
+                        "name": "qid",
+                        "datatype": "string",
+                        "suppressOutput": true
+                    },
+                    {
+                        "titles": "coordinateLocation_uuid",
+                        "name": "coordinateLocation_uuid",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/P625",
+                        "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{coordinateLocation_uuid}"
+                    },
+                    {
+                        "titles": "coordinateLocation_nodeId",
+                        "name": "coordinateLocation_nodeId",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{coordinateLocation_uuid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/statement/value/P625",
+                        "valueUrl": "http://example.com/.well-known/genid/{coordinateLocation_nodeId}"
+                    },
+                    {
+                        "titles": "coordinateLocation_val",
+                        "name": "coordinateLocation_val",
+                        "datatype": "float",
+                        "aboutUrl": "http://example.com/.well-known/genid/{coordinateLocation_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#geoLatitude"
+                    },
+                    {
+                        "titles": "coordinateLocation_long",
+                        "name": "coordinateLocation_long",
+                        "datatype": "float",
+                        "aboutUrl": "http://example.com/.well-known/genid/{coordinateLocation_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#geoLongitude"
+                    },
+                    {
+                        "titles": "coordinateLocation_prec",
+                        "name": "coordinateLocation_prec",
+                        "datatype": "float",
+                        "aboutUrl": "http://example.com/.well-known/genid/{coordinateLocation_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#geoPrecision"
+                    },
+                    {
+                        "titles": "coordinateLocation_ref1_hash",
+                        "name": "coordinateLocation_ref1_hash",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{coordinateLocation_uuid}",
+                        "propertyUrl": "prov:wasDerivedFrom",
+                        "valueUrl": "http://www.wikidata.org/reference/{coordinateLocation_ref1_hash}"
+                    },
+                    {
+                        "titles": "coordinateLocation_ref1_importedFromWikipedia",
+                        "name": "coordinateLocation_ref1_importedFromWikipedia",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{coordinateLocation_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/P143",
+                        "valueUrl": "http://www.wikidata.org/entity/{coordinateLocation_ref1_importedFromWikipedia}"
+                    },
+                    {
+                        "titles": "coordinateLocation_ref1_importUrl",
+                        "name": "coordinateLocation_ref1_importUrl",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{coordinateLocation_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/P4656",
+                        "valueUrl": "{+coordinateLocation_ref1_importUrl}"
+                    }
+                ]
+            }
+        }
+    ]
+}

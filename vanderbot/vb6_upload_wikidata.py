@@ -1,4 +1,4 @@
-# VanderBot v1.5 (2020-09-08) vb6_upload_wikidata.py
+# VanderBot v1.6 (2020-11-10) vb6_upload_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -68,6 +68,13 @@
 # - Correct two bugs involving downloading existing descriptions and aliases
 # - Add code to determine rows with dates based on new metadata mapping schema format
 # - Add code to convert non-standard Wikibase date forms into standard format with precision numbers
+# -----------------------------------------
+# Version 1.6 change notes (2020-11-13):
+# - Add support for globecoordinate, quantity, and monolingual text. Due to limitations in the W3C csv2rdf Recommendation, it isn't
+#   possible to have the language of monolingualtext strings in a table column. Unfortunately, it has to be hard-coded in the schema.
+#   This imposes limitations on including two monolingualtext string properties in the same table, since they would have the same property
+#   QID. That would make it impossible to differentiate among them in the JSON returned from the API. So they have to be in separate tables.
+# - Fix some outstanding issues related to negative dates.
 
 import json
 import requests
@@ -154,7 +161,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     # configuration settings
     endpointUrl = 'https://query.wikidata.org/sparql'
     acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/1.3 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/1.6 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
     'Content-Type': 'application/sparql-query',
     'Accept' : acceptMediaType,
@@ -203,6 +210,15 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     
     return returnValue
 
+# Generate a UUID for the value node identifier when there isn't already one
+def generateNodeId(rowData, columnNameRoot):
+    # Only do something in the case where there is a value. Missing values should be skipped.
+    if rowData[columnNameRoot + '_val'] != '':
+        # If there is no UUID in the _nodeId column, generate one
+        if rowData[columnNameRoot + '_nodeId'] == '':
+            rowData[columnNameRoot + '_nodeId'] = str(uuid.uuid4())
+    return rowData
+
 # Function to convert times to the format required by Wikidata
 def convertDates(rowData, dateColumnNameRoot):
     error = False
@@ -244,57 +260,17 @@ def convertDates(rowData, dateColumnNameRoot):
             # a pre-existing precisionNumber must be an integer when written to the API
             rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
 
-        # If there is no UUID in the _nodeId column, generate one
-        if rowData[dateColumnNameRoot + '_nodeId'] == '':
-            rowData[dateColumnNameRoot + '_nodeId'] = str(uuid.uuid4())
-
-
     return rowData, error
-
-'''
-# Function to create reference value for times
-def createTimeReferenceValue(value):
-    # date is YYYY-MM-DD
-    if len(value) == 10:
-        timeString = '+' + value + 'T00:00:00Z'
-        precisionNumber = 11 # precision to days
-    # date is YYYY-MM
-    elif len(value) == 7:
-        timeString = '+' + value + '-00T00:00:00Z'
-        precisionNumber = 10 # precision to months
-    # date is YYYY
-    elif len(value) == 4:
-        timeString = '+' + value + '-00-00T00:00:00Z'
-        precisionNumber = 9 # precision to years
-    # date form unknown, don't adjust
-    else:
-        # 2020-07-15 note: Previously, the leading + was included with the the table value.
-        # However, in order for the csv2rdf schema to be valid, the + must not be included in the tabled value. So it is added here.
-        #timeString = value
-        timeString = '+' + value
-        precisionNumber = 11 # assume precision to days
-        
-    # Q1985727 is the Gregorian calendar
-    # 2020-07-15 note: Previously, the leading + was included with the the table value.
-    # However, in order for the csv2rdf schema to be valid, the + must not be included in the tabled value. So it is added here.
-    dateDict = {
-            'time': '+' + timeString,
-            'timezone': 0,
-            'before': 0,
-            'after': 0,
-            'precision': precisionNumber,
-            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
-            }
-    return dateDict
-'''
 
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
     statementUuidColumn = '' # start value as empty string in case no UUID column
+    nUuidColumns = 0
     for column in columns:
         if not('suppressOutput' in column):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
             if 'prop/' + propertyId in column['propertyUrl']:
+                nUuidColumns += 1
                 temp = column['valueUrl'].partition('-{')[2]
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
                 #print(statementUuidColumn)
@@ -302,6 +278,8 @@ def findPropertyUuid(propertyId, columns):
     # Give a warning if there isn't any UUID column for the property
     if statementUuidColumn == '':
         print('Warning: No UUID column for property ' + propertyId)
+    if nUuidColumns > 1:
+        print('Warning: there are', nUuidColumns,'for property',propertyId)
     return statementUuidColumn
 
 # Each property can have zero to many references. This function searches the column headers to find all of
@@ -325,6 +303,7 @@ def findReferencesForProperty(statementUuidColumn, columns):
                 refEntityOrLiteral = [] # values: entity or literal, determined by presence of a valueUrl key for the column
                 refTypeList = [] # the datatype of the property's value: url, time, or string
                 refValueTypeList = [] # the specific type of a string: time or string
+                refLangList = [] # the language of monolingualtext
                 # The kind of value in the column (dateTime, string) can be retrieved directly from the column 'datatype' value
                 
                 # Now step throught the columns looking for each of the properties that are associated with the reference
@@ -341,6 +320,7 @@ def findReferencesForProperty(statementUuidColumn, columns):
                                 # The column title will be something like employer_ref1_retrieved_nodeId, 
                                 # so get the root of the string to the left of "_nodeId"
                                 refValueColumnList.append(propColumn['titles'].partition('_nodeId')[0])
+                                refLangList.append('')
 
                                 # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
                                 for testColumn in columns:
@@ -351,9 +331,13 @@ def findReferencesForProperty(statementUuidColumn, columns):
                                                 refTypeList.append('time')
                                                 refValueTypeList.append('time')
                                             elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
-                                                pass
+                                                refEntityOrLiteral.append('value')
+                                                refTypeList.append('globe-coordinate')
+                                                refValueTypeList.append('globecoordinate')
                                             elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
-                                                pass
+                                                refEntityOrLiteral.append('value')
+                                                refTypeList.append('quantity')
+                                                refValueTypeList.append('quantity')
                                             else:
                                                 continue
                                     except:
@@ -365,6 +349,7 @@ def findReferencesForProperty(statementUuidColumn, columns):
                                 refValueColumnList.append(propColumn['titles'])
 
                                 if 'valueUrl' in propColumn:
+                                    refLangList.append('')
                                     # URIs are detected when there is a valueUrl whose value has a first character of "{"
                                     if propColumn['valueUrl'][0] == '{':
                                         refEntityOrLiteral.append('literal')
@@ -375,12 +360,22 @@ def findReferencesForProperty(statementUuidColumn, columns):
                                         refTypeList.append('wikibase-item')
                                         refValueTypeList.append('wikibase-entityid')
                                 else:
-                                    refTypeList.append('string')
-                                    refValueTypeList.append('string')
-                
+                                    # monolingualtext detected by language tag
+                                    if 'lang' in propColumn:
+                                        refEntityOrLiteral.append('monolingualtext')
+                                        refTypeList.append('monolingualtext')
+                                        refValueTypeList.append('monolingualtext')
+                                        refLangList.append(propColumn['lang'])
+                                    # plain text string
+                                    else:
+                                        refEntityOrLiteral.append('literal')
+                                        refTypeList.append('string')
+                                        refValueTypeList.append('string')
+                                        refLangList.append('')
+
                 # After all of the properties have been found and their data have been added to the lists, 
                 # insert the lists into the reference list as values in a dictionary
-                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refEntityOrLiteral': refEntityOrLiteral, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList})
+                referenceList.append({'refHashColumn': refHashColumn, 'refPropList': refPropList, 'refValueColumnList': refValueColumnList, 'refEntityOrLiteral': refEntityOrLiteral, 'refTypeList': refTypeList, 'refValueTypeList': refValueTypeList, 'refLangList': refLangList})
         
     # After every column has been searched for references associated with the property, return the reference list
     #print('References: ', json.dumps(referenceList, indent=2))
@@ -397,6 +392,7 @@ def findQualifiersForProperty(statementUuidColumn, columns):
     qualEntityOrLiteral = [] # values: entity or literal, determined by presence of a valueUrl key for the column
     qualTypeList = [] # the datatype of the qualifier's value: url, time, or string
     qualValueTypeList = [] # the specific type of a string: time or string
+    qualLangList = [] # the language of monolingualtext
     # The kind of value in the column (dateTime, string) can be retrieved directly from the column 'datatype' value
 
     for column in columns:
@@ -407,13 +403,14 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                 # Determine whether the value of the qualifier is a value node (e.g. dates) or a direct value
                 valueString = column['propertyUrl'].partition('prop/qualifier/')[2]
                 if "value" in valueString: # e.g. value/P580
+                    qualLangList.append('')
                     # The property IRI namespace for qualifiers with value nodes is http://www.wikidata.org/prop/qualifier/value/
                     qualPropList.append(valueString.partition('value/')[2])
                     # The column title will be something like employer_startDate_nodeId, 
                     # so get the root of the string to the left of "_nodeId"
                     qualValueColumnList.append(column['titles'].partition('_nodeId')[0])
 
-                    # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
+                    # Find out what kind of value node it is.
                     for testColumn in columns:
                         try:
                             if column['titles'] in testColumn['aboutUrl']:
@@ -422,11 +419,16 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                                     qualTypeList.append('time')
                                     qualValueTypeList.append('time')
                                 elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
+                                    qualEntityOrLiteral.append('value')
+                                    qualTypeList.append('globe-coordinate')
+                                    qualValueTypeList.append('globecoordinate')
                                     pass
                                 elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
-                                    pass
+                                    qualEntityOrLiteral.append('value')
+                                    qualTypeList.append('quantity')
+                                    qualValueTypeList.append('quantity')
                                 else:
-                                    continue
+                                    continue 
                         except:
                             pass
                 else: # e.g. P1545
@@ -437,6 +439,7 @@ def findQualifiersForProperty(statementUuidColumn, columns):
 
                     # determine whether the qualifier is an entity/URI or string
                     if 'valueUrl' in column:
+                        qualLangList.append('')
                         # URIs are detected when there is a valueUrl whose value has a first character of "{"
                         if column['valueUrl'][0] == '{':
                             qualEntityOrLiteral.append('literal')
@@ -447,11 +450,21 @@ def findQualifiersForProperty(statementUuidColumn, columns):
                             qualTypeList.append('wikibase-item')
                             qualValueTypeList.append('wikibase-entityid')
                     else:
-                        qualTypeList.append('string')
-                        qualValueTypeList.append('string')
+                        # monolingualtext detected by language tag
+                        if 'lang' in column:
+                            qualEntityOrLiteral.append('monolingualtext')
+                            qualTypeList.append('monolingualtext')
+                            qualValueTypeList.append('monolingualtext')
+                            qualLangList.append(column['lang'])
+                        # plain text string
+                        else:
+                            qualEntityOrLiteral.append('literal')
+                            qualTypeList.append('string')
+                            qualValueTypeList.append('string')
+                            qualLangList.append('')
 
     # After all of the qualifier columns are found for the property, create a dictionary to pass back
-    qualifierDictionary = {'qualPropList': qualPropList, 'qualValueColumnList': qualValueColumnList, "qualEntityOrLiteral": qualEntityOrLiteral, 'qualTypeList': qualTypeList, 'qualValueTypeList': qualValueTypeList}
+    qualifierDictionary = {'qualPropList': qualPropList, 'qualValueColumnList': qualValueColumnList, "qualEntityOrLiteral": qualEntityOrLiteral, 'qualTypeList': qualTypeList, 'qualValueTypeList': qualValueTypeList, 'qualLangList': qualLangList}
     #print('Qualifiers: ', json.dumps(qualifierDictionary, indent=2))
     return(qualifierDictionary)
 
@@ -464,15 +477,17 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
             sys.exit()
     else:
         if refEntityOrLiteral[refPropNumber] == 'value':
-            # Currently time is the only kind of value node handled
             if refTypeList[refPropNumber] == 'time':
+                # Wikibase model requires leading + sign for dates
+                if refValue['timeValue'][0] != '-':
+                    refValue['timeValue'] = '+' + refValue['timeValue']
                 snakDictionary[refPropList[refPropNumber]] = [
                     {
                     'snaktype': 'value',
                     'property': refPropList[refPropNumber],
                     'datavalue':{
                         'value': {
-                            'time': '+' + refValue['timeValue'],
+                            'time': refValue['timeValue'],
                             'timezone': 0,
                             'before': 0,
                             'after': 0,
@@ -484,8 +499,41 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                     'datatype': 'time'
                     }
                 ]
-
-            # In the future handle other types here
+            elif refTypeList[refPropNumber] == 'quantity':
+                if refValue['amount'][0] != '-':
+                    refValue['amount'] = '+' + refValue['amount']
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                    'snaktype': 'value',
+                    'property': propertiesIdList[propertyNumber],
+                    'datavalue':{
+                        'value':{
+                            'amount': refValue['amount'], # a string for a decimal number; must have leading + or -
+                            'unit': 'http://www.wikidata.org/entity/' + refValue['unit'] # IRI as a string
+                            },
+                        'type': 'quantity',
+                        },
+                    'datatype': 'quantity'
+                    }
+                ]
+            elif refTypeList[refPropNumber] == 'globe-coordinate':
+                snakDictionary[refPropList[refPropNumber]] = [
+                    {
+                    'snaktype': 'value',
+                    'property': propertiesIdList[propertyNumber],
+                    'datavalue': {
+                        'value': {
+                            'latitude': float(refValue['latitude']), # latitude; decimal number
+                            'longitude': float(refValue['longitude']), # longitude; decimal number
+                            'precision': float(refValue['precision']), # precision; decimal number
+                            'globe': 'http://www.wikidata.org/entity/Q2' # the earth
+                            },
+                        'type': 'globecoordinate'
+                        },
+                    'datatype': 'globe-coordinate'
+                    }
+                ]
+            # other unsupported types
             else:
                 pass
 
@@ -502,6 +550,22 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                     'type': 'wikibase-entityid'
                     },
                 'datatype': 'wikibase-item'
+                }
+            ]
+        elif refEntityOrLiteral[refPropNumber] == 'monolingualtext':
+            # language-tagged literals
+            snakDictionary[refPropList[refPropNumber]] = [
+                {
+                'snaktype': 'value',
+                'property': refPropList[refPropNumber],
+                'datavalue': {
+                    'value': {
+                        'text': refValue['text'],
+                        'language': refValue['language']
+                        },
+                    'type': 'monolingualtext'
+                    },
+                'datatype': 'monolingualtext'
                 }
             ]
         else:
@@ -528,6 +592,7 @@ def createReferences(referenceListForProperty, rowData):
         refValueTypeList = referenceDict['refValueTypeList']
         refTypeList = referenceDict['refTypeList']
         refEntityOrLiteral = referenceDict['refEntityOrLiteral']
+        refLangList = referenceDict['refLangList']
 
         snakDictionary = {}
         for refPropNumber in range(0, len(refPropList)):
@@ -536,12 +601,20 @@ def createReferences(referenceListForProperty, rowData):
                 if rowData[refValueColumnList[refPropNumber] + '_nodeId'] == '':
                     refValue = {}
                 else:
-                    # currently time is the only supported node-valued type
                     if refTypeList[refPropNumber] == 'time':
                         refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
-                    # other node-valued types will be handled here
-                    else:
+                    elif refTypeList[refPropNumber] == 'quantity':
+                        refValue = {'amount': rowData[refValueColumnList[refPropNumber] + '_val'], 'unit': rowData[refValueColumnList[refPropNumber] + '_unit']}
+                    elif refTypeList[refPropNumber] == 'globe-coordinate':
+                        refValue = {'latitude': rowData[refValueColumnList[refPropNumber] + '_val'], 'longitude': rowData[refValueColumnList[refPropNumber] + '_long'], 'precision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                    else: # other unsupported types
                         pass
+            elif refEntityOrLiteral[refPropNumber] == 'monolingualtext':
+                # if the text column is empty, consider there to be no value
+                if rowData[refValueColumnList[refPropNumber]] == '':
+                    refValue = {}
+                else:
+                    refValue = {'text': rowData[refValueColumnList[refPropNumber]], 'language': refLangList[refPropNumber]}
             else:
                 refValue = rowData[refValueColumnList[refPropNumber]]
             snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
@@ -561,6 +634,7 @@ def createReferenceSnak(referenceDict, rowData):
     refValueTypeList = referenceDict['refValueTypeList']
     refTypeList = referenceDict['refTypeList']
     refEntityOrLiteral = referenceDict['refEntityOrLiteral']
+    refLangList = referenceDict['refLangList']
     
     snakDictionary = {}
     for refPropNumber in range(0, len(refPropList)):
@@ -569,18 +643,25 @@ def createReferenceSnak(referenceDict, rowData):
             if rowData[refValueColumnList[refPropNumber] + '_nodeId'] == '':
                 refValue = {}
             else:
-                # currently time is the only supported node-valued type
                 if refTypeList[refPropNumber] == 'time':
                     refValue = {'timeValue': rowData[refValueColumnList[refPropNumber] + '_val'], 'timePrecision': rowData[refValueColumnList[refPropNumber] + '_prec']}
-                # other node-valued types will be handled here
-                else:
+                elif refTypeList[refPropNumber] == 'quantity':
+                    refValue = {'amount': rowData[refValueColumnList[refPropNumber] + '_val'], 'unit': rowData[refValueColumnList[refPropNumber] + '_unit']}
+                elif refTypeList[refPropNumber] == 'globe-coordinate':
+                    refValue = {'latitude': rowData[refValueColumnList[refPropNumber] + '_val'], 'longitude': rowData[refValueColumnList[refPropNumber] + '_long'], 'precision': rowData[refValueColumnList[refPropNumber] + '_prec']}
+                else: # other unsupported types
                     pass
+        elif refEntityOrLiteral[refPropNumber] == 'monolingualtext':
+            # if the text column is empty, consider there to be no value
+            if rowData[refValueColumnList[refPropNumber]] == '':
+                refValue = {}
+            else:
+                refValue = {'text': rowData[refValueColumnList[refPropNumber]], 'language': refLangList[refPropNumber]}
         else:
             refValue = rowData[refValueColumnList[refPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_references, refValue, refPropNumber, refPropList, refValueColumnList, refValueTypeList, refTypeList, refEntityOrLiteral)
     #print(json.dumps(snakDictionary, indent = 2))
     return snakDictionary
-
 
 # If there are qualifiers for a statement, return a qualifiers dictionary
 def createQualifiers(qualifierDictionaryForProperty, rowData):
@@ -589,6 +670,8 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
     qualTypeList = qualifierDictionaryForProperty['qualTypeList']
     qualValueTypeList = qualifierDictionaryForProperty['qualValueTypeList']
     qualEntityOrLiteral = qualifierDictionaryForProperty['qualEntityOrLiteral']
+    qualLangList = qualifierDictionaryForProperty['qualLangList']
+    
     snakDictionary = {}
     for qualPropNumber in range(0, len(qualPropList)):
         if qualEntityOrLiteral[qualPropNumber] == 'value':
@@ -596,12 +679,20 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
             if rowData[qualValueColumnList[qualPropNumber] + '_nodeId'] == '':
                 qualValue = {}
             else:
-                # currently time is the only supported node-valued type
                 if qualTypeList[qualPropNumber] == 'time':
                     qualValue = {'timeValue': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'timePrecision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
-                # other node-valued types will be handled here
+                elif qualTypeList[refPropNumber] == 'quantity':
+                    qualValue = {'amount': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'unit': rowData[qualValueColumnList[qualPropNumber] + '_unit']}
+                elif qualTypeList[refPropNumber] == 'globe-coordinate':
+                    qualValue = {'latitude': rowData[qualValueColumnList[qualPropNumber] + '_val'], 'longitude': rowData[qualValueColumnList[qualPropNumber] + '_long'], 'precision': rowData[qualValueColumnList[qualPropNumber] + '_prec']}
                 else:
                     pass
+        elif qualEntityOrLiteral[qualPropNumber] == 'monolingualtext':
+            # if the text column is empty, consider there to be no value
+            if rowData[qualValueColumnList[qualPropNumber]] == '':
+                qualValue = {}
+            else:
+                qualValue = {'text': rowData[qualValueColumnList[qualPropNumber]], 'language': qualLangList[qualPropNumber]}
         else:
             qualValue = rowData[qualValueColumnList[qualPropNumber]]
         snakDictionary = generateSnaks(snakDictionary, require_qualifiers, qualValue, qualPropNumber, qualPropList, qualValueColumnList, qualValueTypeList, qualTypeList, qualEntityOrLiteral)
@@ -746,10 +837,11 @@ for table in tables:  # The script can handle multiple tables because that optio
     descriptionLanguageList = []
     propertiesColumnList = []
     propertiesUuidColumnList = []
-    propertiesEntityOrLiteral = [] # determines whether value of property is an "entity" (i.e. item) or "literal" (which includes strings, dates, and URLs that aren't actually literals)
+    propertiesEntityOrLiteral = [] # determines whether value of property is an "entity" (i.e. item), value nodes, monolingualtext, or "literal" (which includes strings, dates, and URLs that aren't actually literals)
     propertiesIdList = []
-    propertiesTypeList = [] # the 'datatype' given to a mainsnak. Currently supported types are: "wikibase-item", "url", "time", or "string"
-    propertiesValueTypeList = [] # the 'type' given to values of 'datavalue' in the mainsnak. Can be "wikibase-entityid", "string" or "time" 
+    propertiesTypeList = [] # the 'datatype' given to a mainsnak. Currently supported types are: "wikibase-item", "url", "time", "quantity", "globe-coordinate", or "string"
+    propertiesValueTypeList = [] # the 'type' given to values of 'datavalue' in the mainsnak. Can be "wikibase-entityid", "string", "globecoordiante", "quantity", or "time" 
+    propertiesLangList = [] # the language of monolingualtext
     propertiesReferencesList = []
     propertiesQualifiersList = []
 
@@ -798,7 +890,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 personAliasList.append(wikiLabel['string'])
                     # if not found, the personAliasList list will remain empty
                     languageAliases.append(personAliasList)
-                
+
                 # add all of the found aliases for that language to the list of aliases in various languages
                 existingAliases.append(languageAliases)
         # handle all other non-suppressed columns.
@@ -825,7 +917,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 break # stop looking if there is a match
                     if not found:
                         tempLabels.append('')
-                
+
                 # add all of the found labels for that language to the list of labels in various languages
                 existingLabels.append(tempLabels)
 
@@ -851,12 +943,13 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 break # stop looking if there is a match
                     if not found:
                         tempLabels.append('')
-                
+
                 # add all of the found labels for that language to the list of labels in various languages
                 existingDescriptions.append(tempLabels)
 
             # find columns that contain properties with entity values, literal values that are URLs, or value node values
             elif 'valueUrl' in column:
+                propertiesLangList.append('')
                 # only add columns that have "statement" properties
                 if 'prop/statement/' in column['propertyUrl']:
                     if 'prop/statement/value/' in column['propertyUrl']: # value is a value node (e.g. date or geo coordinates)
@@ -866,7 +959,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                         propertiesColumnList.append(propColumnHeader)
                         propertiesIdList.append(propertyId)
                         propertiesEntityOrLiteral.append('value')
-                        # Find out what kind of value node it is. Currently supported is date; future: globe coordinate value and quantities
+                        # Find out what kind of value node it is.
                         for testColumn in columns:
                             try:
                                 if column['titles'] in testColumn['aboutUrl']:
@@ -876,8 +969,12 @@ for table in tables:  # The script can handle multiple tables because that optio
                                         propertiesValueTypeList.append('time')
                                     elif 'geoLatitude' in testColumn['propertyUrl']: # value is a globe coordinate value
                                         propKind = 'geocoordinates'
+                                        propertiesTypeList.append('globe-coordinate')
+                                        propertiesValueTypeList.append('globecoordinate')
                                     elif 'quantityAmount' in testColumn['propertyUrl']: # value is a quantity
                                         propKind = 'quantity'
+                                        propertiesTypeList.append('quantity')
+                                        propertiesValueTypeList.append('quantity')
                                     else:
                                         continue
                                     print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: ', propKind)
@@ -915,44 +1012,59 @@ for table in tables:  # The script can handle multiple tables because that optio
                 if 'prop/statement/' in column['propertyUrl']:
                     propColumnHeader = column['titles']
                     propertyId = column['propertyUrl'].partition('prop/statement/')[2]
-                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: string')
                     propertiesColumnList.append(propColumnHeader)
                     propertiesIdList.append(propertyId)
-
-                    propertiesEntityOrLiteral.append('literal')
-                    propertiesTypeList.append('string')
-                    propertiesValueTypeList.append('string')
-
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
                     propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
                     propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
+
+                    # differentiate between plain literals and language-tagged literals (monolingualtext)
+                    if 'lang' in column:
+                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: monolingualtext  Language: ', column['lang'])
+                        propertiesEntityOrLiteral.append('monolingualtext')
+                        propertiesTypeList.append('monolingualtext')
+                        propertiesValueTypeList.append('monolingualtext')
+                        propertiesLangList.append(column['lang'])
+                    else:
+                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: string')
+                        propertiesEntityOrLiteral.append('literal')
+                        propertiesTypeList.append('string')
+                        propertiesValueTypeList.append('string')
+                        propertiesLangList.append('')
                     print()
     print()
 
     # If there are dates in the table that are not in the format Wikibase requires, they will be converted here
-    print('converting dates')
+    print('converting dates and generating value node IDs')
 
-    # Figure out the column name roots for column sets that are dates
+    # Figure out the column name roots for column sets that are dates and value nodes
     dateColumnNameList = []
+    valueColumnNameList = []
     if len(propertiesColumnList) > 0:
         for propertyNumber in range(0, len(propertiesColumnList)):
             if propertiesTypeList[propertyNumber] == 'time':
                 #print('property with date:', propertiesColumnList[propertyNumber])
                 dateColumnNameList.append(propertiesColumnList[propertyNumber])
-            
-            if len(propertiesReferencesList[propertyNumber]) != 0:
+            if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                valueColumnNameList.append(propertiesColumnList[propertyNumber])
+
+            if len(propertiesQualifiersList[propertyNumber]) != 0:
                 for qualPropNumber in range(0, len(propertiesQualifiersList[propertyNumber]['qualPropList'])):
                     if propertiesQualifiersList[propertyNumber]['qualTypeList'][qualPropNumber] == 'time':
                         #print('qualifier property with date:', propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
                         dateColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
-            
+                    if propertiesQualifiersList[propertyNumber]['qualEntityOrLiteral'][qualPropNumber] == 'value':
+                        valueColumnNameList.append(propertiesQualifiersList[propertyNumber]['qualValueColumnList'][qualPropNumber])
+
             if len(propertiesReferencesList[propertyNumber]) != 0:
                 for referenceNumber in range(0, len(propertiesReferencesList[propertyNumber])):
                     for refPropNumber in range(0, len(propertiesReferencesList[propertyNumber][referenceNumber]['refPropList'])):
                         if propertiesReferencesList[propertyNumber][referenceNumber]['refTypeList'][refPropNumber] == 'time':
                             #print('reference property with date:', propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
                             dateColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
+                        if propertiesReferencesList[propertyNumber][referenceNumber]['refEntityOrLiteral'][refPropNumber] == 'value':
+                            valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
     #print(dateColumnNameList)
 
     errorFlag = False
@@ -963,6 +1075,8 @@ for table in tables:  # The script can handle multiple tables because that optio
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 errorFlag = True
+        for valueColumnName in valueColumnNameList:
+            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         #print(tableData[rowNumber])
         #print()
     
@@ -1093,7 +1207,7 @@ for table in tables:  # The script can handle multiple tables because that optio
         # handle claims
         if len(propertiesColumnList) > 0:
             claimsList = []
-            
+
             # here's what we need to construct for literal valued properties:
             # data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}
             for propertyNumber in range(0, len(propertiesColumnList)):
@@ -1110,13 +1224,16 @@ for table in tables:  # The script can handle multiple tables because that optio
                         continue  # skip the rest of this iteration and go onto the next property
                     # Currently time is the only kind of value node supported
                     if propertiesTypeList[propertyNumber] == 'time':
+                        # for compatibility with xsd:datatype requirements for dates, the leading + required by Wikidata is not stored and must be added
+                        if valueString[0] != '-':
+                            valueString = '+' + valueString
                         snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
                                 'datavalue':{
                                     'value': {
-                                        'time': '+' + valueString,
+                                        'time': valueString,
                                         'timezone': 0,
                                         'before': 0,
                                         'after': 0,
@@ -1130,9 +1247,51 @@ for table in tables:  # The script can handle multiple tables because that optio
                             'type': 'statement',
                             'rank': 'normal'
                             }
-                    # If globe coordinate value or quantities become supported, they will be handled here.
+                    # had to guess that datatype was "quantity"; not in documentation
+                    # XML datatypes allow (but don't require) leading +, but spreadsheets drop it, 
+                    # but Wikibase requires it, so add it here
+                    # not currently supporting upperBound and lowerBound
+                    elif propertiesTypeList[propertyNumber] == 'quantity':
+                        if valueString[0] != '-':
+                            valueString = '+' + valueString
+                        snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue':{
+                                    'value':{
+                                        'amount': valueString, # a string for a decimal number; must have leading + or -
+                                        'unit': 'http://www.wikidata.org/entity/' + tableData[rowNumber][propertiesColumnList[propertyNumber] + '_unit'] # IRI as a string
+                                        },
+                                    'type': 'quantity',
+                                    },
+                                'datatype': 'quantity'
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
+                    elif propertiesTypeList[propertyNumber] == 'globe-coordinate':
+                        snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue': {
+                                    'value': {
+                                        'latitude': float(valueString), # latitude; decimal number
+                                        'longitude': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_long']), # longitude; decimal number
+                                        'precision': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec']), # precision; decimal number
+                                        'globe': 'http://www.wikidata.org/entity/Q2' # the earth
+                                        },
+                                    'type': 'globecoordinate'
+                                    },
+                                'datatype': 'globe-coordinate'
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
                     else:
-                        pass
+                        # there are some other value types not currently supported
+                        print('unsupported value type')
 
                 # For other property columns, the column name is stored directly in the propertiesColumnList
                 else:
@@ -1140,7 +1299,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                     if valueString == '':
                         continue  # skip the rest of this iteration and go onto the next property
                     if propertiesEntityOrLiteral[propertyNumber] == 'literal':
-                            snakDict = {
+                        snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
                                 'property': propertiesIdList[propertyNumber],
@@ -1153,7 +1312,23 @@ for table in tables:  # The script can handle multiple tables because that optio
                             'type': 'statement',
                             'rank': 'normal'
                             }
-
+                    elif propertiesEntityOrLiteral[propertyNumber] == 'monolingualtext':
+                        snakDict = {
+                            'mainsnak': {
+                                'snaktype': 'value',
+                                'property': propertiesIdList[propertyNumber],
+                                'datavalue': {
+                                    'value': {
+                                        'text': valueString,
+                                        'language': propertiesLangList[propertyNumber]
+                                        },
+                                    'type': 'monolingualtext'
+                                    },
+                                'datatype': 'monolingualtext'
+                                },
+                            'type': 'statement',
+                            'rank': 'normal'
+                            }
                     elif propertiesEntityOrLiteral[propertyNumber] == 'entity':
                         snakDict = {
                             'mainsnak': {
@@ -1172,7 +1347,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                             }
                     else:
                         print('This should not happen')
-                        
+
                 # Look for references and qualifiers for all properties whose values are being written
                 if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
                     references = createReferences(propertiesReferencesList[propertyNumber], tableData[rowNumber])
@@ -1182,9 +1357,9 @@ for table in tables:  # The script can handle multiple tables because that optio
                     qualifiers = createQualifiers(propertiesQualifiersList[propertyNumber], tableData[rowNumber])
                     if qualifiers != {}: # check for situation where no qualifier statements were made for that record
                         snakDict['qualifiers'] = qualifiers
-                    
+
                 claimsList.append(snakDict)
-                    
+
             if claimsList != []:
                 dataStructure['claims'] = claimsList
 
@@ -1207,7 +1382,7 @@ for table in tables:  # The script can handle multiple tables because that optio
             if newItem:
                 # extract the entity Q number from the response JSON
                 tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
-                
+
             # fill into the table the values of newly created claims and references
             for statementIndex in range(0, len(propertiesIdList)):
                 referencesForStatement = propertiesReferencesList[statementIndex]
@@ -1238,6 +1413,8 @@ for table in tables:  # The script can handle multiple tables because that optio
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
                         elif propertiesEntityOrLiteral[statementIndex] == 'entity':
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
+                        elif propertiesEntityOrLiteral[statementIndex] == 'monolingualtext':
+                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['text'] and propertiesLangList[statementIndex] == statement['mainsnak']['datavalue']['value']['language']
                         elif propertiesEntityOrLiteral[statementIndex] == 'value':
                             if propertiesTypeList[statementIndex] == 'time':
                                 # need to handle negative dates (BCE)
@@ -1247,7 +1424,18 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 else:
                                     # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
                                     statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['time']
-                            else: # in the future, when other node value types are supported, the code here will need to be expanded to cover the other types
+                            elif propertiesTypeList[statementIndex] == 'quantity':
+                                # need to handle negative quantities
+                                if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                    # make comparison with the leading minus present
+                                    statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['amount']
+                                else:
+                                    # must add leading plus (not stored in the table) to match the plus required by Wikibase
+                                    statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['amount']
+                            elif propertiesTypeList[statementIndex] == 'globe-coordinate':
+                                statementFound = float(tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['latitude']
+
+                            else: # non-supported types
                                 pass
                         else:
                             pass
@@ -1272,7 +1460,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                         try:
                                             # First try to see if the values in the response JSON for the property match
                                             if tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'value':
-                                                # The values for times are buried a layer deeper in the JSON than other types.
+                                                # The values for value nodes are buried a layer deeper in the JSON than other types.
                                                 if tableReference['refTypeList'][referencePropertyIndex] == 'time':
                                                     # need to handle negative dates (BCE)
                                                     if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
@@ -1286,8 +1474,31 @@ for table in tables:  # The script can handle multiple tables because that optio
                                                         if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
                                                             referenceMatch = False
                                                             break # kill the inner loop because this value doesn't match
-                                                else: # here is where node-valued types other than time will be handled
+                                                elif tableReference['refTypeList'][referencePropertyIndex] == 'quantity':
+                                                    # need to handle negative quantities
+                                                    if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
+                                                        # make comparison with the leading minus present
+                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                            referenceMatch = False
+                                                            break # kill the inner loop because this value doesn't match
+                                                    else:
+                                                        # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                                        # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
+                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                            referenceMatch = False
+                                                            break # kill the inner loop because this value doesn't match
+                                                elif tableReference['refTypeList'][referencePropertyIndex] == 'globe-coordinate':
+                                                    if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['latitude'] != float(tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']):
+                                                        referenceMatch = False
+                                                        break # kill the inner loop because this value doesn't match
+
+                                                else: # unsupported value types
                                                     pass
+                                            elif tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'monolingualtext':
+                                                # The monolingual text (language-tagged literals) have an additional layer "text" within the value
+                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['text'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]] and responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['language'] != tableReference['refLangList'][referencePropertyIndex]:
+                                                    referenceMatch = False
+                                                    break # kill the inner loop because this value doesn't match
                                             else: # Values for types other than node-valued have direct literal values of 'value'
                                                 if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
                                                     referenceMatch = False
@@ -1297,7 +1508,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                             # An exception occured because the JSON "path" to the value didn't match. So this isn't the right property
                                             referenceMatch = False
                                             break # kill the inner loop because the property doesn't match
-                                        
+
                                         # OK, we got all the way through on this property with it and its value matching, so referenceMatch will still be True
                                         # The inner loop can continue on to the next property to see if it and its value match.
 
@@ -1314,7 +1525,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 if referenceMatch == False:
                                     print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
                                     print('Reference  ', tableReference)
-                                
+
                                 # The script will now move on to checking the next reference in the table.
 
                     # Print this error message only if there is not match to any of the values after looping through all of the matching properties
