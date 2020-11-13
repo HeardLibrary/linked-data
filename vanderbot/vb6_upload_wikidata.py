@@ -69,8 +69,11 @@
 # - Add code to determine rows with dates based on new metadata mapping schema format
 # - Add code to convert non-standard Wikibase date forms into standard format with precision numbers
 # -----------------------------------------
-# Version 1.6 change notes (2020-11-10):
-# - Add support for globecoordinate, quantity, and monolingual text.
+# Version 1.6 change notes (2020-11-13):
+# - Add support for globecoordinate, quantity, and monolingual text. Due to limitations in the W3C csv2rdf Recommendation, it isn't
+#   possible to have the language of monolingualtext strings in a table column. Unfortunately, it has to be hard-coded in the schema.
+#   This imposes limitations on including two monolingualtext string properties in the same table, since they would have the same property
+#   QID. That would make it impossible to differentiate among them in the JSON returned from the API. So they have to be in separate tables.
 # - Fix some outstanding issues related to negative dates.
 
 import json
