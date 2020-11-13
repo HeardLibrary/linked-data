@@ -1,0 +1,157 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [
+        {
+            "url": "quantity_test.csv",
+            "tableSchema": {
+                "columns": [ 
+                    {
+                        "titles": "qid",
+                        "name": "qid",
+                        "datatype": "string",
+                        "suppressOutput": true
+                    },
+                    {
+                        "titles": "width_uuid",
+                        "name": "width_uuid",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/P2049",
+                        "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{width_uuid}"
+                    },
+                    {
+                        "titles": "width_nodeId",
+                        "name": "width_nodeId",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{width_uuid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/statement/value/P2049",
+                        "valueUrl": "http://example.com/.well-known/genid/{width_nodeId}"
+                    },
+                    {
+                        "titles": "width_val",
+                        "name": "width_val",
+                        "datatype": "decimal",
+                        "aboutUrl": "http://example.com/.well-known/genid/{width_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#quantityAmount"
+                    },
+                    {
+                        "titles": "width_unit",
+                        "name": "width_unit",
+                        "datatype": "string",
+                        "aboutUrl": "http://example.com/.well-known/genid/{width_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#quantityUnit",
+                        "valueUrl": "http://www.wikidata.org/entity/{width_unit}"
+                    },
+                    {
+                        "titles": "width_ref1_hash",
+                        "name": "width_ref1_hash",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{width_uuid}",
+                        "propertyUrl": "prov:wasDerivedFrom",
+                        "valueUrl": "http://www.wikidata.org/reference/{width_ref1_hash}"
+                    },
+                    {
+                        "titles": "width_ref1_referenceUrl",
+                        "name": "width_ref1_referenceUrl",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{width_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+                        "valueUrl": "{+width_ref1_referenceUrl}"
+                    },
+                    {
+                        "titles": "width_ref1_retrieved_nodeId",
+                        "name": "width_ref1_retrieved_nodeId",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{width_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/value/P813",
+                        "valueUrl": "http://example.com/.well-known/genid/{width_ref1_retrieved_nodeId}"
+                    },
+                    {
+                        "titles": "width_ref1_retrieved_val",
+                        "name": "width_ref1_retrieved_val",
+                        "datatype": "dateTime",
+                        "aboutUrl": "http://example.com/.well-known/genid/{width_ref1_retrieved_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#timeValue"
+                    },
+                    {
+                        "titles": "width_ref1_retrieved_prec",
+                        "name": "width_ref1_retrieved_prec",
+                        "datatype": "integer",
+                        "aboutUrl": "http://example.com/.well-known/genid/{width_ref1_retrieved_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#timePrecision"
+                    },
+                    {
+                        "titles": "height_uuid",
+                        "name": "height_uuid",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/P2048",
+                        "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{height_uuid}"
+                    },
+                    {
+                        "titles": "height_nodeId",
+                        "name": "height_nodeId",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{height_uuid}",
+                        "propertyUrl": "http://www.wikidata.org/prop/statement/value/P2048",
+                        "valueUrl": "http://example.com/.well-known/genid/{height_nodeId}"
+                    },
+                    {
+                        "titles": "height_val",
+                        "name": "height_val",
+                        "datatype": "decimal",
+                        "aboutUrl": "http://example.com/.well-known/genid/{height_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#quantityAmount"
+                    },
+                    {
+                        "titles": "height_unit",
+                        "name": "height_unit",
+                        "datatype": "string",
+                        "aboutUrl": "http://example.com/.well-known/genid/{height_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#quantityUnit",
+                        "valueUrl": "http://www.wikidata.org/entity/{height_unit}"
+                    },
+                    {
+                        "titles": "height_ref1_hash",
+                        "name": "height_ref1_hash",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{height_uuid}",
+                        "propertyUrl": "prov:wasDerivedFrom",
+                        "valueUrl": "http://www.wikidata.org/reference/{height_ref1_hash}"
+                    },
+                    {
+                        "titles": "height_ref1_referenceUrl",
+                        "name": "height_ref1_referenceUrl",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{height_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/P854",
+                        "valueUrl": "{+height_ref1_referenceUrl}"
+                    },
+                    {
+                        "titles": "height_ref1_retrieved_nodeId",
+                        "name": "height_ref1_retrieved_nodeId",
+                        "datatype": "string",
+                        "aboutUrl": "http://www.wikidata.org/reference/{height_ref1_hash}",
+                        "propertyUrl": "http://www.wikidata.org/prop/reference/value/P813",
+                        "valueUrl": "http://example.com/.well-known/genid/{height_ref1_retrieved_nodeId}"
+                    },
+                    {
+                        "titles": "height_ref1_retrieved_val",
+                        "name": "height_ref1_retrieved_val",
+                        "datatype": "dateTime",
+                        "aboutUrl": "http://example.com/.well-known/genid/{height_ref1_retrieved_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#timeValue"
+                    },
+                    {
+                        "titles": "height_ref1_retrieved_prec",
+                        "name": "height_ref1_retrieved_prec",
+                        "datatype": "integer",
+                        "aboutUrl": "http://example.com/.well-known/genid/{height_ref1_retrieved_nodeId}",
+                        "propertyUrl": "http://wikiba.se/ontology#timePrecision"
+                    }
+                ]
+            }
+        }
+    ]
+}
