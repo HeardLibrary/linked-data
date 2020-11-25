@@ -269,7 +269,8 @@ def findPropertyUuid(propertyId, columns):
     for column in columns:
         if not('suppressOutput' in column):
             # find the valueUrl in the column for which the value of the statement has the prop version of the property as its propertyUrl
-            if 'prop/' + propertyId in column['propertyUrl']:
+            valueString = column['propertyUrl'].partition('prop/')[2] # This will pick up all kinds of properties, but only p: properties will have PID directly after 'prop/'
+            if propertyId == valueString:
                 nUuidColumns += 1
                 temp = column['valueUrl'].partition('-{')[2]
                 statementUuidColumn = temp.partition('}')[0] # in the event of two columns with the same property ID, the last one is used
