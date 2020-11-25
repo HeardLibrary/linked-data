@@ -8,10 +8,21 @@ from time import sleep
 import json
 import csv
 import os
+import sys # Read CLI arguments
 
 # ----------------
 # Configuration settings
 # ----------------
+
+if len(sys.argv) == 2: # if exactly one argument passed (i.e. the configuration file path)
+    config_path = sys.argv[1] # sys.argv[0] is the script name
+else:
+    config_path = 'config.json'
+
+
+with open(config_path, 'rt', encoding='utf-8') as file_object:
+    file_text = file_object.read()
+config = json.loads(file_text)
 
 sparql_sleep = 0.1 # number of seconds to wait between queries to SPARQL endpoint
 home = str(Path.home()) # gets path to home directory; supposed to work for both Win and Mac
@@ -553,9 +564,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 # Beginning of main script
 # ----------------
 
-with open('config_gallery.json', 'rt', encoding='utf-8') as file_object:
-    file_text = file_object.read()
-config = json.loads(file_text)
+# Note: value of config is set at top of script
 
 data_path = config['data_path']
 item_source_csv = config['item_source_csv'] 
