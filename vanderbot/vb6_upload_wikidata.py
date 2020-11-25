@@ -949,9 +949,9 @@ for table in tables:  # The script can handle multiple tables because that optio
 
             # find columns that contain properties with entity values, literal values that are URLs, or value node values
             elif 'valueUrl' in column:
-                propertiesLangList.append('')
                 # only add columns that have "statement" properties
                 if 'prop/statement/' in column['propertyUrl']:
+                    propertiesLangList.append('')
                     if 'prop/statement/value/' in column['propertyUrl']: # value is a value node (e.g. date or geo coordinates)
                         found = True
                         propColumnHeader = column['titles'].partition('_nodeId')[0] # save only the root of the column name for value nodes
