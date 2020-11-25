@@ -1447,86 +1447,87 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 print('Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
                             tableData[rowNumber][propertiesUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
 
-                            # Search for each reference type (set of reference properties) that's being tracked for a particular property's statements
-                            for tableReference in referencesForStatement: # loop will not be executed when length of referenceForStatement = 0 (no references tracked for this property)
-                                # Check for an exact match of reference properties and their values (since we're looking for reference for a statement that was written)
-                                # Step through each reference that came back for the statement we are interested in
-                                for responseReference in statement['references']: # "outer loop"
-                                    # Perform a screening process on each returned reference by stepping through each property associated with a refernce type
-                                    # and trying to match it. If the path to the value doesn't exist, there will be an exception and that reference 
-                                    # can be ignored. Only if the values for all of the reference properties match will the hash be recorded.
-                                    referenceMatch = True
-                                    for referencePropertyIndex in range(0, len(tableReference['refPropList'])): # "inner loop" to check each property in the reference
-                                        try:
-                                            # First try to see if the values in the response JSON for the property match
-                                            if tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'value':
-                                                # The values for value nodes are buried a layer deeper in the JSON than other types.
-                                                if tableReference['refTypeList'][referencePropertyIndex] == 'time':
-                                                    # need to handle negative dates (BCE)
-                                                    if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
-                                                        # make comparison with the leading minus present
-                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                            if 'references' in statement: # skip reference checking if the item doesn't have any references
+                                # Search for each reference type (set of reference properties) that's being tracked for a particular property's statements
+                                for tableReference in referencesForStatement: # loop will not be executed when length of referenceForStatement = 0 (no references tracked for this property)
+                                    # Check for an exact match of reference properties and their values (since we're looking for reference for a statement that was written)
+                                    # Step through each reference that came back for the statement we are interested in
+                                    for responseReference in statement['references']: # "outer loop"
+                                        # Perform a screening process on each returned reference by stepping through each property associated with a refernce type
+                                        # and trying to match it. If the path to the value doesn't exist, there will be an exception and that reference 
+                                        # can be ignored. Only if the values for all of the reference properties match will the hash be recorded.
+                                        referenceMatch = True
+                                        for referencePropertyIndex in range(0, len(tableReference['refPropList'])): # "inner loop" to check each property in the reference
+                                            try:
+                                                # First try to see if the values in the response JSON for the property match
+                                                if tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'value':
+                                                    # The values for value nodes are buried a layer deeper in the JSON than other types.
+                                                    if tableReference['refTypeList'][referencePropertyIndex] == 'time':
+                                                        # need to handle negative dates (BCE)
+                                                        if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
+                                                            # make comparison with the leading minus present
+                                                            if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                                referenceMatch = False
+                                                                break # kill the inner loop because this value doesn't match
+                                                        else:
+                                                            # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                                            # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
+                                                            if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                                referenceMatch = False
+                                                                break # kill the inner loop because this value doesn't match
+                                                    elif tableReference['refTypeList'][referencePropertyIndex] == 'quantity':
+                                                        # need to handle negative quantities
+                                                        if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
+                                                            # make comparison with the leading minus present
+                                                            if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                                referenceMatch = False
+                                                                break # kill the inner loop because this value doesn't match
+                                                        else:
+                                                            # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                                            # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
+                                                            if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
+                                                                referenceMatch = False
+                                                                break # kill the inner loop because this value doesn't match
+                                                    elif tableReference['refTypeList'][referencePropertyIndex] == 'globe-coordinate':
+                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['latitude'] != float(tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']):
                                                             referenceMatch = False
                                                             break # kill the inner loop because this value doesn't match
-                                                    else:
-                                                        # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
-                                                        # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
-                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['time'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
-                                                            referenceMatch = False
-                                                            break # kill the inner loop because this value doesn't match
-                                                elif tableReference['refTypeList'][referencePropertyIndex] == 'quantity':
-                                                    # need to handle negative quantities
-                                                    if tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val'][0] == '-':
-                                                        # make comparison with the leading minus present
-                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
-                                                            referenceMatch = False
-                                                            break # kill the inner loop because this value doesn't match
-                                                    else:
-                                                        # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
-                                                        # Note that this assumes the first value for a particular reference property. It appears to be unusual for there to be more than one.
-                                                        if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['amount'] != '+' + tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']:
-                                                            referenceMatch = False
-                                                            break # kill the inner loop because this value doesn't match
-                                                elif tableReference['refTypeList'][referencePropertyIndex] == 'globe-coordinate':
-                                                    if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['latitude'] != float(tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex] + '_val']):
+
+                                                    else: # unsupported value types
+                                                        pass
+                                                elif tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'monolingualtext':
+                                                    # The monolingual text (language-tagged literals) have an additional layer "text" within the value
+                                                    if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['text'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]] and responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['language'] != tableReference['refLangList'][referencePropertyIndex]:
                                                         referenceMatch = False
                                                         break # kill the inner loop because this value doesn't match
+                                                else: # Values for types other than node-valued have direct literal values of 'value'
+                                                    if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
+                                                        referenceMatch = False
+                                                        break # kill the inner loop because this value doesn't match
+                                                # So far, so good -- the value for this property matches
+                                            except:
+                                                # An exception occured because the JSON "path" to the value didn't match. So this isn't the right property
+                                                referenceMatch = False
+                                                break # kill the inner loop because the property doesn't match
 
-                                                else: # unsupported value types
-                                                    pass
-                                            elif tableReference['refEntityOrLiteral'][referencePropertyIndex] == 'monolingualtext':
-                                                # The monolingual text (language-tagged literals) have an additional layer "text" within the value
-                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['text'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]] and responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value']['language'] != tableReference['refLangList'][referencePropertyIndex]:
-                                                    referenceMatch = False
-                                                    break # kill the inner loop because this value doesn't match
-                                            else: # Values for types other than node-valued have direct literal values of 'value'
-                                                if responseReference['snaks'][tableReference['refPropList'][referencePropertyIndex]][0]['datavalue']['value'] != tableData[rowNumber][tableReference['refValueColumnList'][referencePropertyIndex]]:
-                                                    referenceMatch = False
-                                                    break # kill the inner loop because this value doesn't match
-                                            # So far, so good -- the value for this property matches
-                                        except:
-                                            # An exception occured because the JSON "path" to the value didn't match. So this isn't the right property
-                                            referenceMatch = False
-                                            break # kill the inner loop because the property doesn't match
+                                            # OK, we got all the way through on this property with it and its value matching, so referenceMatch will still be True
+                                            # The inner loop can continue on to the next property to see if it and its value match.
 
-                                        # OK, we got all the way through on this property with it and its value matching, so referenceMatch will still be True
-                                        # The inner loop can continue on to the next property to see if it and its value match.
+                                        # If we got to this point, the inner loop completed withoug being killed. referenceMatch should still be True
+                                        # So this is a match to the reference that we wrote and we need to grab the reference hash
+                                        tableData[rowNumber][tableReference['refHashColumn']] = responseReference['hash']
+                                        # It is not necessary to continue on with the next iteration of the outer loop since we found the reference we wanted.
+                                        # So we can kill the outer loop with the value of referenceMatch being True
+                                        break
 
-                                    # If we got to this point, the inner loop completed withoug being killed. referenceMatch should still be True
-                                    # So this is a match to the reference that we wrote and we need to grab the reference hash
-                                    tableData[rowNumber][tableReference['refHashColumn']] = responseReference['hash']
-                                    # It is not necessary to continue on with the next iteration of the outer loop since we found the reference we wanted.
-                                    # So we can kill the outer loop with the value of referenceMatch being True
-                                    break
+                                    # At this point, the outer loop is finished. Either a response reference has matched or all response references have been checked.
+                                    # Since this check only happens for newly written statements, referenceMatch should always be True since the exact reference was written.
+                                    # But better give an error message if for some reason no reference matched.
+                                    if referenceMatch == False:
+                                        print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                                        print('Reference  ', tableReference)
 
-                                # At this point, the outer loop is finished. Either a response reference has matched or all response references have been checked.
-                                # Since this check only happens for newly written statements, referenceMatch should always be True since the exact reference was written.
-                                # But better give an error message if for some reason no reference matched.
-                                if referenceMatch == False:
-                                    print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
-                                    print('Reference  ', tableReference)
-
-                                # The script will now move on to checking the next reference in the table.
+                                    # The script will now move on to checking the next reference in the table.
 
                     # Print this error message only if there is not match to any of the values after looping through all of the matching properties
                     # This should never happen because this code is only executed when the statement doesn't have a UUID (i.e. not previously written)
