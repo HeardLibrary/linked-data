@@ -1,0 +1,14 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.wikidata.org/entity/Q86754582> <http://www.wikidata.org/prop/P625> <http://www.wikidata.org/entity/statement/Q86754582-EA0D64DE-9661-41AA-9AE9-812AB2799C39> .
+
+<http://example.com/.well-known/genid/f46b537c-676f-4a57-88f8-fed3c052c7b8> <http://wikiba.se/ontology#geoLatitude> "39.333611"^^xsd:float;
+  <http://wikiba.se/ontology#geoLongitude> "-85.973611"^^xsd:float;
+  <http://wikiba.se/ontology#geoPrecision> "0.01"^^xsd:float .
+
+<http://www.wikidata.org/entity/statement/Q86754582-EA0D64DE-9661-41AA-9AE9-812AB2799C39> prov:wasDerivedFrom <http://www.wikidata.org/reference/de5758ff0250a2f1746e381bc79d3b2ca4bfecff>;
+  <http://www.wikidata.org/prop/statement/value/P625> <http://example.com/.well-known/genid/f46b537c-676f-4a57-88f8-fed3c052c7b8> .
+
+<http://www.wikidata.org/reference/de5758ff0250a2f1746e381bc79d3b2ca4bfecff> <http://www.wikidata.org/prop/reference/P143> <http://www.wikidata.org/entity/Q328>;
+  <http://www.wikidata.org/prop/reference/P4656> <https://en.wikipedia.org/w/index.php?title=Pleasant_View_Village,_Indiana&oldid=942655251> .

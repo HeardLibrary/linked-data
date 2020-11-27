@@ -1,0 +1,27 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.wikidata.org/entity/Q80566046> <http://www.wikidata.org/prop/P2048> <http://www.wikidata.org/entity/statement/Q80566046-C3479869-73B3-4147-81A5-EB878026C033>;
+  <http://www.wikidata.org/prop/P2049> <http://www.wikidata.org/entity/statement/Q80566046-BBAF8E0E-2FA5-4E8A-A00C-47FC5C1817B2> .
+
+<http://example.com/.well-known/genid/364b9dca-163a-4911-ba31-8aede61a24a5> <http://wikiba.se/ontology#quantityAmount> 51.25;
+  <http://wikiba.se/ontology#quantityUnit> <http://www.wikidata.org/entity/Q218593> .
+
+<http://example.com/.well-known/genid/4b854bcd-f5cb-4a4b-b988-5525122b9b83> <http://wikiba.se/ontology#timePrecision> 11;
+  <http://wikiba.se/ontology#timeValue> "2020-11-10T00:00:00Z"^^xsd:dateTime .
+
+<http://example.com/.well-known/genid/78cc1e9e-68a4-4c4d-88fa-5487b519d98d> <http://wikiba.se/ontology#timePrecision> 11;
+  <http://wikiba.se/ontology#timeValue> "2020-11-10T00:00:00Z"^^xsd:dateTime .
+
+<http://example.com/.well-known/genid/851dee0b-341c-478c-930a-062b479cfe89> <http://wikiba.se/ontology#quantityAmount> 28.0;
+  <http://wikiba.se/ontology#quantityUnit> <http://www.wikidata.org/entity/Q218593> .
+
+<http://www.wikidata.org/entity/statement/Q80566046-BBAF8E0E-2FA5-4E8A-A00C-47FC5C1817B2> prov:wasDerivedFrom <http://www.wikidata.org/reference/b113c41e47fc3426c8bc9bad706985043b5f85ea>;
+  <http://www.wikidata.org/prop/statement/value/P2049> <http://example.com/.well-known/genid/851dee0b-341c-478c-930a-062b479cfe89> .
+
+<http://www.wikidata.org/entity/statement/Q80566046-C3479869-73B3-4147-81A5-EB878026C033> prov:wasDerivedFrom <http://www.wikidata.org/reference/b113c41e47fc3426c8bc9bad706985043b5f85ea>;
+  <http://www.wikidata.org/prop/statement/value/P2048> <http://example.com/.well-known/genid/364b9dca-163a-4911-ba31-8aede61a24a5> .
+
+<http://www.wikidata.org/reference/b113c41e47fc3426c8bc9bad706985043b5f85ea> <http://www.wikidata.org/prop/reference/P854> <https://library-artstor-org.proxy.library.vanderbilt.edu/asset/26754871>;
+  <http://www.wikidata.org/prop/reference/value/P813> <http://example.com/.well-known/genid/4b854bcd-f5cb-4a4b-b988-5525122b9b83>,
+    <http://example.com/.well-known/genid/78cc1e9e-68a4-4c4d-88fa-5487b519d98d> .
