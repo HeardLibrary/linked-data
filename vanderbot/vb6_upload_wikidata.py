@@ -1,4 +1,4 @@
-# VanderBot v1.6.1 (2020-11-25) vb6_upload_wikidata.py
+# VanderBot v1.6.2 (2020-12-01) vb6_upload_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
