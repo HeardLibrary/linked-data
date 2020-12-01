@@ -80,6 +80,9 @@
 # - Bug fixes including a problem that prevented the language of a monolingual string to be assigned properly, ambiguity about property columns
 #   when one property ID was a subset of another (e.g. P17 and P170), and an error generated when a statement had a reference column, but the
 #   item in Wikidata did not have any value assigned.
+# -----------------------------------------
+# Version 1.6.2 change notes (2020-12-01):
+# - Fixes a bug where an error was raised when a reference property did not have a value.
 
 import json
 import requests
@@ -166,7 +169,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     # configuration settings
     endpointUrl = 'https://query.wikidata.org/sparql'
     acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/1.6.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    userAgentHeader = 'VanderBot/1.6.2 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
     'Content-Type': 'application/sparql-query',
     'Accept' : acceptMediaType,
