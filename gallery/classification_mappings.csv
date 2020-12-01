@@ -1,0 +1,65 @@
+string,qid,label
+Applied Arts,Q838948,work of art
+Artifact,Q8205328,artificial physical object
+Artists' Books,Q1062404,artist's book
+Artists' Books24.,Q1062404,artist's book
+Ceramics,Q13464614,ceramics
+Coins,Q41207,coin
+Currency,Q8142,currency
+Decorative Arts,Q838948,work of art
+Decorative Arts-Sculpture,Q860861,sculpture
+Documents,Q49848,document
+Furniture,Q14745,furniture
+Graphic Art-Printmaking,Q11060274,print
+Graphic Arts,Q478798,image
+Graphic Arts - Printmaking,Q11060274,print
+Graphic Arts-Drawing,Q93184,drawing
+Graphic Arts-Painting,Q3305213,painting
+Graphic Arts-Photography,Q125191,photograph
+Graphic Arts-Printmaking,Q11060274,print
+Graphic Arts-printmaking,Q11060274,print
+Manuscript,Q87167,manuscript
+Masks,Q161524,mask
+Painting,Q3305213,painting
+Paintings,Q3305213,painting
+Paintings ,Q3305213,painting
+Photography,Q125191,photograph
+Photography-Graphic Arts,Q125191,photograph
+Poster,Q429785,poster
+Pottery,Q11642,pottery
+Printing Block,Q20820214,printing block
+Printing Blocks,Q20820214,printing block
+Printmaking,Q11060274,print
+Prints,Q11060274,print
+Scroll Paintings,Q19969434,scroll painting
+Scroll paintings,Q19969434,scroll painting
+Sculpture,Q860861,sculpture
+Sound Recording,Q3302947,audio recording
+Stone,Q22731,stone
+Textiles,Q28823,textile
+Tool,Q39546,tool
+Tools,Q39546,tool
+Weapons,Q728,weapon
+artists' books,Q1062404,artist's book
+bracelet,Q201664,bracelet
+ceramics,Q13464614,ceramics
+ceramics ,Q13464614,ceramics
+ceramics (objects),Q13464614,ceramics
+ceremonial masks,Q161524,mask
+ceremonial weapons,Q728,weapon
+decorative arts,Q838948,work of art
+drawing,Q93184,drawing
+drawing (image-making),Q93184,drawing
+manuscript,Q87167,manuscript
+masks (costume),Q161524,mask
+musical instruments,Q34379,musical instrument
+paintings,Q3305213,painting
+paintings (visual works),Q3305213,painting
+printmaking,Q11060274,print
+scroll paintings,Q19969434,scroll painting
+sculpture (visual work),Q860861,sculpture
+seating furniture,Q14745,furniture
+shields (armor),Q131559,shield
+shoes (footwear),Q22676,shoe
+weapons,Q728,weapon
+yarn,Q49007,yarn

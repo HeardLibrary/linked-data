@@ -1,0 +1,51 @@
+field_name,property_name,PID,value_type
+what do we use for the references on everything???,,,
+ssid,,,local primary key
+filename,,,
+title,title,P1476,monolingual text (en)
+label,label,rdfs:label,append accession number to title as necessary to make unique
+description,description,schema:description,construct from instance of and creator
+creator_string,,,"suppress output, map to creator item"
+creator,creator,P170,item
+date,,,
+classification,,,"suppress output, map to instance_of item"
+instance_of,instance of,P31,item
+medium,,,suppress output
+material_used,material used,P186,"item, derive this from medium (manage separately since multiple materials)"
+measurements,,,"suppress output, parsed to dimensions"
+style_period,,,
+country_culture,,,"suppress output, map to country (don't attempt to manage culture at the moment)"
+country,country,P17,"item, duplicate this value with country of origin: P495"
+seals_inscriptions,inscription,P1684,"monolingual text, use zxx for no linguistic content (too much cleanup for now)"
+signature,,,
+description,,,
+publications,,,
+exhibitions,,,
+accession_number,inventory number,P217,string
+[hard code],collection,P195,item qualifier of inventory number with constant Q18563658 (VU Fine Arts Gallery)
+date_acquired,,,"suppress, clean up to get start date for collection"
+gift_of,,,
+purchased_from,,,
+credit_line,,,
+provenance,,,
+collection,,,
+last_change,,,
+notes,,,
+rights,,,
+media_url,,,
+height,height,P2048,
+width,width,P2049,
+depth,thickness,P2610,
+diameter,diameter,P2386,
+inception,,,suppress output
+inception_val,inception,P571,date
+inception_prec,inception,P571,date
+earliest_date_val,earliest date,P1319,date qualifier of inception
+earliest_date_prec,earliest date,P1319,date qualifier of inception
+latest_date_val,latest date,P1326,date qualifier of inception
+latest_date_prec,latest date,P1326,date qualifier of inception
+sourcing_circumstances,sourcing circumstances,P1480,item qualifier of inception with constant Q5727902 (circa)
+?,image,P18,leave for now
+[hard code],collection,P195,item with constant Q18563658 (VU Fine Arts Gallery)
+collection_start_time,start time,P580,date qualifier of collection
+[hard code],location,P276,item with constant Q29052 (Vanderbilt University)
