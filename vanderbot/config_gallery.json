@@ -8,7 +8,7 @@
       "label_description_language_list": [
         "en"
       ],
-      "output_file_name": "works_multiprop.txt",
+      "output_file_name": "works_multiprop.csv",
       "prop_list": [
         {
           "pid": "P217",
