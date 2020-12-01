@@ -34,7 +34,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current beta release is [v1.6.1](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.1).
+The current beta release is [v1.6.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.2).
 
 The last stable release is [v1.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.4).
 
@@ -170,5 +170,9 @@ Version 1.6 only affects the API-writing script (vb6_upload_wikidata.py). The ot
 
 Version 1.6.1 is a minor upgrade that fixes several bugs discovered during testing. It also adds the script 'acquire_wikidata_metadata.py`, which is configurable to download existing data from Wikidata into CSV format compatible with the VanderBot scripts.
 
+## Release v1.6.2 (2020-12-01)
+
+Version 1.6.2 is a minor upgrade that fixes a bug in the upload script `vb6_upload_wikidata.py` that was preventing the script from capturing reference hashes when an item didn't have a value for one of the possible reference properties.
+
 ----
-Revised 2020-11-25
+Revised 2020-12-01
