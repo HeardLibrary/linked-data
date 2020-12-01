@@ -8,7 +8,7 @@ VanderBot is a set of Python scripts that scrapes data from departmental website
 
 For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
-**Important note:** As far as I know, v1.6.1 has fixed the issues with v1.5 in addition to adding additional capabilities. However, v1.6.1 should still probably be consiered beta, with v1.4 as the last stable release.
+**Important note:** As far as I know, v1.6.2 has fixed the issues with v1.5 in addition to adding additional capabilities. However, v1.6.2 should still probably be consiered beta, with v1.4 as the last stable release.
 
 ## Description
 
