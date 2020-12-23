@@ -8,8 +8,6 @@ VanderBot is a set of Python scripts that scrapes data from departmental website
 
 For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
-**Important note:** As far as I know, v1.6.2 has fixed the issues with v1.5 in addition to adding additional capabilities. However, v1.6.2 should still probably be consiered beta, with v1.4 as the last stable release.
-
 ## Description
 
 This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
@@ -34,9 +32,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current beta release is [v1.6.2](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.2).
-
-The last stable release is [v1.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.4).
+The current release is [v1.6.3](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.3).
 
 ## How it works
 
@@ -174,5 +170,13 @@ Version 1.6.1 is a minor upgrade that fixes several bugs discovered during testi
 
 Version 1.6.2 is a minor upgrade that fixes a bug in the upload script `vb6_upload_wikidata.py` that was preventing the script from capturing reference hashes when an item didn't have a value for one of the possible reference properties.
 
+## Release v1.6.3 (2020-12-22)
+
+Version 1.6.3 is a minor upgrade that adds an updated version of the HTML, Javascript, and CSS for the web page that generates CSV metadata description JSON:
+- wikidata-csv2rdf-metadata.html
+- wikidata-csv2rdf-metadata.js
+- wikidata-csv2rdf-metadata.css
+The upgrade now supports monolingual string values the complex value types globecoordinate and quantities. Other scripts were not affected.
+
 ----
-Revised 2020-12-01
+Revised 2020-12-22
