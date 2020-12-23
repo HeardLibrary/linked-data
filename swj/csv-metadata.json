@@ -1,0 +1,26 @@
+{
+"@type": "TableGroup",
+"@context": "http://www.w3.org/ns/csvw",
+"tables": [
+  {
+  "url": "label_example.csv",
+  "tableSchema": {
+    "columns": [ 
+      {
+        "titles":"Q_ID",
+        "name":"qid",
+        "datatype":"string",
+        "suppressOutput":true
+      },
+      {
+        "titles":"English_label",
+        "name":"labelEn",
+        "datatype":"string",
+        "aboutUrl":"http://www.wikidata.org/entity/{qid}",
+        "propertyUrl":"rdfs:label",
+        "lang":"en"
+      }
+    ]
+    }
+  }
+]}
