@@ -176,6 +176,7 @@ Version 1.6.3 is a minor upgrade that adds an updated version of the HTML, Javas
 - wikidata-csv2rdf-metadata.html
 - wikidata-csv2rdf-metadata.js
 - wikidata-csv2rdf-metadata.css
+
 The upgrade now supports monolingual string values the complex value types globecoordinate and quantities. Other scripts were not affected.
 
 ----
