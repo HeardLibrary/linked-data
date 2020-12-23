@@ -1,0 +1,8 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.wikidata.org/entity/Q98569123> <http://www.wikidata.org/prop/P39> <http://www.wikidata.org/entity/statement/Q98569123-5B56773B-8730-4A9D-AD85-78F7ABA17225> .
+
+<http://example.com/.well-known/genid/3cf7cfe7-ee1d-49a9-b493-6a315b0ec219> <http://wikiba.se/ontology#timePrecision> 9;
+  <http://wikiba.se/ontology#timeValue> "1935-01-01T00:00:00Z"^^xsd:dateTime .
+
+<http://www.wikidata.org/entity/statement/Q98569123-5B56773B-8730-4A9D-AD85-78F7ABA17225> <http://www.wikidata.org/prop/qualifier/value/P580> <http://example.com/.well-known/genid/3cf7cfe7-ee1d-49a9-b493-6a315b0ec219> .

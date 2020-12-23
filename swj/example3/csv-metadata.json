@@ -1,0 +1,47 @@
+{
+"@type": "TableGroup",
+"@context": "http://www.w3.org/ns/csvw",
+"tables": [
+  {
+  "url": "bluffton_positions.csv",
+  "tableSchema": {
+    "columns": [ 
+      {
+      "titles":"Q_ID",
+      "name":"qid",
+      "datatype":"string",
+      "suppressOutput":true
+      },
+      {
+      "titles":"positionHeld_uuid",
+      "name":"positionHeld_uuid",
+      "datatype":"string",
+      "aboutUrl":"http://www.wikidata.org/entity/{qid}",
+      "propertyUrl":"http://www.wikidata.org/prop/P39",
+      "valueUrl":"http://www.wikidata.org/entity/statement/{qid}-{positionHeld_uuid}"
+      },
+      {
+     "titles":"positionHeld_startTime_nodeId",
+      "name":"positionHeld_startTime_nodeId",
+      "datatype":"string",
+      "aboutUrl":"http://www.wikidata.org/entity/statement/{qid}-{positionHeld_uuid}",
+      "propertyUrl":"http://www.wikidata.org/prop/qualifier/value/P580",
+      "valueUrl":"http://example.com/.well-known/genid/{positionHeld_startTime_nodeId}"
+      },
+      {
+      "titles":"positionHeld_startTime_val",
+      "name":"positionHeld_startTime_val",
+      "datatype":"dateTime",
+      "aboutUrl":"http://example.com/.well-known/genid/{positionHeld_startTime_nodeId}",
+      "propertyUrl":"http://wikiba.se/ontology#timeValue"
+      },
+      {
+      "titles":"positionHeld_startTime_prec",
+      "name":"positionHeld_startTime_prec",
+      "datatype":"integer",
+      "aboutUrl":"http://example.com/.well-known/genid/{positionHeld_startTime_nodeId}",
+      "propertyUrl":"http://wikiba.se/ontology#timePrecision"
+      }
+    ]}
+  }
+]}

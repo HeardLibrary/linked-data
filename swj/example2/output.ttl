@@ -1,0 +1,7 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://www.wikidata.org/entity/statement/Q98569121-1A5B3DE9-92D1-41DD-9AFF-66701CA2892B> prov:wasDerivedFrom <http://www.wikidata.org/reference/8201f36c07b460d76ca1b61a2cca6d09913500fd> .
+
+<http://www.wikidata.org/entity/statement/Q98569123-D6C927AD-64B1-4212-A3EA-7FB6309F5A96> prov:wasDerivedFrom <http://www.wikidata.org/reference/8201f36c07b460d76ca1b61a2cca6d09913500fd> .
+
+<http://www.wikidata.org/reference/8201f36c07b460d76ca1b61a2cca6d09913500fd> <http://www.wikidata.org/prop/reference/P854> <https://www.bluffton.edu/about/leadership/past-presidents.aspx> .

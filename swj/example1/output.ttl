@@ -1,0 +1,8 @@
+
+<http://www.wikidata.org/entity/Q98569121> <http://www.wikidata.org/prop/P31> <http://www.wikidata.org/entity/statement/Q98569121-48750747-669C-4124-BB3C-EE8F8559A265> .
+
+<http://www.wikidata.org/entity/Q98569123> <http://www.wikidata.org/prop/P31> <http://www.wikidata.org/entity/statement/Q98569123-EFF1EFC4-7ECD-48E0-BE78-CB3DB55136B1> .
+
+<http://www.wikidata.org/entity/statement/Q98569121-48750747-669C-4124-BB3C-EE8F8559A265> <http://www.wikidata.org/prop/statement/P31> <http://www.wikidata.org/entity/Q5> .
+
+<http://www.wikidata.org/entity/statement/Q98569123-EFF1EFC4-7ECD-48E0-BE78-CB3DB55136B1> <http://www.wikidata.org/prop/statement/P31> <http://www.wikidata.org/entity/Q5> .

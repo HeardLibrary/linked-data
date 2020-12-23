@@ -1,0 +1,40 @@
+{
+    "@type": "TableGroup",
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [
+      {
+      "url": "bluffton_employees.csv",
+      "tableSchema": {
+        "columns": [ 
+          {
+          "titles":"Q_ID",
+          "name":"qid",
+          "datatype":"string",
+          "suppressOutput":true
+          },
+          {
+            "titles":"employer_uuid",
+            "name":"employer_uuid",
+            "datatype":"string",
+            "suppressOutput":true
+          },
+          {
+          "titles":"employer_ref1_hash",
+          "name":"employer_ref1_hash",
+          "datatype":"string",
+          "aboutUrl":"http://www.wikidata.org/entity/statement/{qid}-{employer_uuid}",
+          "propertyUrl":"prov:wasDerivedFrom",
+          "valueUrl":"http://www.wikidata.org/reference/{employer_ref1_hash}"
+          },
+          {
+          "titles":"employer_ref1_referenceUrl",
+          "name":"employer_ref1_referenceUrl",
+          "datatype":"string",
+          "aboutUrl":"http://www.wikidata.org/reference/{employer_ref1_hash}",
+          "propertyUrl":"http://www.wikidata.org/prop/reference/P854",
+          "valueUrl":"{+employer_ref1_referenceUrl}"
+          }
+        ]}
+      }
+    ]}
+    
