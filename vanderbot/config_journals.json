@@ -53,6 +53,46 @@
       "label_description_language_list": [
         "en"
       ],
+      "output_file_name": "titles/journals-title-af.csv",
+      "prop_list": [
+        {
+          "pid": "P1476",
+          "variable": "title_af",
+          "value_type": "monolingualtext",
+          "language": "af",
+          "qual": [
+            {
+              "pid": "P1680",
+              "variable": "subtitle",
+              "value_type": "monolingualtext",
+              "language": "af"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
       "output_file_name": "titles/journals-title-de.csv",
       "prop_list": [
         {
@@ -66,166 +106,6 @@
               "variable": "subtitle",
               "value_type": "monolingualtext",
               "language": "de"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "titles/journals-title-la.csv",
-      "prop_list": [
-        {
-          "pid": "P1476",
-          "variable": "title_la",
-          "value_type": "monolingualtext",
-          "language": "la",
-          "qual": [
-            {
-              "pid": "P1680",
-              "variable": "subtitle",
-              "value_type": "monolingualtext",
-              "language": "la"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "titles/journals-title-fr.csv",
-      "prop_list": [
-        {
-          "pid": "P1476",
-          "variable": "title_fr",
-          "value_type": "monolingualtext",
-          "language": "fr",
-          "qual": [
-            {
-              "pid": "P1680",
-              "variable": "subtitle",
-              "value_type": "monolingualtext",
-              "language": "fr"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "titles/journals-title-it.csv",
-      "prop_list": [
-        {
-          "pid": "P1476",
-          "variable": "title_it",
-          "value_type": "monolingualtext",
-          "language": "it",
-          "qual": [
-            {
-              "pid": "P1680",
-              "variable": "subtitle",
-              "value_type": "monolingualtext",
-              "language": "it"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "titles/journals-title-pt.csv",
-      "prop_list": [
-        {
-          "pid": "P1476",
-          "variable": "title_pt",
-          "value_type": "monolingualtext",
-          "language": "pt",
-          "qual": [
-            {
-              "pid": "P1680",
-              "variable": "subtitle",
-              "value_type": "monolingualtext",
-              "language": "pt"
             }
           ],
           "ref": [
@@ -293,19 +173,19 @@
       "label_description_language_list": [
         "en"
       ],
-      "output_file_name": "titles/journals-title-sk.csv",
+      "output_file_name": "titles/journals-title-fr.csv",
       "prop_list": [
         {
           "pid": "P1476",
-          "variable": "title_sk",
+          "variable": "title_fr",
           "value_type": "monolingualtext",
-          "language": "sk",
+          "language": "fr",
           "qual": [
             {
               "pid": "P1680",
               "variable": "subtitle",
               "value_type": "monolingualtext",
-              "language": "sk"
+              "language": "fr"
             }
           ],
           "ref": [
@@ -373,19 +253,19 @@
       "label_description_language_list": [
         "en"
       ],
-      "output_file_name": "titles/journals-title-nb.csv",
+      "output_file_name": "titles/journals-title-it.csv",
       "prop_list": [
         {
           "pid": "P1476",
-          "variable": "title_nb",
+          "variable": "title_it",
           "value_type": "monolingualtext",
-          "language": "nb",
+          "language": "it",
           "qual": [
             {
               "pid": "P1680",
               "variable": "subtitle",
               "value_type": "monolingualtext",
-              "language": "nb"
+              "language": "it"
             }
           ],
           "ref": [
@@ -453,21 +333,323 @@
       "label_description_language_list": [
         "en"
       ],
-      "output_file_name": "titles/journals-title-af.csv",
+      "output_file_name": "titles/journals-title-la.csv",
       "prop_list": [
         {
           "pid": "P1476",
-          "variable": "title_af",
+          "variable": "title_la",
           "value_type": "monolingualtext",
-          "language": "af",
+          "language": "la",
           "qual": [
             {
               "pid": "P1680",
               "variable": "subtitle",
               "value_type": "monolingualtext",
-              "language": "af"
+              "language": "la"
             }
           ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "titles/journals-title-nb.csv",
+      "prop_list": [
+        {
+          "pid": "P1476",
+          "variable": "title_nb",
+          "value_type": "monolingualtext",
+          "language": "nb",
+          "qual": [
+            {
+              "pid": "P1680",
+              "variable": "subtitle",
+              "value_type": "monolingualtext",
+              "language": "nb"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "titles/journals-title-pt.csv",
+      "prop_list": [
+        {
+          "pid": "P1476",
+          "variable": "title_pt",
+          "value_type": "monolingualtext",
+          "language": "pt",
+          "qual": [
+            {
+              "pid": "P1680",
+              "variable": "subtitle",
+              "value_type": "monolingualtext",
+              "language": "pt"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "titles/journals-title-sk.csv",
+      "prop_list": [
+        {
+          "pid": "P1476",
+          "variable": "title_sk",
+          "value_type": "monolingualtext",
+          "language": "sk",
+          "qual": [
+            {
+              "pid": "P1680",
+              "variable": "subtitle",
+              "value_type": "monolingualtext",
+              "language": "sk"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "journals-instanceof.csv",
+      "prop_list": [
+        {
+          "pid": "P31",
+          "variable": "instance_of",
+          "value_type": "item",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "journals-issn.csv",
+      "prop_list": [
+        {
+          "pid": "P236",
+          "variable": "issn",
+          "value_type": "string",
+          "qual": [
+            {
+              "pid": "P437",
+              "variable": "distribution_format",
+              "value_type": "item"
+            },
+            {
+              "pid": "P580",
+              "variable": "start_time",
+              "value_type": "date"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "journals-mainsubject.csv",
+      "prop_list": [
+        {
+          "pid": "P921",
+          "variable": "main_subject",
+          "value_type": "item",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "journals-publisher.csv",
+      "prop_list": [
+        {
+          "pid": "P123",
+          "variable": "publisher",
+          "value_type": "item",
+          "qual": [
+            {
+              "pid": "P580",
+              "variable": "start_time",
+              "value_type": "date"
+            },
+            {
+              "pid": "P582",
+              "variable": "end_time",
+              "value_type": "date"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "journals-worklanguage.csv",
+      "prop_list": [
+        {
+          "pid": "P407",
+          "variable": "language_of_work",
+          "value_type": "item",
+          "qual": [],
           "ref": [
             {
               "pid": "P248",
@@ -655,188 +837,6 @@
           "pid": "P2896",
           "variable": "publication_interval",
           "value_type": "quantity",
-          "qual": [],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "journals-publisher.csv",
-      "prop_list": [
-        {
-          "pid": "P123",
-          "variable": "publisher",
-          "value_type": "item",
-          "qual": [
-            {
-              "pid": "P580",
-              "variable": "start_time",
-              "value_type": "date"
-            },
-            {
-              "pid": "P582",
-              "variable": "end_time",
-              "value_type": "date"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "journals-instanceof.csv",
-      "prop_list": [
-        {
-          "pid": "P31",
-          "variable": "instance_of",
-          "value_type": "item",
-          "qual": [],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "journals-worklanguage.csv",
-      "prop_list": [
-        {
-          "pid": "P407",
-          "variable": "language_of_work",
-          "value_type": "item",
-          "qual": [],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "journals-issn.csv",
-      "prop_list": [
-        {
-          "pid": "P236",
-          "variable": "issn",
-          "value_type": "string",
-          "qual": [
-            {
-              "pid": "P437",
-              "variable": "distribution_format",
-              "value_type": "item"
-            },
-            {
-              "pid": "P580",
-              "variable": "start_time",
-              "value_type": "date"
-            }
-          ],
-          "ref": [
-            {
-              "pid": "P248",
-              "variable": "statedIn",
-              "value_type": "item"
-            },
-            {
-              "pid": "P854",
-              "variable": "referenceUrl",
-              "value_type": "uri"
-            },
-            {
-              "pid": "P813",
-              "variable": "retrieved",
-              "value_type": "date"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "manage_descriptions": false,
-      "label_description_language_list": [
-        "en"
-      ],
-      "output_file_name": "journals-mainsubject.csv",
-      "prop_list": [
-        {
-          "pid": "P921",
-          "variable": "main_subject",
-          "value_type": "item",
           "qual": [],
           "ref": [
             {
