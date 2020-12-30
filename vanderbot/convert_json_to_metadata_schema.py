@@ -128,7 +128,7 @@ def built_triple(struct, triple_structure, subject_column, prop, triple_type, co
     prop_url = 'http://www.wikidata.org/prop/' + triple_type + '/'
     if triple_structure['type'] == 'node':
         prop_url += 'value/'
-    dic['propertUrl'] = prop_url + prop
+    dic['propertyUrl'] = prop_url + prop
     if triple_structure['iri_stem'] != '':
         dic['valueUrl'] = triple_structure['iri_stem'] + column_name + '}'
     if triple_structure['lang_value']:
@@ -143,7 +143,7 @@ def build_value_node(column_list, value_structures, column_name):
         dic['name'] = column_name + node_prop['suffix']
         dic['datatype'] = node_prop['datatype']
         dic['aboutUrl'] = node_root_url + '{' + column_name + '_nodeId}'
-        dic['propertUrl'] = 'http://wikiba.se/ontology#' + node_prop['prop_localname']
+        dic['propertyUrl'] = 'http://wikiba.se/ontology#' + node_prop['prop_localname']
         if node_prop['item_value']:
             dic['valueUrl'] = 'http://www.wikidata.org/reference/{' + column_name + node_prop['suffix'] + '}'
         column_list.append(dic)
@@ -164,7 +164,7 @@ def build_statement(column_list, statement_data):
     dic['name'] = column_name + '_uuid'
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/{qid}'
-    dic['propertUrl'] = 'http://www.wikidata.org/prop/' + prop
+    dic['propertyUrl'] = 'http://www.wikidata.org/prop/' + prop
     dic['valueUrl'] = 'http://www.wikidata.org/entity/statement/{qid}-{' + column_name + '_uuid}'
     column_list.append(dic)
 
@@ -191,7 +191,7 @@ def build_references(column_list, subject_name, references_data):
     dic['name'] = subject_name + '_ref1_hash'
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/statement/{qid}-{' + subject_name + '_uuid}'
-    dic['propertUrl'] = 'prov:wasDerivedFrom'
+    dic['propertyUrl'] = 'prov:wasDerivedFrom'
     dic['valueUrl'] = 'http://www.wikidata.org/reference/{' + subject_name + '_ref1_hash}'
     column_list.append(dic)        
 
@@ -239,9 +239,9 @@ def build_label_description(language, kind):
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/{qid}'
     if kind == 'label':
-        dic['propertUrl'] = 'rdfs:label'
+        dic['propertyUrl'] = 'rdfs:label'
     else:
-        dic['propertUrl'] = 'schema:description'
+        dic['propertyUrl'] = 'schema:description'
     dic['lang'] = language
     return dic
 
