@@ -234,6 +234,7 @@ def build_qualifiers(column_list, subject_name, qualifiers_data):
 
 def build_label_description(language, kind):
     dic = {}
+    language = language.replace('-', '_')
     dic['titles'] = kind + '_' + language
     dic['name'] = kind + '_' + language
     dic['datatype'] = 'string'
