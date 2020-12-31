@@ -234,9 +234,8 @@ def build_qualifiers(column_list, subject_name, qualifiers_data):
 
 def build_label_description(language, kind):
     dic = {}
-    language = language.replace('-', '_')
-    dic['titles'] = kind + '_' + language
-    dic['name'] = kind + '_' + language
+    dic['titles'] = kind + '_' + language.replace('-', '_')
+    dic['name'] = kind + '_' + language.replace('-', '_')
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/{qid}'
     if kind == 'label':
