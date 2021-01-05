@@ -318,7 +318,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
     results = data['results']['bindings']
 
     print('done retrieving data')
-    # print(json.dumps(results, indent=2))
+    #print(json.dumps(results, indent=2))
 
     # ----------------
     # extract results

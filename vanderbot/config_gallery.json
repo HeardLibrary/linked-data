@@ -479,7 +479,7 @@
       "output_file_name": "works_depicts.csv",
       "prop_list": [
         {
-          "pid": "P108",
+          "pid": "P180",
           "variable": "depicts",
           "value_type": "item",
           "qual": [],
