@@ -1,0 +1,109 @@
+Time checked: 2020-12-26T14:35:51.869354
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T15:35:52.470429
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T16:35:52.753359
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T16:46:52.800914
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T16:57:52.820885
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T17:08:52.831336
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T17:19:52.840139
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T17:30:52.850903
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T17:41:52.859840
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T17:52:52.866867
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T18:03:52.885197
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T18:14:52.908675
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T18:25:52.925752
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T18:36:52.947317
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T19:36:53.635689
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T19:47:53.659869
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T19:58:53.681610
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T20:59:34.327049
+Error occurred, trying again in 10 minutes
+Time checked: 2020-12-26T21:10:34.338726
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T22:11:08.788009
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-26T23:11:09.505177
+Date last run: 2020-12-26
+UTC date now is: 2020-12-26
+
+Time checked: 2020-12-27T00:11:10.285793
+Date last run: 2020-12-26
+UTC date now is: 2020-12-27
+Item counts (university-wide):
+vu_total
+vu_men
+vu_women
+vu_orcid
+vu_works
+vu_men_works
+vu_women_works
+{'commit': Commit(sha="1d56ef9048bce14aac48df7cda4a2df80a32071b"), 'content': ContentFile(path="publications/data/vandycite_item_data.csv")}
+
+Item counts by unit:
+units_total
+{'commit': Commit(sha="d3c58ebcb684eca6df442c8e216cb8e6eb81d37c"), 'content': ContentFile(path="publications/data/units_total.csv")}
+units_women
+{'commit': Commit(sha="17e7c4e305a59d586da0d610c80674b2c1e2a791"), 'content': ContentFile(path="publications/data/units_women.csv")}
+units_men
+{'commit': Commit(sha="770f4c9e7dbbe8facb57595abf1ba4f4d7a8761e"), 'content': ContentFile(path="publications/data/units_men.csv")}
+units_orcid
+{'commit': Commit(sha="6a82c9c488641260747124cd602a48b3220342cc"), 'content': ContentFile(path="publications/data/units_orcid.csv")}
+units_works
+{'commit': Commit(sha="8df1bf90f763214c456982c44c5e99b8eb221a49"), 'content': ContentFile(path="publications/data/units_works.csv")}
+units_works_men
+{'commit': Commit(sha="4934ec734943c3a2ea297a01436ea98d509ac908"), 'content': ContentFile(path="publications/data/units_works_men.csv")}
+units_works_women
+{'commit': Commit(sha="a03d665752272da0687ccb806bf2521633452c87"), 'content': ContentFile(path="publications/data/units_works_women.csv")}
+
+Contributions
+Clifford_Anderson
+Baskaufs
+Fmlester
+Ramonavromero
+Talinum
+Celiaswalker
+CatonMA2
+Gridersd
+JeffBTaylor
+Marjans74
+Charlotte_Y._Lew
+KukanaLuika
+VanderBot
+{'commit': Commit(sha="67ecfefade928ea6d31843fd43d31fce3a1f2c42"), 'content': ContentFile(path="publications/data/vandycite_edit_data.csv")}
+done
+
+Time checked: 2020-12-27T01:12:50.760783
+Date last run: 2020-12-27
+UTC date now is: 2020-12-27
+
+Time checked: 2020-12-27T02:12:51.194540
+Date last run: 2020-12-27
+UTC date now is: 2020-12-27
