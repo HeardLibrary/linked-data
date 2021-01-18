@@ -179,7 +179,8 @@ def build_statement(column_list, statement_data):
     column_list = build_qualifiers(column_list, column_name, statement_data['qual'])
     
     # Build reference triples
-    column_list = build_references(column_list, column_name, statement_data['ref'])
+    if len(statement_data['ref']) > 0:
+        column_list = build_references(column_list, column_name, statement_data['ref'])
     
     return column_list
 
