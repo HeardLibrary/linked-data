@@ -497,10 +497,11 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 
             # Remove rows whose references don't match those in the original file.
             for prop in prop_list:
-                ref_col_name = prop['variable'] + '_ref1_hash'
-                old_ref_hash = old_row[ref_col_name]
-                if len(matching_rows) > 1:
-                    matching_rows = remove_multiples(matching_rows, ref_col_name, old_ref_hash)
+                if len(prop['ref']) != 0:
+                    ref_col_name = prop['variable'] + '_ref1_hash'
+                    old_ref_hash = old_row[ref_col_name]
+                    if len(matching_rows) > 1:
+                        matching_rows = remove_multiples(matching_rows, ref_col_name, old_ref_hash)
 
             # It's possible that two rows will have different values for a property but the same reference
             # So look for the statement UUID that matches the UUID in the original file and eliminate others.
