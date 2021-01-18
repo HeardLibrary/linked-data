@@ -322,7 +322,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
     results = data['results']['bindings']
 
     print('done retrieving data')
-    #print(json.dumps(results, indent=2))
+    # print(json.dumps(results, indent=2))
 
     # ----------------
     # extract results
@@ -362,7 +362,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                     row_dict[property['variable'] + '_nodeId'] = extract_qnumber(result[property['variable'] + '_nodeId']['value'])
                     row_dict[property['variable'] + '_val'] = result[property['variable'] + '_val']['value']
                     row_dict[property['variable'] + '_long'] = result[property['variable'] + '_long']['value']
-                    row_dict[property['variable'] + '_prec'] = result[property['variable'] + '_long']['_prec']
+                    row_dict[property['variable'] + '_prec'] = result[property['variable'] + '_prec']['value']
                 else:
                     row_dict[property['variable']] = result[property['variable']]['value']
             except:
