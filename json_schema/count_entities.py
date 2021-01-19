@@ -289,7 +289,8 @@ if all_iris:
                 final_result['label'] = result['label']['value']
                 final_result['count'] = extract_local_name(interim_result['count'])
                 break
-        output_list.append(final_result)
+        if final_result != {}:
+            output_list.append(final_result)
 else:
     output_list = list(interim_results)
 
