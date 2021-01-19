@@ -27,7 +27,7 @@ import datetime
 if len(sys.argv) == 2: # if exactly one argument passed (i.e. the configuration file path)
     file_path = sys.argv[1] # sys.argv[0] is the script name
 else:
-    file_path = 'bluffton_presidents.csv'
+    file_path = 'journal-div-qids.csv'
     #file_path = ''
 
 screening_query = '?qid wdt:P195 wd:Q18563658.' # items in the Fine Arts gallery

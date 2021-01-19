@@ -1,0 +1,24 @@
+value,label,count
+P407,language of work or name,4
+P495,country of origin,4
+P856,official website,4
+P1476,title,4
+P31,instance of,4
+P571,inception,3
+P2896,publication interval,2
+P236,ISSN,2
+P921,main subject,1
+P1058,ERA Journal ID,1
+P1156,Scopus source ID,1
+P1240,Danish Bibliometric Research Indicator level,1
+P1250,Danish Bibliometric Research Indicator (BFI) SNO/CNO,1
+P1270,Norwegian Register journal ID,1
+P1272,Norway Import Service and Registration Authority periodical code,1
+P1277,JUFO ID,1
+P2669,discontinued date,1
+P6981,ACNP journal ID,1
+P7363,ISSN-L,1
+P7662,Scilit journal ID,1
+P8375,Crossref journal ID,1
+P8875,indexed in bibliographic review,1
+P123,publisher,1
