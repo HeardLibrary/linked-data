@@ -4,7 +4,7 @@ The short link to this page is [vanderbi.lt/vanderbot](http://vanderbi.lt/vander
 
 ## Summary
 
-VanderBot is a set of Python scripts that scrapes data from departmental websites, then creates or updates researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. 
+VanderBot is a set of Python scripts that scrapes data from departmental websites, then creates or updates researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/managing-linked-open-data-wikidata-using-w3c-generating-rdf-tabular-data-web-recommendation) at the Semantic Web Journal.
 
 For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
@@ -180,4 +180,4 @@ Version 1.6.3 is a minor upgrade that adds an updated version of the HTML, Javas
 The upgrade now supports monolingual string values the complex value types globecoordinate and quantity. Other scripts were not affected.
 
 ----
-Revised 2020-12-22
+Revised 2021-01-26
