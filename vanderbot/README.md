@@ -32,7 +32,7 @@ Here are some queries that can be run to explore the data:
 
 [Number of clinical trials at Vanderbilt by principal investigator](https://w.wiki/XKK)
 
-The current release is [v1.6.3](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.3).
+The current release is [v1.6.4](https://github.com/HeardLibrary/linked-data/releases/tag/v1.6.4).
 
 ## How it works
 
@@ -179,5 +179,9 @@ Version 1.6.3 is a minor upgrade that adds an updated version of the HTML, Javas
 
 The upgrade now supports monolingual string values the complex value types globecoordinate and quantity. Other scripts were not affected.
 
+## Release v1.6.4 (2021-01-27)
+
+Version 1.6.4 contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as part of a SPARQL query contained non-Latin characters.
+
 ----
-Revised 2021-01-26
+Revised 2021-01-27

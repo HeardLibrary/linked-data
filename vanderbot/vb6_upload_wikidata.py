@@ -83,6 +83,10 @@
 # -----------------------------------------
 # Version 1.6.2 change notes (2020-12-01):
 # - Fixes a bug where an error was raised when a reference property did not have a value.
+# -----------------------------------------
+# Version 1.6.4 change notes (2021-01-27):
+# - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
+# part of a SPARQL query contained non-Latin characters.
 
 import json
 import requests
@@ -203,7 +207,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
 
     returnValue = []
     # r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
-    r = requests.post(endpointUrl, data=query, headers=requestHeaderDictionary)
+    r = requests.post(endpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
     data = r.json()
     results = data['results']['bindings']
     for result in results:

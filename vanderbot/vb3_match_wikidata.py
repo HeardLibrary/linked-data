@@ -24,6 +24,10 @@
 # -----------------------------------------
 # Version 1.5 change notes (2020-09-08):
 # - no changes
+# -----------------------------------------
+# Version 1.6.4 change notes (2021-01-27):
+# - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
+# part of a SPARQL query contained non-Latin characters.
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
@@ -228,7 +232,7 @@ FILTER(lang(?label)='en')
     #print('searching for ', name)
     results = []
     # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
-    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -264,7 +268,7 @@ def searchWikidataDescription(qId):
       }'''
     #print(query)
     # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
-    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -310,7 +314,7 @@ def searchWikidataArticle(qId):
       }'''
     #print(query)
     # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
-    r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
+    r = requests.post(wikidataEndpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -1073,7 +1077,7 @@ query = '''select distinct  ?person ?name ?orcid ?startDate ?endDate ?descriptio
 
 # The endpoint defaults to returning XML, so the Accept: header is required
 # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers={'Accept' : 'application/json'})
-r = requests.post(wikidataEndpointUrl, data=query, headers=requestHeaderDictionary)
+r = requests.post(wikidataEndpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
 
 data = r.json()
 #print(json.dumps(data,indent = 2))

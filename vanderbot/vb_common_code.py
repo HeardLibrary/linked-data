@@ -22,6 +22,11 @@
 # -----------------------------------------
 # Version 1.5 change notes (2020-09-08):
 # - no changes
+# -----------------------------------------
+# Version 1.6.4 change notes (2021-01-27):
+# - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
+# part of a SPARQL query contained non-Latin characters.
+
 
 import requests   # best library to manage HTTP transactions
 from bs4 import BeautifulSoup # web-scraping library
@@ -237,7 +242,7 @@ select distinct ?item where {
     results = []
     acceptMediaType = 'application/json'
     # r = requests.get(wikidataEndpointUrl, params={'query' : query}, headers = generateHeaderDictionary(acceptMediaType))
-    r = requests.post(wikidataEndpointUrl, data=query, headers = generateHeaderDictionary(acceptMediaType))
+    r = requests.post(wikidataEndpointUrl, data=query.encode('utf-8'), headers = generateHeaderDictionary(acceptMediaType))
     try:
         data = r.json()
         statements = data['results']['bindings']
@@ -317,7 +322,7 @@ class Query:
     # send a generic query and return a list of Q IDs
     def generic_query(self, query):
         # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
-        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query.encode('utf-8'), headers=self.requestheader)
         results_list = []
         try:
         #if 1==1: # replace try: to let errors occur, also comment out the except: clause
@@ -357,7 +362,7 @@ select distinct ?object where {
     }'''
         #print(query)
         # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
-        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query.encode('utf-8'), headers=self.requestheader)
         results_list = []
         try:
         #if 1==1: # replace try: to let errors occur, also comment out the except: clause
@@ -423,7 +428,7 @@ select distinct ?id ?string where {'''
 
         results_list = []
         # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
-        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query.encode('utf-8'), headers=self.requestheader)
         data = r.json()
         results = data['results']['bindings']
         for result in results:
@@ -482,7 +487,7 @@ select distinct ?id ?statement '''
 
         results_list = []
         # r = requests.get(self.endpoint, params={'query' : query}, headers=self.requestheader)
-        r = requests.post(self.endpoint, data=query, headers=self.requestheader)
+        r = requests.post(self.endpoint, data=query.encode('utf-8'), headers=self.requestheader)
         data = r.json()
         results = data['results']['bindings']
         # NOTE: There may be more than one reference per statement.
