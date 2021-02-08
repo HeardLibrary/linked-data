@@ -4,13 +4,15 @@ The short link to this page is [vanderbi.lt/vanderbot](http://vanderbi.lt/vander
 
 ## Summary
 
-VanderBot is a set of Python scripts that scrapes data from departmental websites, then creates or updates researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/managing-linked-open-data-wikidata-using-w3c-generating-rdf-tabular-data-web-recommendation) at the Semantic Web Journal.
+VanderBot is a set of Python scripts originally designed to scrape data from departmental websites, then create or update researcher records in Wikidata. The code interacts with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project is focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/managing-linked-open-data-wikidata-using-w3c-generating-rdf-tabular-data-web-recommendation) at the Semantic Web Journal.
 
-For background and information about the project, see [this video](https://youtu.be/dF9JX8y7CFI).
+Since the project started, the [generalized code for writing to the API](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vb6_upload_wikidata.py) has been used with modifications of the original Python code for other projects at Vanderbilt. They include [creating records for items in the Vanderbilt Fine Arts Gallery](https://www.wikidata.org/wiki/Wikidata:WikiProject_Vanderbilt_Fine_Arts_Gallery), connecting and creating image items with the [Vanderbilt Divinity Library's Art in the Christian Tradition (ACT) database](https://www.wikidata.org/wiki/Wikidata:WikiProject_Art_in_the_Christian_Tradition_(ACT)), and managing journal data as part of the [VandyCite WikiProject](https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite). Through these explorations, we hope to learn how to generalize the process to be used in many areas.
+
+For background and information about the researcher records part of the project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
 ## Description
 
-This project is currently focused on author disambiguation and association with identifiers in Wikidata.  The code associated with this work is referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
+This project was originally focused on author disambiguation and association with identifiers in Wikidata.  The code associated with that work was collectively referred to as "VanderBot" and it does the work for the [Wikidata VanderBot bot](https://www.wikidata.org/wiki/User:VanderBot), a non-autonomous bot.  
 
 As of 2020-07-18, VanderBot has created or curated records for over 4500 scholars or researchers at Vanderbilt and made over 8000 edits. The number includes nearly all researchers in Vanderbilt colleges and schools except the School of Medicine. Records for nearly all of the faculty in the School of medicine have been curated, but research staff and postdocs have not yet been done.
 
@@ -42,7 +44,7 @@ If you want to use the script `vb6_upload_wikidata.py` to upload your own data t
 
 The code that generates this form includes the files `wikidata-csv2rdf-metadata.html`, `wikidata-csv2rdf-metadata.js`, and `wikidata-csv2rdf-metadata.css` in this directory.
 
-The script 'acquire_wikidata_metadata.py`, which is still under development, downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. Eventually, the configuration JSON used with this script will be convertable to or from the csv2rdf schema.
+The script [acquire_wikidata_metadata.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata_metadata.py), which is still under development, downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. The configuration JSON used with this script is convertable to the csv2rdf schema using the [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) script. Another utility, [count_entities.py](https://github.com/HeardLibrary/linked-data/blob/master/json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items.
 
 ## Release v1.0 (2020-04-20) notes 
 
@@ -184,4 +186,4 @@ The upgrade now supports monolingual string values the complex value types globe
 Version 1.6.4 contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as part of a SPARQL query contained non-Latin characters.
 
 ----
-Revised 2021-01-27
+Revised 2021-02-08
