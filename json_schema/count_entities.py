@@ -24,7 +24,7 @@ import datetime
 
 # Use the following code for a stand-alone script if you want to pass in a value (e.g. file path) when running
 # the script from the command line. If no arguments are passed, the "else" value will be used.
-if len(sys.argv) == 2: # if exactly one argument passed (i.e. the configuration file path)
+if len(sys.argv) == 2: # if exactly one argument passed (i.e. the file path)
     file_path = sys.argv[1] # sys.argv[0] is the script name
 else:
     file_path = 'journal-div-qids.csv'
