@@ -9,9 +9,18 @@ P186,material used
 P195,collection
 P217,inventory number
 P2596,culture
-P276,ISSN
+P276,location
 P31,instance of
 P528,catalog code
 P571,inception
 P921,main subject
 P973,described at URL
+P734,family name
+P108,employer
+P735,given name
+P170,creator
+P361,part of
+P495,country of origin
+P1476,title
+P2049,width
+P2048,height
