@@ -96,6 +96,13 @@ from time import sleep
 import sys
 import uuid
 
+if len(sys.argv) == 2: # if exactly one argument passed (i.e. the log file path)
+    log_path = sys.argv[1] # sys.argv[0] is the script name
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
+else:
+    log_path = ''
+    log_object = sys.stdout # otherwise the output goes to the console screen
+
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
 
 # -----------------------------------------------------------------
@@ -1105,15 +1112,17 @@ for table in tables:  # The script can handle multiple tables because that optio
     print('Writing items')
     print('--------------------------')
     print()
-    for rowNumber in range(0, len(tableData)):
+    for rowNumber in range(0, len(tableData)):            
         status_message = 'processing row: ' + str(rowNumber)
+        if log_path != '': # if logging to a file, print something so we know something is going on
+            print(status_message)
         if len(labelColumnList) > 0: # skip printing a label if there aren't any
             status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
         if tableData[rowNumber][subjectWikidataIdColumnHeader] != '': # only list existing record IDs
             status_message += '  qID: ' + tableData[rowNumber][subjectWikidataIdColumnHeader]
         else:
             status_message += '  new record'
-        print(status_message)
+        print(status_message, file=log_object)
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
@@ -1151,7 +1160,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                     if valueString != existingLabels[languageNumber][rowNumber]:
                         # if they are different check to make sure the table value isn't empty
                         if valueString != '':
-                            print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString)
+                            print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString, file=log_object)
                             # add the label in the table for that language to the label dictionary
                             labelDict[labelLanguageList[languageNumber]] = {
                                 'language': labelLanguageList[languageNumber],
@@ -1208,7 +1217,7 @@ for table in tables:  # The script can handle multiple tables because that optio
                     if valueString != existingDescriptions[languageNumber][rowNumber]:
                         # if they are different check to make sure the table value isn't empty
                         if valueString != '':
-                            print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString)
+                            print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString, file=log_object)
                             # add the description in the table for that language to the description dictionary
                             descriptionDict[descriptionLanguageList[languageNumber]] = {
                                 'language': descriptionLanguageList[languageNumber],
@@ -1383,14 +1392,14 @@ for table in tables:  # The script can handle multiple tables because that optio
         
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
-            print('no data to write')
-            print()
+            print('no data to write', file=log_object)
+            print('', file=log_object)
         else:
             if maxlag > 0:
                 parameterDictionary['maxlag'] = maxlag
             responseData = attemptPost(endpointUrl, parameterDictionary)
-            print('Write confirmation: ', responseData)
-            print()
+            print('Write confirmation: ', responseData, file=log_object)
+            print('', file=log_object)
 
             if newItem:
                 # extract the entity Q number from the response JSON
@@ -1572,16 +1581,20 @@ for table in tables:  # The script can handle multiple tables because that optio
             # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
             # To be safe and avoid getting blocked, use 1.25 s.
             sleep(1.25)
-    print()
-    print()
+    print('', file=log_object)
+    print('', file=log_object)
 
     # process each row of the table for references of existing claims
-    print('Writing references of existing claims')
-    print('--------------------------')
-    print()
+    log_text = 'Writing references of existing claims\n'
+    log_text += '--------------------------\n'
+    if log_path != '':
+        print('\n' + log_text) # print something if output is going to a log file
+    print(log_text, file=log_object)
     for rowNumber in range(0, len(tableData)):
-        print('processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader])
-        
+        log_text = 'processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader]
+        if log_path != '':
+            print(log_text) # print something if output is going to a log file
+        print(log_text, file=log_object)        
         for propertyNumber in range(0, len(propertiesColumnList)):
             propertyId = propertiesIdList[propertyNumber]
             statementUuidColumn = propertiesUuidColumnList[propertyNumber]     
@@ -1613,8 +1626,8 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 
                                 # print('ref:', reference['refValueColumnList'])
                                 responseData = attemptPost(endpointUrl, parameterDictionary)
-                                print('Write confirmation: ', responseData)
-                                print()
+                                print('Write confirmation: ', responseData, file=log_object)
+                                print('', file=log_object)
             
                                 tableData[rowNumber][reference['refHashColumn']] = responseData['reference']['hash']
                             
@@ -1631,6 +1644,6 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
                                 # To be safe and avoid getting blocked, use 1.25 s.
                                 sleep(1.25)
-    print()
+    print('', file=log_object)
 
 print('done')
