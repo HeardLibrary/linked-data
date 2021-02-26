@@ -1234,8 +1234,6 @@ for table in tables:  # The script can handle multiple tables
     print()
     for rowNumber in range(0, len(tableData)):            
         status_message = 'processing row: ' + str(rowNumber)
-        if log_path != '': # if logging to a file, print something so we know something is going on
-            print(status_message)
         if len(labelColumnList) > 0: # skip printing a label if there aren't any
             status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
         if tableData[rowNumber][subjectWikidataIdColumnHeader] != '': # only list existing record IDs
@@ -1243,6 +1241,8 @@ for table in tables:  # The script can handle multiple tables
         else:
             status_message += '  new record'
             new_item = True
+        if log_path != '': # if logging to a file, print something so we know something is going on
+            print(status_message)
         print(status_message, file=log_object)
 
         if new_item:
