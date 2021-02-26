@@ -1233,6 +1233,7 @@ for table in tables:  # The script can handle multiple tables
     print('--------------------------')
     print()
     for rowNumber in range(0, len(tableData)):            
+        abort_writing = False
         status_message = 'processing row: ' + str(rowNumber)
         if len(labelColumnList) > 0: # skip printing a label if there aren't any
             status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
@@ -1851,7 +1852,7 @@ for table in tables:  # The script can handle multiple tables
                                 sleep(1.25)
     print('', file=log_object)
     if error_log != '':
-        full_error_log += 'Error log for CSV file: ' + tableFileName + '\n' + error_log + '\n\n'
+        full_error_log += '\nError log for CSV file: ' + tableFileName + '\n' + error_log + '\n'
 
 if full_error_log != '': # If there were errors display them
     print(full_error_log)
