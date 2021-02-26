@@ -123,28 +123,44 @@ password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
 args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
 
-if '-L' in opts: # set output to specified log file 
+if '-log' in opts: # set output to specified log file or path including file name
+    log_path = args[opts.index('-log')]
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
+if '-L' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('-L')]
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
 
-if '-W' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be changed 
-    if args[opts.index('-W')] == 'allow':
+if '-update' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('-update')] == 'allow':
+        allow_label_description_changes = True
+if '-U' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('-U')] == 'allow':
         allow_label_description_changes = True
 
+if '-endpoint' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
+    endpoint = args[opts.index('-endpoint')]
 if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
     endpoint = args[opts.index('-E')]
 
+if '-sleep' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
+    sparqlSleep = args[opts.index('-sleep')]
 if '-S' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
     sparqlSleep = args[opts.index('-S')]
 
 # Specifies a different file path for the metadata description file that maps the columns in the CSV
 # May be a different filename in the same directory as the script or a full or relative path.
+if '-json' in opts: 
+    json_metadata_description_file = args[opts.index('-json')]
 if '-J' in opts: 
     json_metadata_description_file = args[opts.index('-J')]
 
+if '-path' in opts: # specifies the location of the credentials file.
+    credentials_path_string = args[opts.index('-path')] # include trailing slash if relative or absolute path
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
+if '-credentials' in opts: # specifies the name of the credentials file.
+    credentials_filename = args[opts.index('-credentials')]
 if '-C' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('-C')]
 
