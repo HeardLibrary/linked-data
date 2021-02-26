@@ -1,5 +1,5 @@
-# VanderBot v1.7 (2021-02) vb6_upload_wikidata.py
-# (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# VanderBot v1.7 (2021-02-26) vanderbot.py
+# (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
@@ -15,23 +15,16 @@
 # The most important reference for formatting the data JSON to be sent to the API is:
 # https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 
-# This script follows five scripts that are used to prepare researcher/scholar ("employee") data 
-# for upload to Wikidata. It inputs data output from the previous script, vb5_check_labels_descriptions.py and
-# uses the file csv-metadata.json as a schema to map the columns of the input CSV file to the Wikidata
-# data model, specifically in the form of RDF/Linked Data. The response data from the Wikidata API is used
+# By default, this script uses the file csv-metadata.json as a schema to map the columns of the input CSV file to the 
+# Wikidata data model, specifically in the form of RDF/Linked Data. The response data from the Wikidata API is used
 # to update the input file as a record that the write operations have been successfully carried out.
 
-# Usage note: the script that generates the input file downloads all of the labels and descriptions from Wikidata
-# So if you want to change either of them, just edit the input table before running the script.
-# If an alias is listed in the table, it will replace current aliases, then removed from the output table.  
-# This means that if you don't like the label that gets downloaded from Wikidata, you can move it to the alias column
-# and replace the label with your preferred version.  NOTE: it doesn't add an alias, it replaces.  See notes in code!
+# Important note: This script only handles the following value types: URI, plain string, times, globecoordiates, 
+# quantities, and monolingual strings. It does not handle some of the more esoteric types like novalues.
 
-# A stale output file should not be used as input for this script since if others have changed either the label or
-# description, the script will change it back to whatever previous value was in the stale table.  
+# The script handles aliases, but in a very cludgy way. Hopefully this will improve later.  
+# NOTE: it doesn't add aliases, it replaces.  See notes in code!
 
-# Important note: This script only handles the following value types: URI, plain string, and dateTime. It does not currently handle 
-# any other complex value type like geocoordinates.
 # -----------------------------------------
 # Version 1.1 change notes: 
 # - No changes
@@ -102,7 +95,7 @@ from time import sleep
 import sys
 import uuid
 
-# Change the following line sto hard-code different defaults if not running from the command line.
+# Change the following lines to hard-code different defaults if not running from the command line.
 
 # Set script-wide variable values. Assign default values, then override if passed in as command line arguments
 log_path = '' # path to log file, default to none
