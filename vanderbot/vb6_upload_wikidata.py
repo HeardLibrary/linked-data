@@ -355,7 +355,7 @@ def convertDates(rowData, dateColumnNameRoot):
                 precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
             # date form unknown, don't adjust
             else:
-                print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+                #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
                 error = True
                 precisionNumber = 0 # must have a value to prevent an error, will be ignored since the write and save will be killed
             # assign the changed values back to the dict
@@ -1330,16 +1330,20 @@ for table in tables:  # The script can handle multiple tables
 
             # If an error occurred that precludes writing the new item, return to start of loop and continue with next row
             if abort_writing:
+                print('failed write due to pre-existing label/description combination', file=log_object)
+                print('', file=log_object)
                 continue
 
         # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
         for dateColumnName in dateColumnNameList:
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
-                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
+                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column: "' + dateColumnName + '"\n'
                 abort_writing = True
                 break # Quit working on dates in this row
         if abort_writing: # set to True by a malformed date
+            print('failed write due to date error', file=log_object)
+            print('', file=log_object)
             continue # quit working on this row, return to start of main loop with next row
         for valueColumnName in valueColumnNameList:
             tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
