@@ -357,6 +357,7 @@ def convertDates(rowData, dateColumnNameRoot):
             else:
                 print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
                 error = True
+                precisionNumber = 0 # must have a value to prevent an error, will be ignored since the write and save will be killed
             # assign the changed values back to the dict
             rowData[dateColumnNameRoot + '_val'] = timeString
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
@@ -1333,10 +1334,13 @@ for table in tables:  # The script can handle multiple tables
 
         # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
         for dateColumnName in dateColumnNameList:
+            if abort_writing: # set to True by previous malformed date
+                continue # quit working on this row, return to start of main loop with next row
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
-                continue # Quit working on this row, return to start of loop with next row
+                abort_writing = True
+                continue # Quit working on this date, return to start of dateColumnName loop
         for valueColumnName in valueColumnNameList:
             tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         # Write the file with the converted dates in case the script crashes
