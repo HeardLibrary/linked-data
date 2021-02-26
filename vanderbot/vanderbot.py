@@ -960,6 +960,8 @@ for table in tables:  # The script can handle multiple tables
     error_log = '' # start the error log for this table
     tableFileName = table['url']
     print('File name: ', tableFileName)
+    if log_path != '':
+        print('\nFile name: ' + tableFileName + '\n', file=log_object)
     tableData = readDict(tableFileName)
     
     # we are opening the file as a csv.reader object as the easy way to get the header row as a list
