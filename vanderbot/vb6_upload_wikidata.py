@@ -1334,13 +1334,13 @@ for table in tables:  # The script can handle multiple tables
 
         # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
         for dateColumnName in dateColumnNameList:
-            if abort_writing: # set to True by previous malformed date
-                continue # quit working on this row, return to start of main loop with next row
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
                 abort_writing = True
-                continue # Quit working on this date, return to start of dateColumnName loop
+                break # Quit working on dates in this row
+        if abort_writing: # set to True by a malformed date
+            continue # quit working on this row, return to start of main loop with next row
         for valueColumnName in valueColumnNameList:
             tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         # Write the file with the converted dates in case the script crashes
