@@ -1888,6 +1888,11 @@ for table in tables:  # The script can handle multiple tables
     if error_log != '':
         full_error_log += '\nError log for CSV file: ' + tableFileName + '\n' + error_log + '\n'
 
+if allow_label_description_changes:
+    print('\n\nAutomatic label and description changes for existing items were ENABLED.', file=log_object)
+else:
+    print('\n\nAutomatic label and description changes for existing items were DISABLED.', file=log_object)
+
 if full_error_log != '': # If there were errors display them
     print(full_error_log)
     if log_path != '': # if there is logging to a file, write the error log to the file
