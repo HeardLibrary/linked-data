@@ -89,9 +89,10 @@
 # part of a SPARQL query contained non-Latin characters.
 # -----------------------------------------
 # Version 1.7 change notes (2021-0):
-# - enable diverting output to a log file by passing in the log file path as a command line artument.
+# - enable changes from the default values using command line options
 # - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
+# - move mutable configuration variables to the top of the script
 
 import json
 import requests
@@ -101,35 +102,60 @@ from time import sleep
 import sys
 import uuid
 
-# Set script-wide variable values
-if len(sys.argv) == 2: # if exactly one argument passed (i.e. the log file path)
-    log_path = sys.argv[1] # sys.argv[0] is the script name
-    log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
-    allow_label_description_changes = False
-elif len(sys.argv) == 3: # if exactly two arguments passed (i.e. the log file path and suppress label/description changes)
-    log_path = sys.argv[1] # sys.argv[0] is the script name
-    log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
-    if sys.argv[2] == 'allow':
-        allow_label_description_changes = True
-    else:
-        allow_label_description_changes = False
-else: # no arguments passed in or more than 2
-    log_path = ''
-    log_object = sys.stdout # otherwise the output goes to the console screen
-    allow_label_description_changes = False
+# Change the following line sto hard-code different defaults if not running from the command line.
 
-# Uncomment the following line to hard-code automatic changes of labels and descriptions. Otherwise changes don't occur for existing items.
-#allow_label_description_changes = True
-
+# Set script-wide variable values. Assign default values, then override if passed in as command line arguments
+log_path = '' # path to log file, default to none
+log_object = sys.stdout # log output defaults to the console screen
+allow_label_description_changes = False # labels and descriptions in the local CSV file that differ from existing Wikidata items are not automatically written
+endpoint = 'https://query.wikidata.org/sparql' # default to the Wikidata Query Service endpoint
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
-endpoint = 'https://query.wikidata.org/sparql'
-accept_media_type = 'application/json'
+json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
+
+# Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
+opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
+args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
+
+if '-L' in opts: # set output to specified log file 
+    log_path = args[opts.index('-L')]
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
+
+if '-W' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be changed 
+    if args[opts.index('-W')] == 'allow':
+        allow_label_description_changes = True
+
+if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
+    endpoint = args[opts.index('-E')]
+
+if '-S' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
+    sparqlSleep = args[opts.index('-S')]
+
+if '-J' in opts: # specifies a different file name for the metadata description file that maps the columns in the CSV
+    json_metadata_description_file = args[opts.index('-J')]
+
+# The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+# To be safe and avoid getting blocked, use 1.25 s.
+# DO NOT change this number unless you have obtained a bot flag! If you have a bot flag, then you have created your own
+# User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
+# your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
+# Wikimedia guidelines !!!
+api_sleep = 1.25 # number of seconds between API calls.
 user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+
+# Set the value of the maxlag parameter to back off when the server is lagged
+# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+# The recommended value is 5 seconds.
+# To not use maxlang, set the value to 0
+# To test the maxlag handler code, set maxlag to a very low number like .1
+# If you don't know what you are doing, leave this value alone. In any case, it is rude to use a value greater than 5.
+maxlag = 5
+
+accept_media_type = 'application/json'
 
 # The following code generates a request header dictionary suitable for sending to a SPARQL endpoint.
 # If the query is SELECT, use the JSON media type above. For CONSTRUCT queryies use text/turtle to get RDF/Turtle
 # Best to send a user-agent header because some Wikimedia servers don't like unidentified clients
-# NOTE: This header has the wrong Content-Type for SPARQL update, which needs type application/sparql-update
+# NOTE: This header has the wrong Content-Type for SPARQL UPDATE, which needs type application/sparql-update
 def generate_header_dictionary(accept_media_type,user_agent_header):
     request_header_dictionary = {
         'Accept' : accept_media_type,
@@ -150,8 +176,8 @@ def retrieveCredentials(path):
     endpointUrl = lineList[0].split('=')[1]
     username = lineList[1].split('=')[1]
     password = lineList[2].split('=')[1]
-    userAgent = lineList[3].split('=')[1]
-    credentials = [endpointUrl, username, password, userAgent]
+    #userAgent = lineList[3].split('=')[1]
+    credentials = [endpointUrl, username, password]
     return credentials
 
 def getLoginToken(apiUrl):    
@@ -274,16 +300,6 @@ def check_for_only_description(description_string, language):
 
 # search for any of the "label" types: label, alias, description
 def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
-    # configuration settings
-    endpointUrl = 'https://query.wikidata.org/sparql'
-    acceptMediaType = 'application/json'
-    userAgentHeader = 'VanderBot/1.6.2 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
-    requestHeaderDictionary = {
-    'Content-Type': 'application/sparql-query',
-    'Accept' : acceptMediaType,
-    'User-Agent': userAgentHeader
-    }
-
     # create a string for all of the Wikidata item IDs to be used as subjects in the query
     alternatives = ''
     for qId in qIds:
@@ -310,8 +326,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     #print(query)
 
     returnValue = []
-    # r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
-    r = requests.post(endpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
+    r = requests.post(endpoint, data=query.encode('utf-8'), headers=request_header)
     data = r.json()
     results = data['results']['bindings']
     for result in results:
@@ -820,14 +835,17 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
     maxRetries = 10
-    baseDelay = 5 # Wikidata recommends a delay of at least 5 seconds
+    # Wikidata recommends a retry delay of at least 5 seconds.
+    # This differs from api_sleep, which is the delay when there is no lag. The baseDelay is a starting point; the
+    # actual delay is increased with each retry after the server reports being lagged.
+    baseDelay = 5
     delayLimit = 300
     retry = 0
     # maximum number of times to retry lagged server = maxRetries
     while retry <= maxRetries:
         if retry > 0:
             print('retry:', retry)
-        r = session.post(apiUrl, data = parameters)
+        r = session.post(apiUrl, data = parameters.encode('utf-8'))
         data = r.json()
         try:
             # check if response is a maxlag error
@@ -871,7 +889,6 @@ def attemptPost(apiUrl, parameters):
 endpointUrl=https://test.wikidata.org
 username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
-userAgentHeader=YourBot/0.1 (someuser@university.edu)
 '''
 
 # default API resource URL when a Wikibase/Wikidata instance is installed.
@@ -884,13 +901,12 @@ credentials = retrieveCredentials(credentialsPath)
 endpointUrl = credentials[0] + resourceUrl
 user = credentials[1]
 pwd = credentials[2]
-userAgentHeader = credentials[3]
+#userAgentHeader = credentials[3]
 
 # Instantiate session outside of any function so that it's globally accessible.
 session = requests.Session()
 # Set default User-Agent header so you don't have to send it with every request
-session.headers.update({'User-Agent': userAgentHeader})
-
+session.headers.update({'User-Agent': user_agent_header})
 
 loginToken = getLoginToken(endpointUrl)
 data = logIn(endpointUrl, loginToken, user, pwd)
@@ -899,22 +915,15 @@ csrfToken = getCsrfToken(endpointUrl)
 # -------------------------------------------
 # Beginning of script to process the tables
 
-full_error_log = ''
+full_error_log = '' # start the full error log for all tables
 
 # There are options to require values for every mapped reference column or every mapped qualifier column.
 # By default, these are turned off, but they can be turned on by changing these flags:
 require_references = False
 require_qualifiers = False
 
-# Set the value of the maxlag parameter to back off when the server is lagged
-# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
-# The recommended value is 5 seconds.
-# To not use maxlang, set the value to 0
-# To test the maxlag handler code, set maxlag to a very low number like .1
-maxlag = 5
-
 # This is the schema that maps the CSV column to Wikidata properties
-with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
+with open(json_metadata_description_file, 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
 metadata = json.loads(text)
 
@@ -1808,19 +1817,9 @@ for table in tables:  # The script can handle multiple tables
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost
             writeToFile(tableFileName, fieldnames, tableData)
-            #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-            #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            #    writer.writeheader()
-            #    for rowNumber in range(0, len(tableData)):
-            #        try:
-            #            writer.writerow(tableData[rowNumber])
-            #        except:
-            #            print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
-            #            print()
             
-            # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-            # To be safe and avoid getting blocked, use 1.25 s.
-            sleep(1.25)
+            # Do not change this value, see top of script for an explanation
+            sleep(api_sleep)
     print('', file=log_object)
     print('', file=log_object)
 
@@ -1875,15 +1874,8 @@ for table in tables:  # The script can handle multiple tables
                                 # Note: I'm writing after every line so that if the script crashes, no data will be lost
                                 writeToFile(tableFileName, fieldnames, tableData)
 
-                                #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
-                                #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                                #    writer.writeheader()
-                                #    for writeRowNumber in range(0, len(tableData)):
-                                #        writer.writerow(tableData[writeRowNumber])
-                                
-                                # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-                                # To be safe and avoid getting blocked, use 1.25 s.
-                                sleep(1.25)
+                                # Do not change this value. See top of script for explanation
+                                sleep(api_sleep)
     print('', file=log_object)
     if error_log != '':
         full_error_log += '\nError log for CSV file: ' + tableFileName + '\n' + error_log + '\n'
