@@ -1338,7 +1338,7 @@ for table in tables:  # The script can handle multiple tables
         for dateColumnName in dateColumnNameList:
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
-                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column: "' + dateColumnName + '"\n'
+                error_log += 'Incorrect date format. Row: ' + str(rowNumber) + ', column: "' + dateColumnName + '"\n'
                 abort_writing = True
                 break # Quit working on dates in this row
         if abort_writing: # set to True by a malformed date
