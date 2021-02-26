@@ -1233,7 +1233,8 @@ for table in tables:  # The script can handle multiple tables
     print('--------------------------')
     print()
     for rowNumber in range(0, len(tableData)):            
-        abort_writing = False
+        new_item = False
+        abort_writing = False # Flag to suppress writing a row
         status_message = 'processing row: ' + str(rowNumber)
         if len(labelColumnList) > 0: # skip printing a label if there aren't any
             status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
