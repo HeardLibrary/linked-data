@@ -1175,28 +1175,28 @@ for table in tables:  # The script can handle multiple tables
                             valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
     #print(dateColumnNameList)
 
-    errorFlag = False
-    for rowNumber in range(0, len(tableData)):
+    #errorFlag = False
+    #for rowNumber in range(0, len(tableData)):
         #print('row: ' + str(rowNumber))
         #print(tableData[rowNumber])
-        for dateColumnName in dateColumnNameList:
-            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-            if error:
-                errorFlag = True
-                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
-        for valueColumnName in valueColumnNameList:
-            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
+    #    for dateColumnName in dateColumnNameList:
+    #        tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+    #        if error:
+    #            errorFlag = True
+    #            error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
+    #    for valueColumnName in valueColumnNameList:
+    #        tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         #print(tableData[rowNumber])
         #print()
     
     # Write the file with the converted dates in case the script crashes
-    writeToFile(tableFileName, fieldnames, tableData)
+    #writeToFile(tableFileName, fieldnames, tableData)
 
     # If any of the date formats in the table were bad, don't try to write to the API
-    if errorFlag:
-        print(error_log)
-        sys.exit('Fix incorrectly formatted dates in file and restart')
-    print()
+    #if errorFlag:
+    #    print(error_log)
+    #    sys.exit('Fix incorrectly formatted dates in file and restart')
+    #print()
 
     # Find out what languages are represented in the labels and descriptions
     languages_list = labelLanguageList + descriptionLanguageList
@@ -1329,6 +1329,17 @@ for table in tables:  # The script can handle multiple tables
             # If an error occurred that precludes writing the new item, return to start of loop and continue with next row
             if abort_writing:
                 continue
+
+        # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
+        for dateColumnName in dateColumnNameList:
+            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+            if error:
+                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
+                continue # Quit working on this row, return to start of loop with next row
+        for valueColumnName in valueColumnNameList:
+            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
+        # Write the file with the converted dates in case the script crashes
+        writeToFile(tableFileName, fieldnames, tableData)
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
