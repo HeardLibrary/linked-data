@@ -145,10 +145,13 @@ if '-J' in opts:
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
+if '-C' in opts: # specifies the name of the credentials file.
+    credentials_filename = args[opts.index('-C')]
+
 if credentials_path_string == 'home': # credential file is in home directory
     home = str(Path.home()) # gets path to home directory; works for both Win and Mac
     credentials_path = home + '/' + credentials_filename
-elif credential_path_string == 'working': # credential file is in current working directory
+elif credentials_path_string == 'working': # credential file is in current working directory
     credentials_path = credentials_filename
 else:  # credential file is in a directory whose path was specified by the credential_path_string
     credentials_path = credentials_path_string + credentials_filename
@@ -406,7 +409,7 @@ def convertDates(rowData, dateColumnNameRoot):
             else:
                 #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
                 error = True
-                precisionNumber = 0 # must have a value to prevent an error, will be ignored since the write and save will be killed
+                precisionNumber = '' # must have a value to prevent an error, will be ignored since the write and save will be killed
             # assign the changed values back to the dict
             rowData[dateColumnNameRoot + '_val'] = timeString
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
@@ -1898,6 +1901,10 @@ if full_error_log != '': # If there were errors display them
     print(full_error_log)
     if log_path != '': # if there is logging to a file, write the error log to the file
         print('\n\n' + full_error_log, file=log_object)
+else:
+    print('\nNo errors occurred.')
+    if log_path != '': # if there is logging to a file, write the error log to the file
+        print('\n\nNo errors occurred.', file=log_object)
 
 if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
     log_object.close() 
