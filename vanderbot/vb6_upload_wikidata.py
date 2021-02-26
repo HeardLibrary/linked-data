@@ -1198,6 +1198,36 @@ for table in tables:  # The script can handle multiple tables
         sys.exit('Fix incorrectly formatted dates in file and restart')
     print()
 
+    # Find out what languages are represented in the labels and descriptions
+    languages_list = labelLanguageList + descriptionLanguageList
+    languages_list = list(set(languages_list))
+    #print(languages_list)
+
+    # Construct data structure to describe columns label/description combinations by language
+    language_structure = []
+    for language in languages_list:
+        dictionary = {'language': language}
+        found = False
+        for languageNumber in range(0, len(labelColumnList)):
+            if labelLanguageList[languageNumber] == language:
+                dictionary['label_column'] = labelColumnList[languageNumber]
+                found = True
+                break
+        if not found:
+            dictionary['label_column'] = ''
+
+        found = False
+        for languageNumber in range(0, len(descriptionColumnList)):
+            if descriptionLanguageList[languageNumber] == language:
+                dictionary['description_column'] = descriptionColumnList[languageNumber]
+                found = True
+                break
+        if not found:
+            dictionary['description_column'] = ''
+
+        language_structure.append(dictionary)
+    #print(language_structure)
+
     # process each row of the table for item writing
     print('Writing items')
     print('--------------------------')
@@ -1289,7 +1319,7 @@ for table in tables:  # The script can handle multiple tables
                             error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
 
             if not has_some_value:
-                error_log += 'Row: ' + str(rowNumber) + ' does not have any labels or descriptions'
+                error_log += 'Row: ' + str(rowNumber) + ' does not have any labels or descriptions\n'
                 abort_writing = True
 
             if combination_exists:
