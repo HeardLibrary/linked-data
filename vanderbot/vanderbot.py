@@ -1293,6 +1293,9 @@ for table in tables:  # The script can handle multiple tables
             # who has a Dutch label and description. So it does not prevent the script from writing. 
             # These is somewhat of an edge case, but illustrates that it is safer to always provide both a label and
             # description for new items to guard against collisions.
+            # Based on emprical testing at test.wikidata.org, it does not appear that there is an error if two items
+            # lacking descriptions have the same label. So if the situation described above occurs, the script should write
+            # without a problem. Nevertheless, it's a bad practice, so the check is still probably good to be doing anyway.
 
             combination_exists = False # We will check whether the label/description combination for any language already exists
             has_some_value = False # Must not write the record unless at least one label or description exists in some language
