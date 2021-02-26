@@ -145,7 +145,7 @@ if '-J' in opts:
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
-if credentials_path_string == 'home:' # credential file is in home directory
+if credentials_path_string == 'home': # credential file is in home directory
     home = str(Path.home()) # gets path to home directory; works for both Win and Mac
     credentials_path = home + '/' + credentials_filename
 elif credential_path_string == 'working': # credential file is in current working directory
@@ -867,7 +867,7 @@ def attemptPost(apiUrl, parameters):
     while retry <= maxRetries:
         if retry > 0:
             print('retry:', retry)
-        r = session.post(apiUrl, data = parameters.encode('utf-8'))
+        r = session.post(apiUrl, data = parameters)
         data = r.json()
         try:
             # check if response is a maxlag error
