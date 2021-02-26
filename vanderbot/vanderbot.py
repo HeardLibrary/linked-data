@@ -95,6 +95,10 @@ from time import sleep
 import sys
 import uuid
 
+home = str(Path.home()) # gets path to home directory; supposed to work for Win and Mac
+credentialsFilename = 'wikibase_credentials.txt'
+credentialsPath = home + '/' + credentialsFilename
+
 # Change the following lines to hard-code different defaults if not running from the command line.
 
 # Set script-wide variable values. Assign default values, then override if passed in as command line arguments
@@ -104,6 +108,16 @@ allow_label_description_changes = False # labels and descriptions in the local C
 endpoint = 'https://query.wikidata.org/sparql' # default to the Wikidata Query Service endpoint
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
 json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
+credentials_path_string = 'home' # value is "home", "working", or a relative or absolute path with trailing "/"
+credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
+
+# This is the format of the API credentials file. Username and password are for a bot that you've created
+# (the example below is not real).  Save file in the directory specified by the credentials_path_string.
+'''
+endpointUrl=https://test.wikidata.org
+username=User@bot
+password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+'''
 
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
 opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
@@ -123,16 +137,31 @@ if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikid
 if '-S' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
     sparqlSleep = args[opts.index('-S')]
 
-if '-J' in opts: # specifies a different file name for the metadata description file that maps the columns in the CSV
+# Specifies a different file path for the metadata description file that maps the columns in the CSV
+# May be a different filename in the same directory as the script or a full or relative path.
+if '-J' in opts: 
     json_metadata_description_file = args[opts.index('-J')]
 
+if '-P' in opts: # specifies the location of the credentials file.
+    credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
+
+if credentials_path_string == 'home:' # credential file is in home directory
+    home = str(Path.home()) # gets path to home directory; works for both Win and Mac
+    credentials_path = home + '/' + credentials_filename
+elif credential_path_string == 'working': # credential file is in current working directory
+    credentials_path = credentials_filename
+else:  # credential file is in a directory whose path was specified by the credential_path_string
+    credentials_path = credentials_path_string + credentials_filename
+
+
 # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-# To be safe and avoid getting blocked, use 1.25 s.
+# To be safe and avoid getting blocked, use 1.25 s as the api_sleep value.
 # DO NOT change this number unless you have obtained a bot flag! If you have a bot flag, then you have created your own
 # User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
 # your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
 # Wikimedia guidelines !!!
 api_sleep = 1.25 # number of seconds between API calls.
+# See https://meta.wikimedia.org/wiki/User-Agent_policy
 user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 
 # Set the value of the maxlag parameter to back off when the server is lagged
@@ -874,23 +903,10 @@ def attemptPost(apiUrl, parameters):
 # ----------------------------------------------------------------
 # authentication
 
-# This is the format of the wikibase_credentials.txt file. Username and password
-# are for a bot that you've created.  Save file in your home directory.
-# Set your own User-Agent header. Do not use the one listed here
-# See https://meta.wikimedia.org/wiki/User-Agent_policy
-'''
-endpointUrl=https://test.wikidata.org
-username=User@bot
-password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
-'''
-
 # default API resource URL when a Wikibase/Wikidata instance is installed.
 resourceUrl = '/w/api.php'
 
-home = str(Path.home()) # gets path to home directory; supposed to work for Win and Mac
-credentialsFilename = 'wikibase_credentials.txt'
-credentialsPath = home + '/' + credentialsFilename
-credentials = retrieveCredentials(credentialsPath)
+credentials = retrieveCredentials(credentials_path)
 endpointUrl = credentials[0] + resourceUrl
 user = credentials[1]
 pwd = credentials[2]
