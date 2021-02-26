@@ -90,7 +90,7 @@
 # -----------------------------------------
 # Version 1.7 change notes (2021-0):
 # - enable diverting output to a log file by passing in the log file path as a command line artument.
-# - enable logging of some errors to be displayed (and saved to the log file if used)
+# - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
 
 import json
@@ -105,9 +105,21 @@ import uuid
 if len(sys.argv) == 2: # if exactly one argument passed (i.e. the log file path)
     log_path = sys.argv[1] # sys.argv[0] is the script name
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
-else:
+    allow_label_description_changes = False
+elif len(sys.argv) == 3: # if exactly two arguments passed (i.e. the log file path and suppress label/description changes)
+    log_path = sys.argv[1] # sys.argv[0] is the script name
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
+    if sys.argv[2] == 'allow':
+        allow_label_description_changes = True
+    else:
+        allow_label_description_changes = False
+else: # no arguments passed in or more than 2
     log_path = ''
     log_object = sys.stdout # otherwise the output goes to the console screen
+    allow_label_description_changes = False
+
+# Uncomment the following line to hard-code automatic changes of labels and descriptions. Otherwise changes don't occur for existing items.
+#allow_label_description_changes = True
 
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
 endpoint = 'https://query.wikidata.org/sparql'
@@ -1381,17 +1393,18 @@ for table in tables:  # The script can handle multiple tables
                         'language': labelLanguageList[languageNumber],
                         'value': valueString
                         }
-                else:
-                    # not a new record, check if the value in the table is different from what's currently in Wikidata
-                    if valueString != existingLabels[languageNumber][rowNumber]:
-                        # if they are different check to make sure the table value isn't empty
-                        if valueString != '':
-                            print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString, file=log_object)
-                            # add the label in the table for that language to the label dictionary
-                            labelDict[labelLanguageList[languageNumber]] = {
-                                'language': labelLanguageList[languageNumber],
-                                'value': valueString
-                                }
+                else: # existing item
+                    if allow_label_description_changes:
+                        # not a new record, check if the value in the table is different from what's currently in Wikidata
+                        if valueString != existingLabels[languageNumber][rowNumber]:
+                            # if they are different check to make sure the table value isn't empty
+                            if valueString != '':
+                                print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString, file=log_object)
+                                # add the label in the table for that language to the label dictionary
+                                labelDict[labelLanguageList[languageNumber]] = {
+                                    'language': labelLanguageList[languageNumber],
+                                    'value': valueString
+                                    }
             if labelDict != {}:
                 dataStructure['labels'] = labelDict
         
@@ -1438,17 +1451,18 @@ for table in tables:  # The script can handle multiple tables
                         'language': descriptionLanguageList[languageNumber],
                         'value': valueString
                         }
-                else:
-                    # not a new record, check if the value in the table is different from what's currently in Wikidata
-                    if valueString != existingDescriptions[languageNumber][rowNumber]:
-                        # if they are different check to make sure the table value isn't empty
-                        if valueString != '':
-                            print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString, file=log_object)
-                            # add the description in the table for that language to the description dictionary
-                            descriptionDict[descriptionLanguageList[languageNumber]] = {
-                                'language': descriptionLanguageList[languageNumber],
-                                'value': valueString
-                                }
+                else: # existing item
+                    if allow_label_description_changes:
+                        # not a new record, check if the value in the table is different from what's currently in Wikidata
+                        if valueString != existingDescriptions[languageNumber][rowNumber]:
+                            # if they are different check to make sure the table value isn't empty
+                            if valueString != '':
+                                print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString, file=log_object)
+                                # add the description in the table for that language to the description dictionary
+                                descriptionDict[descriptionLanguageList[languageNumber]] = {
+                                    'language': descriptionLanguageList[languageNumber],
+                                    'value': valueString
+                                    }
             if descriptionDict != {}:
                 dataStructure['descriptions'] = descriptionDict
 
