@@ -1,5 +1,5 @@
-# VanderBot v1.7 (2021-02-26) vanderbot.py
-# (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# VanderBot v1.6.2 (2020-12-01) vb6_upload_wikidata.py
+# (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
@@ -15,16 +15,23 @@
 # The most important reference for formatting the data JSON to be sent to the API is:
 # https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON
 
-# By default, this script uses the file csv-metadata.json as a schema to map the columns of the input CSV file to the 
-# Wikidata data model, specifically in the form of RDF/Linked Data. The response data from the Wikidata API is used
+# This script follows five scripts that are used to prepare researcher/scholar ("employee") data 
+# for upload to Wikidata. It inputs data output from the previous script, vb5_check_labels_descriptions.py and
+# uses the file csv-metadata.json as a schema to map the columns of the input CSV file to the Wikidata
+# data model, specifically in the form of RDF/Linked Data. The response data from the Wikidata API is used
 # to update the input file as a record that the write operations have been successfully carried out.
 
-# Important note: This script only handles the following value types: URI, plain string, times, globecoordiates, 
-# quantities, and monolingual strings. It does not handle some of the more esoteric types like novalues.
+# Usage note: the script that generates the input file downloads all of the labels and descriptions from Wikidata
+# So if you want to change either of them, just edit the input table before running the script.
+# If an alias is listed in the table, it will replace current aliases, then removed from the output table.  
+# This means that if you don't like the label that gets downloaded from Wikidata, you can move it to the alias column
+# and replace the label with your preferred version.  NOTE: it doesn't add an alias, it replaces.  See notes in code!
 
-# The script handles aliases, but in a very cludgy way. Hopefully this will improve later.  
-# NOTE: it doesn't add aliases, it replaces.  See notes in code!
+# A stale output file should not be used as input for this script since if others have changed either the label or
+# description, the script will change it back to whatever previous value was in the stale table.  
 
+# Important note: This script only handles the following value types: URI, plain string, and dateTime. It does not currently handle 
+# any other complex value type like geocoordinates.
 # -----------------------------------------
 # Version 1.1 change notes: 
 # - No changes
@@ -80,12 +87,6 @@
 # Version 1.6.4 change notes (2021-01-27):
 # - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
 # part of a SPARQL query contained non-Latin characters.
-# -----------------------------------------
-# Version 1.7 change notes (2021-0):
-# - enable changes from the default values using command line options
-# - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
-# - prior to writing new items, check that there are no existing items with the same labels and descriptions
-# - move mutable configuration variables to the top of the script
 
 import json
 import requests
@@ -95,70 +96,7 @@ from time import sleep
 import sys
 import uuid
 
-# Change the following lines to hard-code different defaults if not running from the command line.
-
-# Set script-wide variable values. Assign default values, then override if passed in as command line arguments
-log_path = '' # path to log file, default to none
-log_object = sys.stdout # log output defaults to the console screen
-allow_label_description_changes = False # labels and descriptions in the local CSV file that differ from existing Wikidata items are not automatically written
-endpoint = 'https://query.wikidata.org/sparql' # default to the Wikidata Query Service endpoint
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
-json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
-
-# Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
-opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
-args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
-
-if '-L' in opts: # set output to specified log file 
-    log_path = args[opts.index('-L')]
-    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
-
-if '-W' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be changed 
-    if args[opts.index('-W')] == 'allow':
-        allow_label_description_changes = True
-
-if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
-    endpoint = args[opts.index('-E')]
-
-if '-S' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
-    sparqlSleep = args[opts.index('-S')]
-
-if '-J' in opts: # specifies a different file name for the metadata description file that maps the columns in the CSV
-    json_metadata_description_file = args[opts.index('-J')]
-
-# The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-# To be safe and avoid getting blocked, use 1.25 s.
-# DO NOT change this number unless you have obtained a bot flag! If you have a bot flag, then you have created your own
-# User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
-# your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
-# Wikimedia guidelines !!!
-api_sleep = 1.25 # number of seconds between API calls.
-user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
-
-# Set the value of the maxlag parameter to back off when the server is lagged
-# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
-# The recommended value is 5 seconds.
-# To not use maxlang, set the value to 0
-# To test the maxlag handler code, set maxlag to a very low number like .1
-# If you don't know what you are doing, leave this value alone. In any case, it is rude to use a value greater than 5.
-maxlag = 5
-
-accept_media_type = 'application/json'
-
-# The following code generates a request header dictionary suitable for sending to a SPARQL endpoint.
-# If the query is SELECT, use the JSON media type above. For CONSTRUCT queryies use text/turtle to get RDF/Turtle
-# Best to send a user-agent header because some Wikimedia servers don't like unidentified clients
-# NOTE: This header has the wrong Content-Type for SPARQL UPDATE, which needs type application/sparql-update
-def generate_header_dictionary(accept_media_type,user_agent_header):
-    request_header_dictionary = {
-        'Accept' : accept_media_type,
-        'Content-Type': 'application/sparql-query',
-        'User-Agent': user_agent_header
-    }
-    return request_header_dictionary
-
-# Generate the request header using the function above
-request_header = generate_header_dictionary(accept_media_type,user_agent_header)
 
 # -----------------------------------------------------------------
 # function definitions
@@ -169,8 +107,8 @@ def retrieveCredentials(path):
     endpointUrl = lineList[0].split('=')[1]
     username = lineList[1].split('=')[1]
     password = lineList[2].split('=')[1]
-    #userAgent = lineList[3].split('=')[1]
-    credentials = [endpointUrl, username, password]
+    userAgent = lineList[3].split('=')[1]
+    credentials = [endpointUrl, username, password, userAgent]
     return credentials
 
 def getLoginToken(apiUrl):    
@@ -230,69 +168,18 @@ def extractFromIri(iri, numberPieces):
     pieces = iri.split('/')
     return pieces[numberPieces]
 
-# SPARQL ASK query used to determine whether labels and descriptions already exist in Wikidata
-def ask_query(graph_pattern):
-    query_string = '''ask where {
-'''+ graph_pattern + '''
-      }'''
-    #print(query_string)
-    response = requests.post(endpoint, data=query_string.encode('utf-8'), headers=request_header)
-    #print(response.text) # uncomment to view the raw response, e.g. if you are getting an error
-    data = response.json() # NOTE: the conversion from JSON to Python data structure turns JSON true into Python True
-    #print(json.dumps(data, indent=2))
-    results = data['boolean']
-    #print(results) 
-    return results
-    
-# The following two functions use the ASK function above for cases where only a label or only a description is present
-def check_for_only_label(label_string, language):
-    # Label must exist
-    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '.'
-    #print('Checking ' + language + ' label: "' + label_string)
-    #print(graph_pattern)
-    label_exists = ask_query(graph_pattern)
-    sleep(sparqlSleep)
-    #print(label_exists)
-    #print()
-    
-    # Also label must exist with NO description
-    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '''.
-  ?entity schema:description ?desc.
-  filter(lang(?desc)="''' + language + '")'
-    #print('Checking ' + language + ' label: "' + label_string + '" with description')
-    #print(graph_pattern)
-    label_with_description = ask_query(graph_pattern)
-    sleep(sparqlSleep)
-    #print(label_with_description)
-    #print()
-    # A True indicates that there is a label with no description for that language
-    return label_exists and not(label_with_description)
-
-def check_for_only_description(description_string, language):
-    # Description must exist
-    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '.'
-    #print('Checking ' + language + ' description: "' + description_string + '"')
-    #print(graph_pattern)
-    description_exists = ask_query(graph_pattern)
-    sleep(sparqlSleep)
-    #print(description_exists)
-    #print()
-    
-    # Also description must exist with NO label
-    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '''.
-  ?entity rdfs:label ?label.
-  filter(lang(?label)="''' + language + '")'
-    #print('Checking ' + language + ' description: "' + description_string + '" with label')
-    #print(graph_pattern)
-    description_with_record = ask_query(graph_pattern)
-    sleep(sparqlSleep)
-    #print(description_with_record)
-    #print()
-    # A True indicates that there is a label with no description for that language
-    return description_exists and not(description_with_record)
-
 # search for any of the "label" types: label, alias, description
 def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
+    # configuration settings
+    endpointUrl = 'https://query.wikidata.org/sparql'
+    acceptMediaType = 'application/json'
+    userAgentHeader = 'VanderBot/1.6.2 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    requestHeaderDictionary = {
+    'Content-Type': 'application/sparql-query',
+    'Accept' : acceptMediaType,
+    'User-Agent': userAgentHeader
+    }
+
     # create a string for all of the Wikidata item IDs to be used as subjects in the query
     alternatives = ''
     for qId in qIds:
@@ -319,7 +206,8 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     #print(query)
 
     returnValue = []
-    r = requests.post(endpoint, data=query.encode('utf-8'), headers=request_header)
+    # r = requests.get(endpointUrl, params={'query' : query}, headers=requestHeaderDictionary)
+    r = requests.post(endpointUrl, data=query.encode('utf-8'), headers=requestHeaderDictionary)
     data = r.json()
     results = data['results']['bindings']
     for result in results:
@@ -375,9 +263,8 @@ def convertDates(rowData, dateColumnNameRoot):
                 precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
             # date form unknown, don't adjust
             else:
-                #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+                print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
                 error = True
-                precisionNumber = 0 # must have a value to prevent an error, will be ignored since the write and save will be killed
             # assign the changed values back to the dict
             rowData[dateColumnNameRoot + '_val'] = timeString
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
@@ -828,17 +715,14 @@ def createQualifiers(qualifierDictionaryForProperty, rowData):
 # This function attempts to post and handles maxlag errors
 def attemptPost(apiUrl, parameters):
     maxRetries = 10
-    # Wikidata recommends a retry delay of at least 5 seconds.
-    # This differs from api_sleep, which is the delay when there is no lag. The baseDelay is a starting point; the
-    # actual delay is increased with each retry after the server reports being lagged.
-    baseDelay = 5
+    baseDelay = 5 # Wikidata recommends a delay of at least 5 seconds
     delayLimit = 300
     retry = 0
     # maximum number of times to retry lagged server = maxRetries
     while retry <= maxRetries:
         if retry > 0:
             print('retry:', retry)
-        r = session.post(apiUrl, data = parameters.encode('utf-8'))
+        r = session.post(apiUrl, data = parameters)
         data = r.json()
         try:
             # check if response is a maxlag error
@@ -882,6 +766,7 @@ def attemptPost(apiUrl, parameters):
 endpointUrl=https://test.wikidata.org
 username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+userAgentHeader=YourBot/0.1 (someuser@university.edu)
 '''
 
 # default API resource URL when a Wikibase/Wikidata instance is installed.
@@ -894,12 +779,13 @@ credentials = retrieveCredentials(credentialsPath)
 endpointUrl = credentials[0] + resourceUrl
 user = credentials[1]
 pwd = credentials[2]
-#userAgentHeader = credentials[3]
+userAgentHeader = credentials[3]
 
 # Instantiate session outside of any function so that it's globally accessible.
 session = requests.Session()
 # Set default User-Agent header so you don't have to send it with every request
-session.headers.update({'User-Agent': user_agent_header})
+session.headers.update({'User-Agent': userAgentHeader})
+
 
 loginToken = getLoginToken(endpointUrl)
 data = logIn(endpointUrl, loginToken, user, pwd)
@@ -908,21 +794,25 @@ csrfToken = getCsrfToken(endpointUrl)
 # -------------------------------------------
 # Beginning of script to process the tables
 
-full_error_log = '' # start the full error log for all tables
-
 # There are options to require values for every mapped reference column or every mapped qualifier column.
 # By default, these are turned off, but they can be turned on by changing these flags:
 require_references = False
 require_qualifiers = False
 
+# Set the value of the maxlag parameter to back off when the server is lagged
+# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+# The recommended value is 5 seconds.
+# To not use maxlang, set the value to 0
+# To test the maxlag handler code, set maxlag to a very low number like .1
+maxlag = 5
+
 # This is the schema that maps the CSV column to Wikidata properties
-with open(json_metadata_description_file, 'rt', encoding='utf-8') as fileObject:
+with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
     text = fileObject.read()
 metadata = json.loads(text)
 
 tables = metadata['tables']
-for table in tables:  # The script can handle multiple tables
-    error_log = '' # start the error log for this table
+for table in tables:  # The script can handle multiple tables because that option is in the standard, but as a practical matter I only use one
     tableFileName = table['url']
     print('File name: ', tableFileName)
     tableData = readDict(tableFileName)
@@ -1190,66 +1080,32 @@ for table in tables:  # The script can handle multiple tables
                             valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
     #print(dateColumnNameList)
 
-    #errorFlag = False
-    #for rowNumber in range(0, len(tableData)):
+    errorFlag = False
+    for rowNumber in range(0, len(tableData)):
         #print('row: ' + str(rowNumber))
         #print(tableData[rowNumber])
-    #    for dateColumnName in dateColumnNameList:
-    #        tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-    #        if error:
-    #            errorFlag = True
-    #            error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
-    #    for valueColumnName in valueColumnNameList:
-    #        tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
+        for dateColumnName in dateColumnNameList:
+            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+            if error:
+                errorFlag = True
+        for valueColumnName in valueColumnNameList:
+            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         #print(tableData[rowNumber])
         #print()
     
     # Write the file with the converted dates in case the script crashes
-    #writeToFile(tableFileName, fieldnames, tableData)
+    writeToFile(tableFileName, fieldnames, tableData)
 
     # If any of the date formats in the table were bad, don't try to write to the API
-    #if errorFlag:
-    #    print(error_log)
-    #    sys.exit('Fix incorrectly formatted dates in file and restart')
-    #print()
-
-    # Find out what languages are represented in the labels and descriptions
-    languages_list = labelLanguageList + descriptionLanguageList
-    languages_list = list(set(languages_list))
-    #print(languages_list)
-
-    # Construct data structure to describe columns label/description combinations by language
-    language_structure = []
-    for language in languages_list:
-        dictionary = {'language': language}
-        found = False
-        for languageNumber in range(0, len(labelColumnList)):
-            if labelLanguageList[languageNumber] == language:
-                dictionary['label_column'] = labelColumnList[languageNumber]
-                found = True
-                break
-        if not found:
-            dictionary['label_column'] = ''
-
-        found = False
-        for languageNumber in range(0, len(descriptionColumnList)):
-            if descriptionLanguageList[languageNumber] == language:
-                dictionary['description_column'] = descriptionColumnList[languageNumber]
-                found = True
-                break
-        if not found:
-            dictionary['description_column'] = ''
-
-        language_structure.append(dictionary)
-    #print(language_structure)
+    if errorFlag:
+        sys.exit('Fix incorrectly formatted dates in file and restart')
+    print()
 
     # process each row of the table for item writing
     print('Writing items')
     print('--------------------------')
     print()
-    for rowNumber in range(0, len(tableData)):            
-        new_item = False
-        abort_writing = False # Flag to suppress writing a row
+    for rowNumber in range(0, len(tableData)):
         status_message = 'processing row: ' + str(rowNumber)
         if len(labelColumnList) > 0: # skip printing a label if there aren't any
             status_message += '  Label: ' + tableData[rowNumber][labelColumnList[0]] # include the first label available
@@ -1257,112 +1113,7 @@ for table in tables:  # The script can handle multiple tables
             status_message += '  qID: ' + tableData[rowNumber][subjectWikidataIdColumnHeader]
         else:
             status_message += '  new record'
-            new_item = True
-        if log_path != '': # if logging to a file, print something so we know something is going on
-            print(status_message)
-        print(status_message, file=log_object)
-
-        if new_item:
-            # -------------
-            # Suppress creation of new items if they have the same label/discription combination as an existing item
-            # -------------
-
-            # NOTE: The way this works for items with both labels and descriptions is fairly clear. However, there are
-            # situations where one or the other is missing that are not clear. For example, on 2021-02-25, Jane Wood
-            # Q71157201 had a nl label but no nl description. In theory, creating a new record for a Jane Wood with 
-            # no Dutch description should be prevented. But as the query currently works, it finds Jane Wood Q92144724
-            # who has a Dutch label and description. So it does not prevent the script from writing. 
-            # These is somewhat of an edge case, but illustrates that it is safer to always provide both a label and
-            # description for new items to guard against collisions.
-
-            combination_exists = False # We will check whether the label/description combination for any language already exists
-            has_some_value = False # Must not write the record unless at least one label or description exists in some language
-
-            # perform the label/description check for each language represented in the table
-            for language in language_structure:
-                #print(language['language'])
-                # The first screen is that both types of columns must exist for a language
-                if language['label_column'] != '' and language['description_column'] != '':
-                    # The second screen is that both columns must have values for that row
-                    if tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] != '':
-                        has_some_value = True
-                        graph_pattern = '''  ?entity rdfs:label "'''+ tableData[rowNumber][language['label_column']] + '"@' + language['language'] + '''.
-      ?entity schema:description "'''+ tableData[rowNumber][language['description_column']] + '"@' + language['language'] + '.'
-                        #print('Checking ' + language['language'] + ' label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"')
-                        #print(graph_pattern)
-                        exists = ask_query(graph_pattern)
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label/description. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"\n'
-
-                    # Case where the label has a value but description does not
-                    elif tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] == '':
-                        has_some_value = True
-                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
-
-                    # Case where the description has a value but label does not
-                    elif tableData[rowNumber][language['label_column']] == '' and tableData[rowNumber][language['description_column']] != '':
-                        has_some_value = True
-                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
-
-                # Need to check for the special cases where a label or a description column doesn't exist for the language.
-
-                # Case where there is no description column
-                elif language['label_column'] != '' and language['description_column'] == '':
-                    #print(tableData[rowNumber][language['label_column']])
-                    # The label column must have a value in order to check
-                    if tableData[rowNumber][language['label_column']] != '':
-                        has_some_value = True
-                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
-
-                # Case where there is no label column
-                elif language['label_column'] == '' and language['description_column'] != '':
-                    #print(tableData[rowNumber][language['description_column']])
-                    # The description column must have a value in order to check
-                    if tableData[rowNumber][language['description_column']] != '':
-                        has_some_value = True
-                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
-
-            if not has_some_value:
-                error_log += 'Row: ' + str(rowNumber) + ' does not have any labels or descriptions\n'
-                abort_writing = True
-
-            if combination_exists:
-                abort_writing = True
-
-            # If an error occurred that precludes writing the new item, return to start of loop and continue with next row
-            if abort_writing:
-                print('failed write due to pre-existing label/description combination', file=log_object)
-                print('', file=log_object)
-                continue
-
-        # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
-        for dateColumnName in dateColumnNameList:
-            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-            if error:
-                error_log += 'Incorrect date format. Row: ' + str(rowNumber) + ', column: "' + dateColumnName + '"\n'
-                abort_writing = True
-                break # Quit working on dates in this row
-        if abort_writing: # set to True by a malformed date
-            print('failed write due to date error', file=log_object)
-            print('', file=log_object)
-            continue # quit working on this row, return to start of main loop with next row
-        for valueColumnName in valueColumnNameList:
-            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
-        # Write the file with the converted dates in case the script crashes
-        writeToFile(tableFileName, fieldnames, tableData)
+        print(status_message)
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
@@ -1395,18 +1146,17 @@ for table in tables:  # The script can handle multiple tables
                         'language': labelLanguageList[languageNumber],
                         'value': valueString
                         }
-                else: # existing item
-                    if allow_label_description_changes:
-                        # not a new record, check if the value in the table is different from what's currently in Wikidata
-                        if valueString != existingLabels[languageNumber][rowNumber]:
-                            # if they are different check to make sure the table value isn't empty
-                            if valueString != '':
-                                print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString, file=log_object)
-                                # add the label in the table for that language to the label dictionary
-                                labelDict[labelLanguageList[languageNumber]] = {
-                                    'language': labelLanguageList[languageNumber],
-                                    'value': valueString
-                                    }
+                else:
+                    # not a new record, check if the value in the table is different from what's currently in Wikidata
+                    if valueString != existingLabels[languageNumber][rowNumber]:
+                        # if they are different check to make sure the table value isn't empty
+                        if valueString != '':
+                            print('Changing label ', existingLabels[languageNumber][rowNumber], ' to ', valueString)
+                            # add the label in the table for that language to the label dictionary
+                            labelDict[labelLanguageList[languageNumber]] = {
+                                'language': labelLanguageList[languageNumber],
+                                'value': valueString
+                                }
             if labelDict != {}:
                 dataStructure['labels'] = labelDict
         
@@ -1453,18 +1203,17 @@ for table in tables:  # The script can handle multiple tables
                         'language': descriptionLanguageList[languageNumber],
                         'value': valueString
                         }
-                else: # existing item
-                    if allow_label_description_changes:
-                        # not a new record, check if the value in the table is different from what's currently in Wikidata
-                        if valueString != existingDescriptions[languageNumber][rowNumber]:
-                            # if they are different check to make sure the table value isn't empty
-                            if valueString != '':
-                                print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString, file=log_object)
-                                # add the description in the table for that language to the description dictionary
-                                descriptionDict[descriptionLanguageList[languageNumber]] = {
-                                    'language': descriptionLanguageList[languageNumber],
-                                    'value': valueString
-                                    }
+                else:
+                    # not a new record, check if the value in the table is different from what's currently in Wikidata
+                    if valueString != existingDescriptions[languageNumber][rowNumber]:
+                        # if they are different check to make sure the table value isn't empty
+                        if valueString != '':
+                            print('Changing description ', existingDescriptions[languageNumber][rowNumber], ' to ', valueString)
+                            # add the description in the table for that language to the description dictionary
+                            descriptionDict[descriptionLanguageList[languageNumber]] = {
+                                'language': descriptionLanguageList[languageNumber],
+                                'value': valueString
+                                }
             if descriptionDict != {}:
                 dataStructure['descriptions'] = descriptionDict
 
@@ -1634,14 +1383,14 @@ for table in tables:  # The script can handle multiple tables
         
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
-            print('no data to write', file=log_object)
-            print('', file=log_object)
+            print('no data to write')
+            print()
         else:
             if maxlag > 0:
                 parameterDictionary['maxlag'] = maxlag
             responseData = attemptPost(endpointUrl, parameterDictionary)
-            print('Write confirmation: ', responseData, file=log_object)
-            print('', file=log_object)
+            print('Write confirmation: ', responseData)
+            print()
 
             if newItem:
                 # extract the entity Q number from the response JSON
@@ -1810,23 +1559,29 @@ for table in tables:  # The script can handle multiple tables
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost
             writeToFile(tableFileName, fieldnames, tableData)
+            #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+            #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            #    writer.writeheader()
+            #    for rowNumber in range(0, len(tableData)):
+            #        try:
+            #            writer.writerow(tableData[rowNumber])
+            #        except:
+            #            print('ERROR row:', rowNumber, '  ', tableData[rowNumber])
+            #            print()
             
-            # Do not change this value, see top of script for an explanation
-            sleep(api_sleep)
-    print('', file=log_object)
-    print('', file=log_object)
+            # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+            # To be safe and avoid getting blocked, use 1.25 s.
+            sleep(1.25)
+    print()
+    print()
 
     # process each row of the table for references of existing claims
-    log_text = 'Writing references of existing claims\n'
-    log_text += '--------------------------\n'
-    if log_path != '':
-        print('\n' + log_text) # print something if output is going to a log file
-    print(log_text, file=log_object)
+    print('Writing references of existing claims')
+    print('--------------------------')
+    print()
     for rowNumber in range(0, len(tableData)):
-        log_text = 'processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader]
-        if log_path != '':
-            print(log_text) # print something if output is going to a log file
-        print(log_text, file=log_object)        
+        print('processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader])
+        
         for propertyNumber in range(0, len(propertiesColumnList)):
             propertyId = propertiesIdList[propertyNumber]
             statementUuidColumn = propertiesUuidColumnList[propertyNumber]     
@@ -1858,8 +1613,8 @@ for table in tables:  # The script can handle multiple tables
                                 
                                 # print('ref:', reference['refValueColumnList'])
                                 responseData = attemptPost(endpointUrl, parameterDictionary)
-                                print('Write confirmation: ', responseData, file=log_object)
-                                print('', file=log_object)
+                                print('Write confirmation: ', responseData)
+                                print()
             
                                 tableData[rowNumber][reference['refHashColumn']] = responseData['reference']['hash']
                             
@@ -1867,22 +1622,15 @@ for table in tables:  # The script can handle multiple tables
                                 # Note: I'm writing after every line so that if the script crashes, no data will be lost
                                 writeToFile(tableFileName, fieldnames, tableData)
 
-                                # Do not change this value. See top of script for explanation
-                                sleep(api_sleep)
-    print('', file=log_object)
-    if error_log != '':
-        full_error_log += '\nError log for CSV file: ' + tableFileName + '\n' + error_log + '\n'
+                                #with open(tableFileName, 'w', newline='', encoding='utf-8') as csvfile:
+                                #    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                                #    writer.writeheader()
+                                #    for writeRowNumber in range(0, len(tableData)):
+                                #        writer.writerow(tableData[writeRowNumber])
+                                
+                                # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
+                                # To be safe and avoid getting blocked, use 1.25 s.
+                                sleep(1.25)
+    print()
 
-if allow_label_description_changes:
-    print('\n\nAutomatic label and description changes for existing items were ENABLED.', file=log_object)
-else:
-    print('\n\nAutomatic label and description changes for existing items were DISABLED.', file=log_object)
-
-if full_error_log != '': # If there were errors display them
-    print(full_error_log)
-    if log_path != '': # if there is logging to a file, write the error log to the file
-        print('\n\n' + full_error_log, file=log_object)
-
-if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
-    log_object.close() 
 print('done')
