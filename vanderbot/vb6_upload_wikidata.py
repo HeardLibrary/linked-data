@@ -1,4 +1,4 @@
-# VanderBot v1.6.2 (2020-12-01) vb6_upload_wikidata.py
+# VanderBot v1.7 (2021-02) vb6_upload_wikidata.py
 # (c) 2020 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -87,6 +87,11 @@
 # Version 1.6.4 change notes (2021-01-27):
 # - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
 # part of a SPARQL query contained non-Latin characters.
+# -----------------------------------------
+# Version 1.7 change notes (2021-0):
+# - enable diverting output to a log file by passing in the log file path as a command line artument.
+# - enable logging of some errors to be displayed (and saved to the log file if used)
+# - prior to writing new items, check that there are no existing items with the same labels and descriptions
 
 import json
 import requests
@@ -96,6 +101,7 @@ from time import sleep
 import sys
 import uuid
 
+# Set script-wide variable values
 if len(sys.argv) == 2: # if exactly one argument passed (i.e. the log file path)
     log_path = sys.argv[1] # sys.argv[0] is the script name
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output to log file if argument passed
@@ -104,6 +110,24 @@ else:
     log_object = sys.stdout # otherwise the output goes to the console screen
 
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
+endpoint = 'https://query.wikidata.org/sparql'
+accept_media_type = 'application/json'
+user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+
+# The following code generates a request header dictionary suitable for sending to a SPARQL endpoint.
+# If the query is SELECT, use the JSON media type above. For CONSTRUCT queryies use text/turtle to get RDF/Turtle
+# Best to send a user-agent header because some Wikimedia servers don't like unidentified clients
+# NOTE: This header has the wrong Content-Type for SPARQL update, which needs type application/sparql-update
+def generate_header_dictionary(accept_media_type,user_agent_header):
+    request_header_dictionary = {
+        'Accept' : accept_media_type,
+        'Content-Type': 'application/sparql-query',
+        'User-Agent': user_agent_header
+    }
+    return request_header_dictionary
+
+# Generate the request header using the function above
+request_header = generate_header_dictionary(accept_media_type,user_agent_header)
 
 # -----------------------------------------------------------------
 # function definitions
@@ -174,6 +198,67 @@ def extractFromIri(iri, numberPieces):
     # with pattern like http://www.wikidata.org/entity/Q6386232 there are 5 pieces with qId as number 4
     pieces = iri.split('/')
     return pieces[numberPieces]
+
+# SPARQL ASK query used to determine whether labels and descriptions already exist in Wikidata
+def ask_query(graph_pattern):
+    query_string = '''ask where {
+'''+ graph_pattern + '''
+      }'''
+    #print(query_string)
+    response = requests.post(endpoint, data=query_string.encode('utf-8'), headers=request_header)
+    #print(response.text) # uncomment to view the raw response, e.g. if you are getting an error
+    data = response.json() # NOTE: the conversion from JSON to Python data structure turns JSON true into Python True
+    #print(json.dumps(data, indent=2))
+    results = data['boolean']
+    #print(results) 
+    return results
+    
+# The following two functions use the ASK function above for cases where only a label or only a description is present
+def check_for_only_label(label_string, language):
+    # Label must exist
+    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '.'
+    #print('Checking ' + language + ' label: "' + label_string)
+    #print(graph_pattern)
+    label_exists = ask_query(graph_pattern)
+    sleep(sparqlSleep)
+    #print(label_exists)
+    #print()
+    
+    # Also label must exist with NO description
+    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '''.
+  ?entity schema:description ?desc.
+  filter(lang(?desc)="''' + language + '")'
+    #print('Checking ' + language + ' label: "' + label_string + '" with description')
+    #print(graph_pattern)
+    label_with_description = ask_query(graph_pattern)
+    sleep(sparqlSleep)
+    #print(label_with_description)
+    #print()
+    # A True indicates that there is a label with no description for that language
+    return label_exists and not(label_with_description)
+
+def check_for_only_description(description_string, language):
+    # Description must exist
+    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '.'
+    #print('Checking ' + language + ' description: "' + description_string + '"')
+    #print(graph_pattern)
+    description_exists = ask_query(graph_pattern)
+    sleep(sparqlSleep)
+    #print(description_exists)
+    #print()
+    
+    # Also description must exist with NO label
+    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '''.
+  ?entity rdfs:label ?label.
+  filter(lang(?label)="''' + language + '")'
+    #print('Checking ' + language + ' description: "' + description_string + '" with label')
+    #print(graph_pattern)
+    description_with_record = ask_query(graph_pattern)
+    sleep(sparqlSleep)
+    #print(description_with_record)
+    #print()
+    # A True indicates that there is a label with no description for that language
+    return description_exists and not(description_with_record)
 
 # search for any of the "label" types: label, alias, description
 def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
@@ -801,6 +886,8 @@ csrfToken = getCsrfToken(endpointUrl)
 # -------------------------------------------
 # Beginning of script to process the tables
 
+full_error_log = ''
+
 # There are options to require values for every mapped reference column or every mapped qualifier column.
 # By default, these are turned off, but they can be turned on by changing these flags:
 require_references = False
@@ -819,7 +906,8 @@ with open('csv-metadata.json', 'rt', encoding='utf-8') as fileObject:
 metadata = json.loads(text)
 
 tables = metadata['tables']
-for table in tables:  # The script can handle multiple tables because that option is in the standard, but as a practical matter I only use one
+for table in tables:  # The script can handle multiple tables
+    error_log = '' # start the error log for this table
     tableFileName = table['url']
     print('File name: ', tableFileName)
     tableData = readDict(tableFileName)
@@ -1095,6 +1183,7 @@ for table in tables:  # The script can handle multiple tables because that optio
             tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 errorFlag = True
+                error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
         for valueColumnName in valueColumnNameList:
             tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
         #print(tableData[rowNumber])
@@ -1105,6 +1194,7 @@ for table in tables:  # The script can handle multiple tables because that optio
 
     # If any of the date formats in the table were bad, don't try to write to the API
     if errorFlag:
+        print(error_log)
         sys.exit('Fix incorrectly formatted dates in file and restart')
     print()
 
@@ -1122,7 +1212,92 @@ for table in tables:  # The script can handle multiple tables because that optio
             status_message += '  qID: ' + tableData[rowNumber][subjectWikidataIdColumnHeader]
         else:
             status_message += '  new record'
+            new_item = True
         print(status_message, file=log_object)
+
+        if new_item:
+            # -------------
+            # Suppress creation of new items if they have the same label/discription combination as an existing item
+            # -------------
+
+            # NOTE: The way this works for items with both labels and descriptions is fairly clear. However, there are
+            # situations where one or the other is missing that are not clear. For example, on 2021-02-25, Jane Wood
+            # Q71157201 had a nl label but no nl description. In theory, creating a new record for a Jane Wood with 
+            # no Dutch description should be prevented. But as the query currently works, it finds Jane Wood Q92144724
+            # who has a Dutch label and description. So it does not prevent the script from writing. 
+            # These is somewhat of an edge case, but illustrates that it is safer to always provide both a label and
+            # description for new items to guard against collisions.
+
+            combination_exists = False # We will check whether the label/description combination for any language already exists
+            has_some_value = False # Must not write the record unless at least one label or description exists in some language
+
+            # perform the label/description check for each language represented in the table
+            for language in language_structure:
+                #print(language['language'])
+                # The first screen is that both types of columns must exist for a language
+                if language['label_column'] != '' and language['description_column'] != '':
+                    # The second screen is that both columns must have values for that row
+                    if tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] != '':
+                        has_some_value = True
+                        graph_pattern = '''  ?entity rdfs:label "'''+ tableData[rowNumber][language['label_column']] + '"@' + language['language'] + '''.
+      ?entity schema:description "'''+ tableData[rowNumber][language['description_column']] + '"@' + language['language'] + '.'
+                        #print('Checking ' + language['language'] + ' label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"')
+                        #print(graph_pattern)
+                        exists = ask_query(graph_pattern)
+                        if exists:
+                            combination_exists = True
+                            error_log += 'Duplicate label/description. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"\n'
+
+                    # Case where the label has a value but description does not
+                    elif tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] == '':
+                        has_some_value = True
+                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
+                        if exists:
+                            combination_exists = True
+                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
+
+                    # Case where the description has a value but label does not
+                    elif tableData[rowNumber][language['label_column']] == '' and tableData[rowNumber][language['description_column']] != '':
+                        has_some_value = True
+                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
+                        if exists:
+                            combination_exists = True
+                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
+
+                # Need to check for the special cases where a label or a description column doesn't exist for the language.
+
+                # Case where there is no description column
+                elif language['label_column'] != '' and language['description_column'] == '':
+                    #print(tableData[rowNumber][language['label_column']])
+                    # The label column must have a value in order to check
+                    if tableData[rowNumber][language['label_column']] != '':
+                        has_some_value = True
+                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
+                        if exists:
+                            combination_exists = True
+                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
+
+                # Case where there is no label column
+                elif language['label_column'] == '' and language['description_column'] != '':
+                    #print(tableData[rowNumber][language['description_column']])
+                    # The description column must have a value in order to check
+                    if tableData[rowNumber][language['description_column']] != '':
+                        has_some_value = True
+                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
+                        if exists:
+                            combination_exists = True
+                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
+
+            if not has_some_value:
+                error_log += 'Row: ' + str(rowNumber) + ' does not have any labels or descriptions'
+                abort_writing = True
+
+            if combination_exists:
+                abort_writing = True
+
+            # If an error occurred that precludes writing the new item, return to start of loop and continue with next row
+            if abort_writing:
+                continue
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
@@ -1645,5 +1820,14 @@ for table in tables:  # The script can handle multiple tables because that optio
                                 # To be safe and avoid getting blocked, use 1.25 s.
                                 sleep(1.25)
     print('', file=log_object)
+    if error_log != '':
+        full_error_log += 'Error log for CSV file: ' + tableFileName + '\n' + error_log + '\n\n'
 
+if full_error_log != '': # If there were errors display them
+    print(full_error_log)
+    if log_path != '': # if there is logging to a file, write the error log to the file
+        print('\n\n' + full_error_log, file=log_object)
+
+if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
+    log_object.close() 
 print('done')
