@@ -95,10 +95,6 @@ from time import sleep
 import sys
 import uuid
 
-home = str(Path.home()) # gets path to home directory; supposed to work for Win and Mac
-credentialsFilename = 'wikibase_credentials.txt'
-credentialsPath = home + '/' + credentialsFilename
-
 # Change the following lines to hard-code different defaults if not running from the command line.
 
 # Set script-wide variable values. Assign default values, then override if passed in as command line arguments
@@ -108,7 +104,7 @@ allow_label_description_changes = False # labels and descriptions in the local C
 endpoint = 'https://query.wikidata.org/sparql' # default to the Wikidata Query Service endpoint
 sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
 json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
-credentials_path_string = 'home' # value is "home", "working", or a relative or absolute path with trailing "/"
+credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
@@ -123,52 +119,55 @@ password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
 args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
 
-if '-log' in opts: # set output to specified log file or path including file name
+if '--log' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('-log')]
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
 if '-L' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('-L')]
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
 
-if '-update' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+if '--update' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
     if args[opts.index('-update')] == 'allow':
         allow_label_description_changes = True
 if '-U' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
     if args[opts.index('-U')] == 'allow':
         allow_label_description_changes = True
 
-if '-endpoint' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
+if '--endpoint' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
     endpoint = args[opts.index('-endpoint')]
 if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
     endpoint = args[opts.index('-E')]
 
-if '-sleep' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
+if '--sleep' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
     sparqlSleep = args[opts.index('-sleep')]
 if '-S' in opts: # specifies a delay value (in seconds) between requests to the Query Service that is different from the default
     sparqlSleep = args[opts.index('-S')]
 
 # Specifies a different file path for the metadata description file that maps the columns in the CSV
 # May be a different filename in the same directory as the script or a full or relative path.
-if '-json' in opts: 
+if '--json' in opts: 
     json_metadata_description_file = args[opts.index('-json')]
 if '-J' in opts: 
     json_metadata_description_file = args[opts.index('-J')]
 
-if '-path' in opts: # specifies the location of the credentials file.
+if '--path' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-path')] # include trailing slash if relative or absolute path
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
-if '-credentials' in opts: # specifies the name of the credentials file.
+if '--credentials' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('-credentials')]
 if '-C' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('-C')]
 
+google_drive_root = '/content/drive/My Drive/'
 if credentials_path_string == 'home': # credential file is in home directory
     home = str(Path.home()) # gets path to home directory; works for both Win and Mac
     credentials_path = home + '/' + credentials_filename
 elif credentials_path_string == 'working': # credential file is in current working directory
     credentials_path = credentials_filename
+elif credentials_path_string == 'gdrive': # credential file is in the root of the Google Drive
+    credentials_path = google_drive_root + credentials_filename
 else:  # credential file is in a directory whose path was specified by the credential_path_string
     credentials_path = credentials_path_string + credentials_filename
 
