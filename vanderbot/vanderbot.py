@@ -1836,7 +1836,7 @@ for table in tables:  # The script can handle multiple tables
                                     # Since this check only happens for newly written statements, referenceMatch should always be True since the exact reference was written.
                                     # But better give an error message if for some reason no reference matched.
                                     if referenceMatch == False:
-                                        error_log += 'The script thinks there might be a problem with a retrieved reference identifier, so check the CSV row ' +  str(rowNumber) + '\n')
+                                        error_log += 'The script thinks there might be a problem with a retrieved reference identifier, so check the CSV row ' +  str(rowNumber) + '\n'
                                         print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], file=log_object)
                                         #print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
                                         print('Reference  ', tableReference, file=log_object)
