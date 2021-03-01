@@ -1,4 +1,4 @@
-# VanderBot v1.7 (2021-02-26) vanderbot.py
+# VanderBot v1.7 (2021-03-01) vanderbot.py
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -81,8 +81,8 @@
 # - contains a bug fix that explicitly encodes all HTTP POST bodies as UTF-8. This caused problems if strings being sent as 
 # part of a SPARQL query contained non-Latin characters.
 # -----------------------------------------
-# Version 1.7 change notes (2021-0):
-# - enable changes from the default values using command line options
+# Version 1.7 change notes (2021-03-01):
+# - enable options different from the default values using command line options
 # - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
 # - move mutable configuration variables to the top of the script
