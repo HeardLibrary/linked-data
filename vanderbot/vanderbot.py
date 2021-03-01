@@ -958,7 +958,7 @@ tables = metadata['tables']
 for table in tables:  # The script can handle multiple tables
     error_log = '' # start the error log for this table
     tableFileName = table['url']
-    print('File name: ', tableFileName)
+    print('\nFile name: ', tableFileName)
     if log_path != '':
         print('\nFile name: ' + tableFileName + '\n', file=log_object)
     tableData = readDict(tableFileName)
@@ -1835,11 +1835,12 @@ for table in tables:  # The script can handle multiple tables
                                     # At this point, the outer loop is finished. Either a response reference has matched or all response references have been checked.
                                     # Since this check only happens for newly written statements, referenceMatch should always be True since the exact reference was written.
                                     # But better give an error message if for some reason no reference matched.
-                                    if referenceMatch == False:
-                                        error_log += 'The script thinks there might be a problem with a retrieved reference identifier, so check the CSV row ' +  str(rowNumber) + '\n'
-                                        print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], file=log_object)
-                                        #print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
-                                        print('Reference  ', tableReference, file=log_object)
+                                    # Note 2021-03-01: This test does not actually seem to work since suggests the reference ID can't be found, when actually it is found just fine. I'm commenting it out
+                                    # but leaving it for the historical record in case it needs to be re-enabled for debugging in the future.
+                                    #if referenceMatch == False:
+                                    #    error_log += 'The script thinks there might be a problem with a retrieved reference identifier, so check that all reveferences in CSV row ' +  str(rowNumber + 2) + 'have identifiers.\n'
+                                    #    print('No reference in the response JSON matched with the reference for statement:', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], file=log_object)
+                                    #    print('Reference  ', tableReference, file=log_object)
 
                                     # The script will now move on to checking the next reference in the table.
 
