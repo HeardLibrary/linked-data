@@ -114,7 +114,7 @@ Time values can be abbreviated when entered in the CSV. VanderBot will convert t
 
 When these abbreviated values are used in the timestamp (`_val`) column, the precision (`_prec`) column MUST be left empty. The precision column will be filled with the appropriate integer when the date is converted to the required timestamp format.
 
-Time values at lower precisions and BCE dates with negative values must be in this form:
+Time values at lower precisions and BCE dates with negative values must be in long form. For example:
 
 ```
 2020-11-30T00:00:00Z
