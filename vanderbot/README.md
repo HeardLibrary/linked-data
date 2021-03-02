@@ -45,7 +45,7 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --log | -L | log filename, or path and appended filename | none |
+| --log | -L | log filename, or path and appended filename. Omit to log to console. | none |
 | --json | -J | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
 | --credentials | -C | name of the credentials file | "wikibase_credentials.txt" |
 | --path | -P | credentials directory: "home", "working", or path with trailing "/" | "home" |
@@ -68,7 +68,7 @@ Metadata description file is called `project-metadata.json` and is in the curren
 python vanderbot.py -P working -C wikidata-credentials.txt
 ```
 
-Credentials file called `wikidata-credentials.txt` is in the current working directory.
+Credentials file called `wikidata-credentials.txt` is in the current working directory. Logging will be to the standard output console.
 
 ----
 
