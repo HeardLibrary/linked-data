@@ -31,6 +31,15 @@ Written by Steve Baskauf 2020-21.
 
 Copyright 2021 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
+## Credentials text file format example
+
+```
+endpointUrl=https://www.wikidata.org
+username=User@bot
+password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+```
+
+Username and password are created on the `Bot passwords` page, accessed from `Special pages`. Wikimedia credentials are shared across all platforms (Wikipedia, Wikidata, Commons, etc.). The endpoint URL is the subdomain of a Wikibase instance -- Wikidata in the example above. The credentials file name and location are set using the options below.
 
 ## Command line options
 
@@ -41,6 +50,7 @@ Copyright 2021 Vanderbilt University. This program is released under a [GNU Gene
 | --credentials | -C | name of the credentials file | "wikibase_credentials.txt" |
 | --path | -P | credentials directory: "home", "working", or path with trailing "/" | "home" |
 | --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | "suppress" |
+| --endpoint | -E | a Wikibase SPARQL endpoint URL | "https://query.wikidata.org/sparql" |
 
 **Examples:**
 
@@ -67,6 +77,54 @@ python vanderbot.py --update allow -L update.log
 ```
 
 Progress and error logs saved to the file `update.log` in the current working directory. Labels and descriptions of existing items in Wikidata are automatically replaced with local values if they differ.
+
+## Q identifiers
+
+When stored in the CSV, Q identifiers ("Q IDs") for items MUST be written with the leading `Q` but without any namespace prefix. Example: `Q42`.
+
+## Value nodes
+
+Generally, CSV column names are flexible and can be whatever is specified in the metadata description JSON file. However, VanderBot requires several suffixes for complex values that require more than one column to describe (value nodes). The following table lists the supported value nodes and the required suffixes.
+
+| type | component | suffix | example | datatype |
+| ---- | --------- | ------ | ------- | -------- |
+| time | timestamp | _val | startDate_val | ISO 8601-like dateTime timestamp<sup>*</sup> |
+|      | precision | _prec | startDate_prec | integer |
+| quantity | amount | _val | height_val | decimal |
+|          | unit | _unit | height_unit | Q ID IRI |
+| globecoordinate | latitude | _val | location_val | decimal degrees |
+|                 | longitude | _long | location_long | decimal degrees |
+|                 | precision | _prec | location_prec | decimal degrees |
+
+<sup>*</sup> The value required by the API differs slightly from ISO 8601, particularly in requiring a leading `+`. However, to allow the schemas to be used to generate valied ISO 8601 dateTimes, values in the CSV should omit the leading `+`, which is added by the script when values are sent to the API. VanderBot will also convert dates in certain formats to what is required by the API. See below for details.
+
+Each value node also includes a column with a `_nodeId` suffix (e.g. `startDate_nodeId`) that contains an arbitrary unique identifier assigned by the script when the item line is processed.
+
+See the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel#Datatypes_and_their_Values) for more details. Note that VanderBot supports common attributes of these value nodes but assumes defaults for others (such as the Gregorian calendar model for time and earth globe system for globecooordinate). 
+
+## Abbreviated time values
+
+Time values can be abbreviated when entered in the CSV. VanderBot will convert times that conform to certain patterns into the format required by the Wikibase model. Here are the acceptable abbreviated formats:
+
+| character pattern | example    | precision | Wikibase precision integer |
+| ----------------- | -------    | --------- | -------------------------- |
+| YYYY              | 1885       | to year   | 9  |
+| YYYY-MM           | 2020-03    | to month  | 10 |
+| YYYY-MM-DD        | 2001-09-11 | to day    | 11 |
+
+When these abbreviated values are used in the timestamp (`_val`) column, the precision (`_prec`) column MUST be left empty. The precision column will be filled with the appropriate integer when the date is converted to the required timestamp format.
+
+Time values at lower precisions and BCE dates with negative values must be in this form:
+
+```
+2020-11-30T00:00:00Z
+```
+for 30 November 2020
+
+```
+-0100-01-01T00:00:00Z
+```
+for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the precision.
 
 ----
 Revised 2021-03-01
