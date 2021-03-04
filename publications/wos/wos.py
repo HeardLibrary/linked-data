@@ -3,6 +3,7 @@ import time
 import woslite_client
 from woslite_client.rest import ApiException
 from pprint import pprint
+from pathlib import Path
 
 # This function will load some credential from a text file, either in the home directory or current working directory
 # The value of the directory variable should be either 'home' or 'working'
