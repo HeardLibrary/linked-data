@@ -1,10 +1,10 @@
 # VanderBot Researchers and Scholars project
 
-This page describes the original VanderBot project to create Wikidata items for researcher and scholars at Vanderbilt University. For information about the broader VanderBot API-writing script, see [this page](../README.md).
+This page describes the original VanderBot project to create Wikidata items for researcher and scholars at Vanderbilt University. For information about the broader VanderBot API-writing script, see [this page](../vanderbot/README.md).
 
 ## Summary
 
-VanderBot was originally set of Python scripts designed to scrape data from departmental websites, then create or update researcher records in Wikidata. Those scripts are in [this repository](../) and have names that begin with `vb1`, `vb2`, etc.  Those scripts interact with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project was focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. Since version 1.7, the general API-writing script was renamed from `vb6_upload_wikidata.py` to `vanderbot.py`. The existing `vb6_upload_wikidata.py` will be frozen at v1.6 .
+VanderBot was originally set of Python scripts designed to scrape data from departmental websites, then create or update researcher records in Wikidata. Those scripts are in [this repository](../vanderbot/) and have names that begin with `vb1`, `vb2`, etc.  Those scripts interact with the Wikidata SPARQL endpoint and API to determine what items and references already exist in Wikidata and ensure that duplicate information is not uploaded. Although the project was focused on managing Vanderbilt researcher items, the script that writes to the API uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. Since version 1.7, the general API-writing script was renamed from `vb6_upload_wikidata.py` to `vanderbot.py`. The existing `vb6_upload_wikidata.py` will be frozen at v1.6 .
 
 For background and information about this project, see [this video](https://youtu.be/dF9JX8y7CFI).
 
