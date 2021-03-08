@@ -59,6 +59,8 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 | --path | -P | credentials directory: "home", "working", or path with trailing "/" | "home" |
 | --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | "suppress" |
 | --endpoint | -E | a Wikibase SPARQL endpoint URL | "https://query.wikidata.org/sparql" |
+| --version | -V | no values; displays current version information |  |
+| --help | -H | no values; displays link to this page |  |
 
 **Examples:**
 

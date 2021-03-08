@@ -1,4 +1,7 @@
-# VanderBot v1.7 (2021-03-01) vanderbot.py
+# VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
+version = '1.7.1'
+created = '2021-03-xx'
+
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -86,6 +89,10 @@
 # - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
 # - move mutable configuration variables to the top of the script
+# -----------------------------------------
+# Version 1.7.1 change notes (2021-03-xx):
+# - enable --version option.
+# add more complete error trapping for dates
 
 import json
 import requests
@@ -115,9 +122,40 @@ username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 '''
 
+arg_vals = sys.argv[1:]
+# see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
+if '--version' in arg_vals or '-V' in arg_vals: # provide version information according to GNU standards 
+    # Remove version argument to avoid disrupting pairing of other arguments
+    # Not really necessary here, since the script terminates, but use in the future for other no-value arguments
+    if '--version' in arg_vals:
+        arg_vals.remove('--version')
+    if '-V' in arg_vals:
+        arg_vals.remove('-V')
+    print('VanderBot', version)
+    print('Copyright ©', created[:4], 'Vanderbilt University')
+    print('License GNU GPL version 3.0 <http://www.gnu.org/licenses/gpl-3.0>')
+    print('This is free software: you are free to change and redistribute it.')
+    print('There is NO WARRANTY, to the extent permitted by law.')
+    print('Author: Steve Baskauf')
+    print('Revision date:', created)
+    sys.exit()
+
+if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
+    # needs to be expanded to include brief info on invoking the program
+    print('For help, see the VanderBot landing page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/README.md')
+    print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    sys.exit()
+
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
-opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
-args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
+opts = [opt for opt in arg_vals if opt.startswith('-')]
+args = [arg for arg in arg_vals if not arg.startswith('-')]
+
+if '--version' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('--version')] == 'allow':
+        allow_label_description_changes = True
+if '-V' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('-V')] == 'allow':
+        allow_label_description_changes = True
 
 if '--log' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('--log')]
@@ -433,6 +471,26 @@ def convertDates(rowData, dateColumnNameRoot):
             rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
 
     return rowData, error
+
+# Placeholder function for changes to convertDates()
+def validate_time(date_text):
+    try:
+        if date_text != datetime.strptime(date_text, "%Y-%m-%d").strftime("%Y-%m-%d"):
+            raise ValueError
+        form = 'day'
+    except ValueError:
+        try:
+            if date_text != datetime.strptime(date_text, "%Y-%m").strftime('%Y-%m'):
+                raise ValueError
+            form = 'month'
+        except ValueError:
+            try:
+                if date_text != datetime.strptime(date_text, "%Y").strftime('%Y'):
+                    raise ValueError
+                form = 'year'
+            except ValueError:
+                form ='none'
+    return form
 
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
