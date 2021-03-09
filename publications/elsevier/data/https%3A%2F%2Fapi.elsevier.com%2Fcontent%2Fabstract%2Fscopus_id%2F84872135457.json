@@ -1,0 +1,95 @@
+{
+    "affiliation": [
+        {
+            "affiliation-city": "Stanford",
+            "affilname": "Stanford University School of Medicine",
+            "affiliation-country": "United States"
+        },
+        {
+            "affiliation-city": "Palo Alto",
+            "affilname": "VA Palo Alto Health Care System",
+            "affiliation-country": "United States"
+        },
+        {
+            "affiliation-city": "Cambridge",
+            "affilname": "Harvard University",
+            "affiliation-country": "United States"
+        },
+        {
+            "affiliation-city": "Chevy Chase",
+            "affilname": "Howard Hughes Medical Institute",
+            "affiliation-country": "United States"
+        },
+        {
+            "affiliation-city": "Philadelphia",
+            "affilname": "University of Pennsylvania",
+            "affiliation-country": "United States"
+        }
+    ],
+    "coredata": {
+        "srctype": "j",
+        "eid": "2-s2.0-84872135457",
+        "pubmed-id": "23201690",
+        "prism:coverDate": "2013-01-10",
+        "prism:aggregationType": "Journal",
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/84872135457",
+        "dc:creator": {
+            "author": [
+                {
+                    "ce:given-name": "Markus",
+                    "preferred-name": {
+                        "ce:given-name": "Markus",
+                        "ce:initials": "M.",
+                        "ce:surname": "Kretz",
+                        "ce:indexed-name": "Kretz M."
+                    },
+                    "@seq": "1",
+                    "ce:initials": "M.",
+                    "@_fa": "true",
+                    "affiliation": {
+                        "@id": "60032838",
+                        "@href": "https://api.elsevier.com/content/affiliation/affiliation_id/60032838"
+                    },
+                    "ce:surname": "Kretz",
+                    "@auid": "6701538998",
+                    "author-url": "https://api.elsevier.com/content/author/author_id/6701538998",
+                    "ce:indexed-name": "Kretz M."
+                }
+            ]
+        },
+        "link": [
+            {
+                "@_fa": "true",
+                "@rel": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84872135457"
+            },
+            {
+                "@_fa": "true",
+                "@rel": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=84872135457&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@rel": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=84872135457&origin=inward"
+            }
+        ],
+        "source-id": "21206",
+        "pii": "NATURE11661",
+        "citedby-count": "561",
+        "prism:volume": "493",
+        "subtype": "ar",
+        "dc:title": "Control of somatic tissue differentiation by the long non-coding RNA TINCR",
+        "openaccess": "2",
+        "prism:issn": "00280836 14764687",
+        "prism:issueIdentifier": "7431",
+        "subtypeDescription": "Article",
+        "prism:publicationName": "Nature",
+        "prism:pageRange": "231-235",
+        "prism:endingPage": "235",
+        "openaccessFlag": null,
+        "prism:doi": "10.1038/nature11661",
+        "prism:startingPage": "231",
+        "dc:identifier": "SCOPUS_ID:84872135457"
+    }
+}

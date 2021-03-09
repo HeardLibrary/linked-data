@@ -1,0 +1,389 @@
+[
+    {
+        "@_fa": "true",
+        "link": [
+            {
+                "@_fa": "true",
+                "@ref": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84991497567"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "author-affiliation",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84991497567?field=author,affiliation"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=84991497567&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=84991497567&origin=inward"
+            }
+        ],
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/84991497567",
+        "dc:identifier": "SCOPUS_ID:84991497567",
+        "eid": "2-s2.0-84991497567",
+        "dc:title": "Darwin-SW: Darwin Core-based terms for expressing biodiversity data as RDF",
+        "dc:creator": "Baskauf S.",
+        "prism:publicationName": "Semantic Web",
+        "prism:issn": "15700844",
+        "prism:eIssn": "22104968",
+        "prism:volume": "7",
+        "prism:issueIdentifier": "6",
+        "prism:pageRange": "629-643",
+        "prism:coverDate": "2016-01-01",
+        "prism:coverDisplayDate": "2016",
+        "prism:doi": "10.3233/SW-150203",
+        "citedby-count": "10",
+        "affiliation": [
+            {
+                "@_fa": "true",
+                "affilname": "Vanderbilt University",
+                "affiliation-city": "Nashville",
+                "affiliation-country": "United States"
+            }
+        ],
+        "prism:aggregationType": "Journal",
+        "subtype": "ar",
+        "subtypeDescription": "Article",
+        "source-id": "21100269620",
+        "openaccess": "0",
+        "openaccessFlag": false,
+        "freetoread": {
+            "value": [
+                {
+                    "$": "all"
+                },
+                {
+                    "$": "repository"
+                },
+                {
+                    "$": "repositoryam"
+                }
+            ]
+        },
+        "freetoreadLabel": {
+            "value": [
+                {
+                    "$": "All Open Access"
+                },
+                {
+                    "$": "Green"
+                }
+            ]
+        }
+    },
+    {
+        "@_fa": "true",
+        "link": [
+            {
+                "@_fa": "true",
+                "@ref": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84991486106"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "author-affiliation",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84991486106?field=author,affiliation"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=84991486106&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=84991486106&origin=inward"
+            }
+        ],
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/84991486106",
+        "dc:identifier": "SCOPUS_ID:84991486106",
+        "eid": "2-s2.0-84991486106",
+        "dc:title": "Lessons learned from adapting the Darwin Core vocabulary standard for use in RDF",
+        "dc:creator": "Baskauf S.J.",
+        "prism:publicationName": "Semantic Web",
+        "prism:issn": "15700844",
+        "prism:eIssn": "22104968",
+        "prism:volume": "7",
+        "prism:issueIdentifier": "6",
+        "prism:pageRange": "617-627",
+        "prism:coverDate": "2016-01-01",
+        "prism:coverDisplayDate": "2016",
+        "prism:doi": "10.3233/SW-150199",
+        "citedby-count": "2",
+        "affiliation": [
+            {
+                "@_fa": "true",
+                "affilname": "Vanderbilt University",
+                "affiliation-city": "Nashville",
+                "affiliation-country": "United States"
+            }
+        ],
+        "prism:aggregationType": "Journal",
+        "subtype": "ar",
+        "subtypeDescription": "Article",
+        "source-id": "21100269620",
+        "openaccess": "0",
+        "openaccessFlag": false,
+        "freetoread": {
+            "value": [
+                {
+                    "$": "all"
+                },
+                {
+                    "$": "repository"
+                },
+                {
+                    "$": "repositoryam"
+                }
+            ]
+        },
+        "freetoreadLabel": {
+            "value": [
+                {
+                    "$": "All Open Access"
+                },
+                {
+                    "$": "Green"
+                }
+            ]
+        }
+    },
+    {
+        "@_fa": "true",
+        "link": [
+            {
+                "@_fa": "true",
+                "@ref": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84897063495"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "author-affiliation",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/84897063495?field=author,affiliation"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=84897063495&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=84897063495&origin=inward"
+            }
+        ],
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/84897063495",
+        "dc:identifier": "SCOPUS_ID:84897063495",
+        "eid": "2-s2.0-84897063495",
+        "dc:title": "Semantics in support of biodiversity knowledge discovery: An introduction to the biological collections ontology and related ontologies",
+        "dc:creator": "Walls R.L.",
+        "prism:publicationName": "PLoS ONE",
+        "prism:eIssn": "19326203",
+        "prism:volume": "9",
+        "prism:issueIdentifier": "3",
+        "prism:pageRange": null,
+        "prism:coverDate": "2014-03-03",
+        "prism:coverDisplayDate": "3 March 2014",
+        "prism:doi": "10.1371/journal.pone.0089606",
+        "citedby-count": "79",
+        "affiliation": [
+            {
+                "@_fa": "true",
+                "affilname": "The University of Arizona",
+                "affiliation-city": "Tucson",
+                "affiliation-country": "United States"
+            }
+        ],
+        "pubmed-id": "24595056",
+        "prism:aggregationType": "Journal",
+        "subtype": "ar",
+        "subtypeDescription": "Article",
+        "article-number": "e89606",
+        "source-id": "10600153309",
+        "openaccess": "1",
+        "openaccessFlag": true,
+        "freetoread": {
+            "value": [
+                {
+                    "$": "all"
+                },
+                {
+                    "$": "publisherfullgold"
+                },
+                {
+                    "$": "repository"
+                },
+                {
+                    "$": "repositoryvor"
+                },
+                {
+                    "$": "repositoryam"
+                }
+            ]
+        },
+        "freetoreadLabel": {
+            "value": [
+                {
+                    "$": "All Open Access"
+                },
+                {
+                    "$": "Gold"
+                },
+                {
+                    "$": "Green"
+                }
+            ]
+        }
+    },
+    {
+        "@_fa": "true",
+        "link": [
+            {
+                "@_fa": "true",
+                "@ref": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/0242569185"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "author-affiliation",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/0242569185?field=author,affiliation"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=0242569185&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=0242569185&origin=inward"
+            }
+        ],
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/0242569185",
+        "dc:identifier": "SCOPUS_ID:0242569185",
+        "eid": "2-s2.0-0242569185",
+        "dc:title": "Factors Influencing Population Dynamics of the Southwestern Corn Borer (Lepidoptera: Crambidae): A Reassessment",
+        "dc:creator": "Baskauf S.",
+        "prism:publicationName": "Environmental Entomology",
+        "prism:issn": "0046225X",
+        "prism:volume": "32",
+        "prism:issueIdentifier": "5",
+        "prism:pageRange": "915-928",
+        "prism:coverDate": "2003-01-01",
+        "prism:coverDisplayDate": "October 2003",
+        "prism:doi": "10.1603/0046-225X-32.5.915",
+        "citedby-count": "12",
+        "affiliation": [
+            {
+                "@_fa": "true",
+                "affilname": "Vanderbilt University",
+                "affiliation-city": "Nashville",
+                "affiliation-country": "United States"
+            }
+        ],
+        "prism:aggregationType": "Journal",
+        "subtype": "re",
+        "subtypeDescription": "Review",
+        "source-id": "20311",
+        "openaccess": "1",
+        "openaccessFlag": true,
+        "freetoread": {
+            "value": [
+                {
+                    "$": "all"
+                },
+                {
+                    "$": "publisherfree2read"
+                }
+            ]
+        },
+        "freetoreadLabel": {
+            "value": [
+                {
+                    "$": "All Open Access"
+                },
+                {
+                    "$": "Bronze"
+                }
+            ]
+        }
+    },
+    {
+        "@_fa": "true",
+        "link": [
+            {
+                "@_fa": "true",
+                "@ref": "self",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/0034766419"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "author-affiliation",
+                "@href": "https://api.elsevier.com/content/abstract/scopus_id/0034766419?field=author,affiliation"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus",
+                "@href": "https://www.scopus.com/inward/record.uri?partnerID=HzOxMe3b&scp=0034766419&origin=inward"
+            },
+            {
+                "@_fa": "true",
+                "@ref": "scopus-citedby",
+                "@href": "https://www.scopus.com/inward/citedby.uri?partnerID=HzOxMe3b&scp=0034766419&origin=inward"
+            }
+        ],
+        "prism:url": "https://api.elsevier.com/content/abstract/scopus_id/0034766419",
+        "dc:identifier": "SCOPUS_ID:0034766419",
+        "eid": "2-s2.0-0034766419",
+        "dc:title": "Evaluation of low temperature mortality as a range-limiting factor for the southwestern corn borer (Lepidoptera: Crambidae)",
+        "dc:creator": "Baskauf S.",
+        "prism:publicationName": "Environmental Entomology",
+        "prism:issn": "0046225X",
+        "prism:volume": "30",
+        "prism:issueIdentifier": "2",
+        "prism:pageRange": "181-188",
+        "prism:coverDate": "2001-01-01",
+        "prism:coverDisplayDate": "2001",
+        "prism:doi": "10.1603/0046-225X-30.2.181",
+        "citedby-count": "7",
+        "affiliation": [
+            {
+                "@_fa": "true",
+                "affilname": "Vanderbilt University",
+                "affiliation-city": "Nashville",
+                "affiliation-country": "United States"
+            }
+        ],
+        "prism:aggregationType": "Journal",
+        "subtype": "ar",
+        "subtypeDescription": "Article",
+        "source-id": "20311",
+        "openaccess": "1",
+        "openaccessFlag": true,
+        "freetoread": {
+            "value": [
+                {
+                    "$": "all"
+                },
+                {
+                    "$": "publisherfree2read"
+                }
+            ]
+        },
+        "freetoreadLabel": {
+            "value": [
+                {
+                    "$": "All Open Access"
+                },
+                {
+                    "$": "Bronze"
+                }
+            ]
+        }
+    }
+]

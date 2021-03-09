@@ -1,0 +1,58 @@
+2021-03-09 08:04:31,042 - elsapy.elsclient - INFO - Module loaded.
+2021-03-09 08:04:37,393 - elsapy.elsentity - INFO - Module loaded.
+2021-03-09 08:04:37,395 - elsapy.utils - INFO - Module loaded.
+2021-03-09 08:04:37,395 - elsapy.elsprofile - INFO - Module loaded.
+2021-03-09 08:04:37,397 - elsapy.elsdoc - INFO - Module loaded.
+2021-03-09 08:04:37,398 - elsapy.elssearch - INFO - Module loaded.
+2021-03-09 08:54:24,146 - elsapy.elsclient - INFO - Module loaded.
+2021-03-09 08:54:24,757 - elsapy.elsentity - INFO - Module loaded.
+2021-03-09 08:54:24,758 - elsapy.utils - INFO - Module loaded.
+2021-03-09 08:54:24,758 - elsapy.elsprofile - INFO - Module loaded.
+2021-03-09 08:54:24,759 - elsapy.elsdoc - INFO - Module loaded.
+2021-03-09 08:54:24,760 - elsapy.elssearch - INFO - Module loaded.
+2021-03-09 08:54:37,568 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 08:54:39,661 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 08:54:39,663 - elsapy.elsentity - INFO - Wrote https://api.elsevier.com/content/abstract/scopus_id/84872135457 to file
+2021-03-09 08:55:25,612 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/article/pii/S1674927814000082
+2021-03-09 08:55:26,403 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/article/pii/S1674927814000082
+2021-03-09 08:55:26,407 - elsapy.elsentity - INFO - Wrote https://api.elsevier.com/content/article/pii/S1674927814000082 to file
+2021-03-09 08:55:38,304 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/author?query=authlast%28keuskamp%29
+2021-03-09 08:56:33,345 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:56:36,582 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=25&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:56:39,452 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=50&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:56:52,232 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:56:55,220 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=25&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:56:58,199 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=50&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:01,160 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=75&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:05,106 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=100&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:07,779 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=125&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:10,793 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=150&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:20,000 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=175&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:23,069 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=200&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:25,994 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=225&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:28,392 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=250&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:30,635 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=275&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:33,378 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?start=300&count=25&query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 08:57:34,594 - elsapy.utils - INFO - Converting prism:coverDate
+2021-03-09 09:00:10,926 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/author?query=authlast%28keuskamp%29
+2021-03-09 09:01:14,207 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 09:01:15,758 - elsapy.utils - INFO - Converting prism:coverDate
+2021-03-09 09:01:50,785 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/sciencedirect?query=star+trek+vs+star+wars
+2021-03-09 09:05:27,882 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 09:05:29,661 - elsapy.utils - INFO - Converting prism:coverDate
+2021-03-09 09:13:10,661 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:13:12,200 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:14:38,493 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:14:39,370 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:15:09,181 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:15:09,789 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:15:23,662 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:15:24,229 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/abstract/scopus_id/84872135457
+2021-03-09 09:23:53,014 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/article/pii/S1674927814000082
+2021-03-09 09:23:53,895 - elsapy.elsentity - INFO - Data loaded for https://api.elsevier.com/content/article/pii/S1674927814000082
+2021-03-09 09:31:00,554 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28dartmouth%29+AND+AUTHOR-NAME%28lewis%29+AND+PUBYEAR+%3E+2011
+2021-03-09 09:31:01,869 - elsapy.utils - INFO - Converting prism:coverDate
+2021-03-09 09:32:26,071 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28vanderbilt%29+AND+AUTHOR-NAME%28baskauf%29
+2021-03-09 09:32:27,018 - elsapy.utils - INFO - Converting prism:coverDate
+2021-03-09 09:33:43,584 - elsapy.elsclient - INFO - Sending GET request to https://api.elsevier.com/content/search/scopus?query=AFFIL%28vanderbilt%29+AND+AUTHOR-NAME%28baskauf+s%29
+2021-03-09 09:33:45,452 - elsapy.utils - INFO - Converting prism:coverDate
