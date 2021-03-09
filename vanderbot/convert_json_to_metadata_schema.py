@@ -114,11 +114,12 @@ triple_structures = {
     }    
 }
 
-def built_triple(struct, triple_structure, subject_column, prop, triple_type, column_name, lang):
+def built_triple(struct, triple_structure, subject_column, prop, triple_type, column_name, lang, header_row):
     dic = {}
     if triple_structure['type'] == 'node':
         column_name += '_nodeId'
     dic['titles'] = column_name
+    header_row += dic['titles'] + ','
     dic['name'] = column_name
     dic['datatype'] = 'string'
     if triple_type == 'reference':
@@ -134,12 +135,13 @@ def built_triple(struct, triple_structure, subject_column, prop, triple_type, co
     if triple_structure['lang_value']:
         dic['lang'] = lang
     struct.append(dic)
-    return(struct)        
+    return(struct, header_row)        
 
-def build_value_node(column_list, value_structures, column_name):
+def build_value_node(column_list, value_structures, column_name, header_row):
     for node_prop in value_structures:
         dic = {}
         dic['titles'] = column_name + node_prop['suffix']
+        header_row += dic['titles'] + ','
         dic['name'] = column_name + node_prop['suffix']
         dic['datatype'] = node_prop['datatype']
         dic['aboutUrl'] = node_root_url + '{' + column_name + '_nodeId}'
@@ -147,9 +149,9 @@ def build_value_node(column_list, value_structures, column_name):
         if node_prop['item_value']:
             dic['valueUrl'] = 'http://www.wikidata.org/entity/{' + column_name + node_prop['suffix'] + '}'
         column_list.append(dic)
-    return(column_list)
+    return(column_list, header_row)
 
-def build_statement(column_list, statement_data):
+def build_statement(column_list, statement_data, header_row):
     if 'language' in statement_data:
         lang = statement_data['language']
     else:
@@ -161,6 +163,7 @@ def build_statement(column_list, statement_data):
     # Build the triple from subject to statement node
     dic = {}
     dic['titles'] = column_name + '_uuid'
+    header_row += dic['titles'] + ','
     dic['name'] = column_name + '_uuid'
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/{qid}'
@@ -169,26 +172,27 @@ def build_statement(column_list, statement_data):
     column_list.append(dic)
 
     # Build the triple from the statement node to the value
-    column_list = built_triple(column_list, triple_structures[value_type], statement_data['variable'], prop, 'statement', column_name, lang)
+    column_list, header_row = built_triple(column_list, triple_structures[value_type], statement_data['variable'], prop, 'statement', column_name, lang, header_row)
     
     # Build any value node triples
     if triple_structures[value_type]['type'] == 'node':
-        column_list = build_value_node(column_list, values_structures[value_type], column_name)
+        column_list, header_row = build_value_node(column_list, values_structures[value_type], column_name, header_row)
     
     # Build qualifier triples
-    column_list = build_qualifiers(column_list, column_name, statement_data['qual'])
+    column_list, header_row = build_qualifiers(column_list, column_name, statement_data['qual'], header_row)
     
     # Build reference triples
     if len(statement_data['ref']) > 0:
-        column_list = build_references(column_list, column_name, statement_data['ref'])
+        column_list, header_row = build_references(column_list, column_name, statement_data['ref'], header_row)
     
-    return column_list
+    return column_list, header_row
 
-def build_references(column_list, subject_name, references_data):
+def build_references(column_list, subject_name, references_data, header_row):
 
     # Build the triple from statement to the reference node
     dic = {}
     dic['titles'] = subject_name + '_ref1_hash'
+    header_row += dic['titles'] + ','
     dic['name'] = subject_name + '_ref1_hash'
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/statement/{qid}-{' + subject_name + '_uuid}'
@@ -206,15 +210,15 @@ def build_references(column_list, subject_name, references_data):
         column_name = reference_data['variable']
         
         # Build the triple from the reference node to the value
-        column_list = built_triple(column_list, triple_structures[value_type], subject_name + '_ref1', prop, 'reference', subject_name + '_ref1_' + column_name, lang)
+        column_list, header_row = built_triple(column_list, triple_structures[value_type], subject_name + '_ref1', prop, 'reference', subject_name + '_ref1_' + column_name, lang, header_row)
 
         # Build any value node triples
         if triple_structures[value_type]['type'] == 'node':
-            column_list = build_value_node(column_list, values_structures[value_type], subject_name + '_ref1_' + column_name)
+            column_list, header_row = build_value_node(column_list, values_structures[value_type], subject_name + '_ref1_' + column_name, header_row)
 
-    return column_list
+    return column_list, header_row
 
-def build_qualifiers(column_list, subject_name, qualifiers_data):
+def build_qualifiers(column_list, subject_name, qualifiers_data, header_row):
     for qualifier_data in qualifiers_data:
         if 'language' in qualifier_data:
             lang = qualifier_data['language']
@@ -225,17 +229,18 @@ def build_qualifiers(column_list, subject_name, qualifiers_data):
         column_name = qualifier_data['variable']
 
         # Build the triple from the statement node to the qualifier value
-        column_list = built_triple(column_list, triple_structures[value_type], subject_name, prop, 'qualifier', subject_name + '_' + column_name, lang)
+        column_list, header_row = built_triple(column_list, triple_structures[value_type], subject_name, prop, 'qualifier', subject_name + '_' + column_name, lang, header_row)
 
         # Build any value node triples
         if triple_structures[value_type]['type'] == 'node':
-            column_list = build_value_node(column_list, values_structures[value_type], subject_name + '_' + column_name)
+            column_list, header_row = build_value_node(column_list, values_structures[value_type], subject_name + '_' + column_name, header_row)
 
-    return column_list
+    return column_list, header_row
 
-def build_label_description(language, kind):
+def build_label_description(language, kind, header_row):
     dic = {}
     dic['titles'] = kind + '_' + language.replace('-', '_')
+    header_row += dic['titles'] + ','
     dic['name'] = kind + '_' + language.replace('-', '_')
     dic['datatype'] = 'string'
     dic['aboutUrl'] = 'http://www.wikidata.org/entity/{qid}'
@@ -244,7 +249,7 @@ def build_label_description(language, kind):
     else:
         dic['propertyUrl'] = 'schema:description'
     dic['lang'] = language
-    return dic
+    return dic, header_row
 
 def build_table(outfile):
     table = {}
@@ -257,12 +262,15 @@ def build_table(outfile):
             'suppressOutput': True
         }
     ]
+    header_row = 'qid,'
     
     if outfile['manage_descriptions']:
         for language in outfile['label_description_language_list']:
-            column_list.append(build_label_description(language, 'label'))
+            dic, header_row = build_label_description(language, 'label', header_row)
+            column_list.append(dic)
         for language in outfile['label_description_language_list']:
-            column_list.append(build_label_description(language, 'description'))
+            dic, header_row = build_label_description(language, 'description', header_row)
+            column_list.append(dic)
     else:
         label_column = {
             'titles': 'label_' + default_language,
@@ -271,12 +279,20 @@ def build_table(outfile):
             'suppressOutput': True
         }
         column_list.append(label_column)
+        header_row += 'label_' + default_language + ','
     
     for statement_data in outfile['prop_list']:
-        column_list = build_statement(column_list, statement_data)
+        column_list, header_row = build_statement(column_list, statement_data, header_row)
     table_schema = {}
     table_schema['columns'] = column_list
     table['tableSchema'] = table_schema
+
+    # remove trailing comma from header row string and add newline
+    header_row = header_row[:len(header_row)-1] + '\n'
+
+    # Create the CSV associated with the schema, header row only
+    with open('h' + outfile['output_file_name'], 'wt', encoding='utf-8') as file_object: # prepend "h" to avoid overwriting existing data
+        file_object.write(header_row)
     return table
 
 # ----------------
