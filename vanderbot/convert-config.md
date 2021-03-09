@@ -12,6 +12,8 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 ## Structure of configuration JSON
 
+The complete configuration file used in most of the examples is [here](https://gist.github.com/baskaufs/25a19cbb0edf9fcd16423bf231645939).
+
 The top level of the configuration file is a JSON object with four name/value pairs. 
 
 ```
