@@ -12,7 +12,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 ## Structure of configuration JSON
 
-The complete configuration file used in most of the examples is [here](https://gist.github.com/baskaufs/25a19cbb0edf9fcd16423bf231645939).
+The complete configuration file used in most of the examples is [here](https://gist.github.com/baskaufs/25a19cbb0edf9fcd16423bf231645939). Other examples are [here](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/config_journals.json) and [here](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/config_gallery.json).
 
 The top level of the configuration file is a JSON object with four name/value pairs. 
 
@@ -34,7 +34,7 @@ A value MUST be provided for one of either `item_source_csv` or `item_query`. An
 
 The CSV file whose name is the value of `item_source_csv` MUST contain a column with the header `qid`. That column SHOULD contain Q IDs for Wikidata items. Those Q IDs MUST begin with the character `Q` but MUST NOT include any namespace prefix. The CSV file MAY contain other columnms; they will be ignored. The columns MAY be in any order.
 
-If a non-empty string value is provided for `item_query`, it must be a query conforming to the syntax of the W3C [SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/) Recommendation. The query must be of the SELECT form, with `?qid` as a variable to be selected. The graph pattern of the query must define a set of items that will be included in the data set. The query SHOULD be on a single line, like this:
+If a non-empty string value is provided for `item_query`, it must be a query conforming to the syntax of the W3C [SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/) Recommendation. The query MUST be of the `SELECT` form, with `?qid` as a variable to be selected. The graph pattern of the query must define a set of items that will be included in the data set. The query SHOULD be on a single line, like this:
 
 ```
   "item_query": "select distinct ?qid where {?qid wdt:P195 wd:Q18563658.}",
@@ -42,7 +42,7 @@ If a non-empty string value is provided for `item_query`, it must be a query con
 
 **Note:** As of 2021-03-08, if a configuration file has values for both `item_source_csv` and `item_query`, the query is ignored. However, at some point in the future providing both may be enabled to allow additional screening of the items listed in the item source CSV. 
 
-The value of `outfiles` is a JSON array whose items represent CSV files to be described, described in the next section. 
+The value of `outfiles` is a JSON array whose items represent CSV files to be described, as described in the next section. 
 
 ### CSV file descriptions
 
