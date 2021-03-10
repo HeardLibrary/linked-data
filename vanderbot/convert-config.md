@@ -63,9 +63,9 @@ statement property descriptions here
     }
 ```
 
-The `manage_descriptions` value MUST be a boolean. If its value is `true`, there are two effects: the generated CSV will have both labels and descriptions for each specified language, and those labels and descriptions may be written to Wikidata. If its value is `false`, only labels will be generated for each specified language and output will be suppressed for labels in those columns. That suppression will occur regardless of the `--update` option chosen when the VanderBot script is run.
+The `manage_descriptions` value MUST be a boolean. If its value is `true`, there are two effects: the generated CSV will have both labels and descriptions for each specified language, and those labels and descriptions may be written to Wikidata. If its value is `false`, only labels will be generated for the default language and output will be suppressed for labels in those columns. That suppression will occur regardless of the `--update` option chosen when the VanderBot script is run.
 
-The value of `label_description_language_list` is a JSON array containing a sequence of ISO 639-1 language code strings. For each language in the sequence, a label column will be generated. If the value of `manage_descriptions` is `true`, a description will also be generated for each language. If the language code includes an ISO-15924 script tag, the tag MUST be in all lower case (e.g. `zh-hans`, not `zh-Hans`).
+The value of `label_description_language_list` is a JSON array containing a sequence of ISO 639-1 language code strings used when `manage_descriptions` is true. For each language in the sequence, a label and description column will be generated. If the language code includes an ISO-15924 script tag, the tag MUST be in all lower case (e.g. `zh-hans`, not `zh-Hans`).
 
 The `output_file_name` value is the path of the CSV file whose headers are being described. 
 
@@ -174,9 +174,17 @@ python convert_json_to_metadata_schema.py
 
 (or `python3` if your installation requires it). 
 
-There are two optional arguments. The first argument is the path to the configuration file. The second argument is the path to the output metadata description file. If only file names are provided, the files will be written to the current working directory. If the second argument is omitted, the output metadata description file name defaults to `csv-metadata.json` into the current working directory. If both arguments are omitted, the metadata description file has the same default and the input configuration filename defaults to `config.json` in the current working directory.
-
 The output CSV files will have the path (filename and location) similar to what is specified within the configuration file. The only difference is that the file names have an `h` prepended to avoid accidentally overwriting any existing files that might have the same name. Those files have only the column headers with no item data. So they require additional processing (in addition to the removal of the `h` prefix) before they can be used.
 
+### Command line options
+
+| long form | short form | values | default |
+| --------- | ---------- | ------ | ------- |
+| --config | -C | log filename, or path and appended filename. Omit to log to console. | none |
+| --meta | -M | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
+| --lang | -L | language of labels whose output is suppressed | "wikibase_credentials.txt" |
+| --help | -H | provide link to this page (no values) |  |
+| --version | -V | display version information (no values) |  |
+
 ----
-Revised 2021-03-08
+Revised 2021-03-10
