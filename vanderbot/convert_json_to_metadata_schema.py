@@ -59,17 +59,7 @@ if '--lang' in opts: #  set default language for labels in columns whose output 
     default_language = args[opts.index('--lang')]
 if '-L' in opts: 
     default_language = args[opts.index('-L')]
-'''
-if len(sys.argv) == 2: # if exactly one argument passed (i.e. the configuration file path)
-    config_path = sys.argv[1] # sys.argv[0] is the script name
-    out_file_path = 'csv-metadata.json'
-elif len(sys.argv) == 3: # if two arguments passed, 1st is config file path, 2nd is output file path
-    config_path = sys.argv[1]
-    out_file_path = sys.argv[2]
-else:
-    config_path = 'config.json'
-    out_file_path = 'csv-metadata.json'
-'''
+
 values_structures = {
     'date': [
         {
