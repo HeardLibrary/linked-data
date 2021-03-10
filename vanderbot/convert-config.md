@@ -180,9 +180,9 @@ The output CSV files will have the path (filename and location) similar to what 
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --config | -C | log filename, or path and appended filename. Omit to log to console. | none |
+| --config | -C | log filename, or path and appended filename. Omit to log to console. | "config.json" |
 | --meta | -M | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
-| --lang | -L | language of labels whose output is suppressed | "wikibase_credentials.txt" |
+| --lang | -L | language of labels whose output is suppressed | "en" |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
