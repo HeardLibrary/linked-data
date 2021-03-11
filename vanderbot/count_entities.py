@@ -151,15 +151,33 @@ request_header = generate_header_dictionary(accept_media_type,user_agent_header)
 def send_sparql_query(query_string, request_header):
     response = requests.post(endpoint, data=query_string.encode('utf-8'), headers=request_header)
     #print(response.text) # uncomment to view the raw response, e.g. if you are getting an error
-    data = response.json()
+    success = True
+    try:
+        data = response.json()
+    except:
+        if 'TimeoutException' in response.text:
+            print('The query timed out.')
+            success = False
+        else:
+            print('Did not find TimeoutException in response')
+            success = False
 
-    # Extract the values from the response JSON
-    results = data['results']['bindings']
+    if success:
+        try:
+            # Extract the values from the response JSON
+            results = data['results']['bindings']
+        except:
+            print('Could not extract results. Response from server was:')
+            print(data)
+            success = False
     
-    # You can delete the print statement if the queries are short. However, for large/long queries,
-    # it's good to let the user know what's going on.
-    print('done retrieving data')
-    #print(json.dumps(results, indent=2))
+    if success:
+        # You can delete the print statement if the queries are short. However, for large/long queries,
+        # it's good to let the user know what's going on.
+        print('done retrieving data')
+        #print(json.dumps(results, indent=2))
+    else:
+        results = []
     return(results)
 
 # ----------------
@@ -301,6 +319,9 @@ def perform_query(test_property, screen, find_qualifiers):
 
     # Retrieve the list of entities (properties or values) meeting the screening criteria
     results = send_sparql_query(query_string, request_header)
+    if results == []:
+        print('No results')
+        return
     #print(json.dumps(results, indent=2))
 
     # Extract IRIs or string values and their counts from the results
