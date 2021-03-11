@@ -1,6 +1,6 @@
 # Script to count property and value use in Wikidata
 
-This page describes a script that can be used to examine Wikidata property use "in the wild". A target group of items is delineated using a list of Q IDs or SPARQL graph pattern. The script either lists and counts the properties used by those items, or for one particular property, counts and lists the values used for that property.
+This page describes [a script](count_entities.py) that can be used to examine Wikidata property use "in the wild". A target group of items is delineated using a list of Q IDs or SPARQL graph pattern. The script either lists and counts the properties used by those items, or for one particular property, counts and lists the values used for that property.
 
 ### RFC 2119 key words
 
