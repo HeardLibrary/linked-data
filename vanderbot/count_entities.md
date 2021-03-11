@@ -50,7 +50,7 @@ specifying works in the Vanderbilt University Fine Arts Gallery will be used. Th
 
 ### Format of the CSV file containing Q IDs
 
-If the `--qids` option is used, the input file MUST be a CSV file having a column with the header `qid`. That column SHOULD contain the Q IDs of items whose properties or values are to be counted. The values MUST begin with the character `Q`, but MUST NOT inclued a leading namespace prefix. Other columns in the table will be ignored and the position of the `qid` column does not matter.
+If the `--qids` option is used, the input file MUST be a CSV file having a column with the header `qid`. That column SHOULD contain the Q IDs of items whose properties or values are to be counted. The values MUST begin with the character `Q`, but MUST NOT include a leading namespace prefix. Other columns in the table will be ignored and the position of the `qid` column does not matter.
 
 ### Format of the plain text file containing a SPARQL graph pattern.
 
