@@ -1,0 +1,3 @@
+?qid wdt:P108 wd:Q29052.
+?article wdt:P50 ?qid.
+?article wdt:P31 wd:Q13442814.

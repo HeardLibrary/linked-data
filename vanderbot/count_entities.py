@@ -225,17 +225,17 @@ def build_id_query(property, screen):
     query = '''select distinct ?entity (count(distinct ?qid) as ?count) where
     {'''
     
-    # Screening of Q IDs done by a graph pattern
-    if screen[0:4] == '?qid':
-        query += '\n    ' + screen
-        
     # Screening of Q IDs done by a list
-    else:
+    if screen[0] == 'w':  # will start with wd:Qxx, graph patterns will start with ?
         query += '''
     VALUES ?qid
         {
 ''' + screen + '''
         }'''
+        
+    # Screening of Q IDs done by a graph pattern
+    else:
+        query += '\n    ' + screen
     
     # If a property is passed in, search for the values of that property
     if property != '':
@@ -252,7 +252,7 @@ def build_id_query(property, screen):
     query += '''
     }
     group by ?entity'''
-    
+
     return query
 
 # This function builds a SPARQL query to acquire the English labels for a list (separated by newlines) of 
