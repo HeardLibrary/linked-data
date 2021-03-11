@@ -26,7 +26,7 @@ python count_entities.py
 
 (or `python3` if your installation requires it). 
 
-The following options can be used with the command. Under normal operation, either the `--qids` (or `-Q`) or the `--graph` (or `-G`) option SHOULD be used. If neither is given, a test graph pattern is used to screen the items.
+The following options can be used with the command. Under normal operation, either the `--csv` (or `-C`) or the `--graph` (or `-G`) option SHOULD be used. If neither is given, a test graph pattern is used to screen the items.
 
 Output is to one of two forms of CSV file. If no property is specified by the `--prop` (or `-P`) option, a listing and count of properties used by the target group of items is saved in a file called `properties_summary.csv`. If a property is specified, a list and count of values of that property for the target group of items is saved in a file whose name begins with the P ID of the property, followed by `_summary.csv` (for example `P31_summary.csv`).
 
@@ -34,13 +34,13 @@ Output is to one of two forms of CSV file. If no property is specified by the `-
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --qids | -Q | path to CSV file containing Q IDs | none |
+| --csv | -C | path to CSV file containing Q IDs | none |
 | --graph | -G | path to plain text file containing SPARQL graph pattern | none |
 | --prop | -P | property whose values are counted; if none, count properties | none |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
-If a value is provided for `--qids` (or `-Q`), any value provided for `--graph` (or `-G`) will be ignored.  If no value is provided for `--qids`, a value SHOULD be provided for `--graph`. If no value is provided for either option, the graph pattern 
+If a value is provided for `--csv` (or `-C`), any value provided for `--graph` (or `-G`) will be ignored.  If no value is provided for `--csv`, a value SHOULD be provided for `--graph`. If no value is provided for either option, the graph pattern 
 
 ```
 ?qid wdt:P195 wd:Q18563658.
@@ -50,7 +50,7 @@ specifying works in the Vanderbilt University Fine Arts Gallery will be used. Th
 
 ### Format of the CSV file containing Q IDs
 
-If the `--qids` option is used, the input file MUST be a CSV file having a column with the header `qid`. That column SHOULD contain the Q IDs of items whose properties or values are to be counted. The values MUST begin with the character `Q`, but MUST NOT include a leading namespace prefix. Other columns in the table will be ignored and the position of the `qid` column does not matter.
+If the `--csv` option is used, the input file MUST be a CSV file having a column with the header `qid`. That column SHOULD contain the Q IDs of items whose properties or values are to be counted. The values MUST begin with the character `Q`, but MUST NOT include a leading namespace prefix. Other columns in the table will be ignored and the position of the `qid` column does not matter.
 
 ### Format of the plain text file containing a SPARQL graph pattern.
 

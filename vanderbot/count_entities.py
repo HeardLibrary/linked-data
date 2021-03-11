@@ -54,10 +54,10 @@ if '--help' in arg_vals or '-H' in arg_vals: # provide help information accordin
 opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
 
-if '--qids' in opts: #  set path to CSV containing Q IDs
-    file_path = args[opts.index('--qids')]
-if '-Q' in opts: 
-    file_path = args[opts.index('-Q')]
+if '--csv' in opts: #  set path to CSV containing Q IDs
+    file_path = args[opts.index('--csv')]
+if '-C' in opts: 
+    file_path = args[opts.index('-C')]
 
 if '--graph' in opts: #  set path plain text file containing SPARQL graph pattern
     graph_pattern_file = args[opts.index('--graph')]
