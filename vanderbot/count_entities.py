@@ -31,6 +31,7 @@ default_graph_pattern = '?qid wdt:P195 wd:Q18563658.' # items in the Fine Arts g
 # frequency of their use among items. Set to a particular property ID to find all of the values for that 
 # property and their frequency of use in those items.
 test_property = ''
+only_qualifiers = False
 
 arg_vals = sys.argv[1:]
 # see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
@@ -49,6 +50,13 @@ if '--help' in arg_vals or '-H' in arg_vals: # provide help information accordin
     print('For help, see the documentation page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/count_entities.md')
     print('Report bugs to: steve.baskauf@vanderbilt.edu')
     sys.exit()
+
+if '--qual' in arg_vals or '-Q' in arg_vals: # find only qualifiers and not values for properties
+    only_qualifiers = True
+    if '--qual' in arg_vals:
+        arg_vals.remove('--qual')
+    if '-Q' in arg_vals:
+        arg_vals.remove('-Q')
 
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
 opts = [opt for opt in arg_vals if opt.startswith('-')]
@@ -221,7 +229,7 @@ def create_id_values_list(list):
 # Whether the entity is a property or value depends on whether a property is passed in. If a property is 
 # passed in, values of that property are retrieved. If not, the search retrieves all statement properties used by the items.
 # The query returns entity IDs (not exclusively Q IDs; can also be Q ID or string values) and counts of entities.
-def build_id_query(property, screen):
+def build_id_query(property, screen, find_qualifiers):
     query = '''select distinct ?entity (count(distinct ?qid) as ?count) where
     {'''
     
@@ -237,9 +245,18 @@ def build_id_query(property, screen):
     else:
         query += '\n    ' + screen
     
-    # If a property is passed in, search for the values of that property
+    # If a property is passed in, search for the values or qualifiers of that property
     if property != '':
-        query += '''
+        # If the find_qualifiers flag is set, search for qualifiers instead of values
+        if find_qualifiers:
+            query += '''
+    ?qid p:''' + property + ''' ?statement.
+    ?statement ?qual ?value.
+    filter(contains(str(?qual),"qualifier/P"))
+    ?entity wikibase:qualifier ?qual.'''
+
+        else:
+            query += '''
     ?qid wdt:''' + property + ''' ?entity.'''
         
     # If no property passed in, then see what properties were used
@@ -273,6 +290,77 @@ def build_label_query(screen):
     
     return query
 
+def perform_query(test_property, screen, find_qualifiers):
+    # Create the query string to retrieve the entity IDs (or value strings) that meet the screening criteria
+    query_string = build_id_query(test_property, screen, find_qualifiers)
+    # print(query_string)
+
+    # You can delete the print statements if the queries are short. However, for large/long queries,
+    # it's good to let the user know what's going on.
+    print('querying SPARQL endpoint to acquire entity counts')
+
+    # Retrieve the list of entities (properties or values) meeting the screening criteria
+    results = send_sparql_query(query_string, request_header)
+    #print(json.dumps(results, indent=2))
+
+    # Extract IRIs or string values and their counts from the results
+    # If the entity values are IRIs, do a second step to get their labels. Otherwise the values are strings.
+    interim_results = []
+    all_iris = True
+    for result in results:
+        value = result['entity']['value']
+        if value[0:4] != 'http':  # detect non-IRI strings
+            all_iris = False
+        count = result['count']['value']
+        interim_results.append({'value': value, 'count': count})
+
+    if all_iris:
+        # Create a query string to get the labels for IRIs of properties or item values.
+        values = create_id_values_list(interim_results)
+        query_string = build_label_query(values)
+        # print(query_string)
+
+        print('querying SPARQL endpoint to acquire labels')
+        results = send_sparql_query(query_string, request_header)
+        #print(json.dumps(results, indent=2))
+
+        # Extract labels from the results and match them to their IDs and counts.
+        output_list = []
+        for interim_result in interim_results:
+            for result in results:
+                final_result = {}
+                if result['entity']['value'] == interim_result['value']:
+                    final_result['value'] = extract_local_name(interim_result['value'])
+                    final_result['label'] = result['label']['value']
+                    final_result['count'] = extract_local_name(interim_result['count'])
+                    break
+            if final_result != {}:
+                output_list.append(final_result)
+    else:
+        output_list = list(interim_results)
+
+    # Order the results be descending counts
+    output_list.sort(key = sort_funct, reverse=True)
+    #print(json.dumps(output_list, indent=2))
+
+    # Output the results to a spreadsheet
+    if test_property != '':
+        if find_qualifiers:
+            filename = test_property + '_qualifiers_summary.csv'
+        else:
+            filename = test_property + '_summary.csv'
+    else:
+        filename = 'properties_summary.csv'
+        
+    if all_iris:
+        fieldnames = ['value', 'label', 'count']
+    else:
+        fieldnames = ['value', 'count']
+    if len(output_list) > 0:
+        write_dicts_to_csv(output_list, filename, fieldnames)
+    else:
+        print('No results for', filename)
+
 # ----------------
 # Main routine
 # ----------------
@@ -285,68 +373,11 @@ else:
     else:
         screen = default_graph_pattern
 
-# Create the query string to retrieve the entity IDs (or value strings) that meet the screening criteria
-query_string = build_id_query(test_property, screen)
-# print(query_string)
-
-# You can delete the print statements if the queries are short. However, for large/long queries,
-# it's good to let the user know what's going on.
-print('querying SPARQL endpoint to acquire entity counts')
-
-# Retrieve the list of entities (properties or values) meeting the screening criteria
-results = send_sparql_query(query_string, request_header)
-#print(json.dumps(results, indent=2))
-
-# Extract IRIs or string values and their counts from the results
-# If the entity values are IRIs, do a second step to get their labels. Otherwise the values are strings.
-interim_results = []
-all_iris = True
-for result in results:
-    value = result['entity']['value']
-    if value[0:4] != 'http':  # detect non-IRI strings
-        all_iris = False
-    count = result['count']['value']
-    interim_results.append({'value': value, 'count': count})
-
-if all_iris:
-    # Create a query string to get the labels for IRIs of properties or item values.
-    values = create_id_values_list(interim_results)
-    query_string = build_label_query(values)
-    # print(query_string)
-
-    print('querying SPARQL endpoint to acquire labels')
-    results = send_sparql_query(query_string, request_header)
-    #print(json.dumps(results, indent=2))
-
-    # Extract labels from the results and match them to their IDs and counts.
-    output_list = []
-    for interim_result in interim_results:
-        for result in results:
-            final_result = {}
-            if result['entity']['value'] == interim_result['value']:
-                final_result['value'] = extract_local_name(interim_result['value'])
-                final_result['label'] = result['label']['value']
-                final_result['count'] = extract_local_name(interim_result['count'])
-                break
-        if final_result != {}:
-            output_list.append(final_result)
-else:
-    output_list = list(interim_results)
-
-# Order the results be descending counts
-output_list.sort(key = sort_funct, reverse=True)
-#print(json.dumps(output_list, indent=2))
-
-# Output the results to a spreadsheet
+# Perform the main query unless only qualifiers are wanted
+if not only_qualifiers:
+    perform_query(test_property, screen, False)
+# If a specific property search, also check for qualifiers
 if test_property != '':
-    filename = test_property + '_summary.csv'
-else:
-    filename = 'properties_summary.csv'
-    
-if all_iris:
-    fieldnames = ['value', 'label', 'count']
-else:
-    fieldnames = ['value', 'count']
-write_dicts_to_csv(output_list, filename, fieldnames)
+    perform_query(test_property, screen, True)
 
 print('done')

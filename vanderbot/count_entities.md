@@ -28,7 +28,10 @@ python count_entities.py
 
 The following options can be used with the command. Under normal operation, either the `--csv` (or `-C`) or the `--graph` (or `-G`) option SHOULD be used. If neither is given, a test graph pattern is used to screen the items.
 
-Output is to one of two forms of CSV file. If no property is specified by the `--prop` (or `-P`) option, a listing and count of properties used by the target group of items is saved in a file called `properties_summary.csv`. If a property is specified, a list and count of values of that property for the target group of items is saved in a file whose name begins with the P ID of the property, followed by `_summary.csv` (for example `P31_summary.csv`).
+There are three forms of CSV output files:
+- If no property is specified by the `--prop` (or `-P`) option, a listing and count of properties used by the target group of items is saved in a file called `properties_summary.csv`. 
+- If a property is specified, a list and count of values of that property for the target group of items is saved in a file whose name begins with the P ID of the property, followed by `_summary.csv` (for example `P31_summary.csv`). Generation of this file can be suppressed with the `--qual` (or `-Q`) option.
+- If a property is specified, another CSV file whose name begins with the P ID of the property followed by `_qualifiers_summary.csv`, lists the qualifier properties that were used with statements involving the specified property and the number of times that qualifier property was used. 
 
 ### Command line options
 
@@ -37,6 +40,7 @@ Output is to one of two forms of CSV file. If no property is specified by the `-
 | --csv | -C | path to CSV file containing Q IDs | none |
 | --graph | -G | path to plain text file containing SPARQL graph pattern | none |
 | --prop | -P | property whose values are counted; if none, count properties | none |
+| --qual | -Q | search only for qualifiers of property (no values) |  |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
@@ -47,6 +51,8 @@ If a value is provided for `--csv` (or `-C`), any value provided for `--graph` (
 ```
 
 specifying works in the Vanderbilt University Fine Arts Gallery will be used. This default can be used for testing the script. If no options are chosen, the script will generate a table of property use with gallery items. 
+
+The `--qual` (or `-Q`) option performs only the qualifier query for the designated property. It us useful for properties with a very large number of values (for example unique values for each item). In those cases, querying also for the values of the property may take too long or result in too large of a results file.
 
 ### Format of the CSV file containing Q IDs
 
