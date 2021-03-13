@@ -286,7 +286,7 @@ def build_label_description(language, kind, header_row):
     dic['lang'] = language
     return dic, header_row
 
-def build_table(outfile):
+def build_table(data_path, outfile):
     table = {}
     table['url'] = outfile['output_file_name']
     column_list = [
@@ -326,7 +326,7 @@ def build_table(outfile):
     header_row = header_row[:len(header_row)-1] + '\n'
 
     # Create the CSV associated with the schema, header row only
-    with open('h' + outfile['output_file_name'], 'wt', encoding='utf-8') as file_object: # prepend "h" to avoid overwriting existing data
+    with open(data_path + 'h' + outfile['output_file_name'], 'wt', encoding='utf-8') as file_object: # prepend "h" to avoid overwriting existing data
         file_object.write(header_row)
     return table
 
@@ -339,8 +339,8 @@ with open(config_path, 'rt', encoding='utf-8') as file_object:
 config = json.loads(file_text)
 
 data_path = config['data_path']
-item_source_csv = config['item_source_csv'] 
-item_query = config['item_query']
+#item_source_csv = config['item_source_csv'] 
+#item_query_pattern_file = config['item_pattern_file']
 outfiles = config['outfiles']
 
 csv_metadata = {}
@@ -349,7 +349,7 @@ csv_metadata['@context'] = 'http://www.w3.org/ns/csvw'
 
 tables = []
 for outfile in outfiles:
-    table = build_table(outfile)
+    table = build_table(data_path, outfile)
     tables.append(table)
     
 csv_metadata['tables'] = tables
@@ -357,5 +357,5 @@ csv_metadata['tables'] = tables
 out_text = json.dumps(csv_metadata, indent = 2)
 #print(out_text)
 
-with open(out_file_path, 'wt', encoding='utf-8') as file_object:
+with open(data_path + out_file_path, 'wt', encoding='utf-8') as file_object:
     file_object.write(out_text)

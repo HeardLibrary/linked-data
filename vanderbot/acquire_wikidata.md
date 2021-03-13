@@ -59,7 +59,7 @@ file descriptions here
 
 The `outfiles` value is described in detail on [this page](convert-config.md). 
 
-The `data_path` value defines the path to the directory in which a file whose name is the either value of `item_source_csv` or `item_pattern_file` is located. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
+The `data_path` value defines the path to the directory in which a file whose name is the either value of `item_source_csv` or `item_pattern_file` is located. It also is the directory into which the output file(s) will be written. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
 
 A value MUST be provided for one of either `item_source_csv` or `item_pattern_file`. An empty string should be provided as a value if unused.
 

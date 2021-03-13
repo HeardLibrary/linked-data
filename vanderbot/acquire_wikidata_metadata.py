@@ -635,6 +635,7 @@ if item_source_csv == '':
     item_query = '''select distinct ?qid where {
 ''' + graph_pattern + '''
 }'''
+    # print(graph_pattern)
 
     # send request to Wikidata Query Service
     print('querying SPARQL endpoint to acquire item QIDs')
