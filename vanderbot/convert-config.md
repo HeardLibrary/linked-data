@@ -27,7 +27,7 @@ file descriptions here
 }
 ```
 
-The `data_path` value defines the path to the directory in which the file whose name is the value of `item_source_csv` is located. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
+The `data_path` value defines the path to the directory in which a file whose name is either the value of `item_source_csv` or `item_pattern_file` is located. It also is the directory into which the output file(s) will be written. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
 
 A value MUST be provided for one of either `item_source_csv` or `item_pattern_file`. An empty string should be provided as a value if unused.
 
@@ -159,15 +159,21 @@ There are currently two scripts that use these JSON configuration files. One is 
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert_json_to_metadata_schema.py>
 
-Current version: compable with VanderBot v1.7
+Current version: 1.0.1, compable with VanderBot v1.7
 
 Written by Steve Baskauf 2021.
 
 Copyright 2021 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
+### Description
+
+This file generates the metadata description file for the CSV file(s) used by the VanderBot script when it uploads data to the Wikidata API. It also generates the CSV file(s) themselves, but only includes the column headers with no data rows.
+
 ### Use of data in the configuration file
 
-The values of `data_path`, `item_source_csv`, and `item_pattern_file` are not used by this script, so they can have any value.
+The value of `data_path` indicates the path to the directory (including a trailing slash `/`) where the metadata description file and the CSV header files will be written.
+
+The values of `item_source_csv`, and `item_pattern_file` are not used by this script, so they can have any value.
 
 ### Running the script
 
@@ -181,12 +187,14 @@ python convert_json_to_metadata_schema.py
 
 The output CSV files will have the path (filename and location) similar to what is specified within the configuration file. The only difference is that the file names have an `h` prepended to avoid accidentally overwriting any existing files that might have the same name. Those files have only the column headers with no item data. So they require additional processing (in addition to the removal of the `h` prefix) before they can be used.
 
+The output CSV files and metadata description file will be written to the directory specified by the `data_path` key in the configuration files.
+
 ### Command line options
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
 | --config | -C | configuration file name, or path and appended filename. | "config.json" |
-| --meta | -M | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
+| --meta | -M | JSON metadata description filename | "csv-metadata.json" |
 | --lang | -L | language of labels whose output is suppressed | "en" |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
