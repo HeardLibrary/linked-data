@@ -621,11 +621,6 @@ outfiles = config['outfiles']
 # Load list of items from file (or generate by query) and construct Q ID list for query
 # ----------------
 
-# The CSV has a header row with column headers: `qid` and `label`. The `qid` column contains the Wikidata Q 
-# identifiers for each item. The `label` column contains the label, which isn't necessarily the label in 
-# Wikidata and isn't use for anything in the script. It does provide a way for humans to recognize the item 
-# when looking at the table.
-
 if item_source_csv == '':
     # Load item data from csv
     print('loading graph pattern from file')
