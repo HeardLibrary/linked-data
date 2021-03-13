@@ -49,7 +49,7 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
 
 if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
     # needs to be expanded to include brief info on invoking the program
-    print('For help, see the documentation page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/something.md')
+    print('For help, see the documentation page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata.md')
     print('Report bugs to: steve.baskauf@vanderbilt.edu')
     sys.exit()
 
