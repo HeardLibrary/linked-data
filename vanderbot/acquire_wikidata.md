@@ -1,6 +1,6 @@
 # Script to acquire existing Wikidata data
 
-This page describes a Python script for downloading existing Wikidata data into a CSV spreadsheet. It is designed to work together with two other scripts. One of those scripts, [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py), (described [here]) converts the input file used by this script into a CSV metadata description file based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation. Another script, VanderBot ([vanderbot.py](vanderbot.py), described [here](./README.md)) uploads CSV data to the Wikidata API. 
+This page describes a Python script for downloading existing Wikidata data into a CSV spreadsheet. It is designed to work together with two other scripts. One of those scripts, [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py), (described [here](convert-config.md)) converts the input file used by this script into a CSV metadata description file based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation. Another script, VanderBot ([vanderbot.py](vanderbot.py), described [here](./README.md)) uploads CSV data to the Wikidata API. 
 
 **Note about other Wikibase instances:** Although the use of this configuration file is described for Wikidata, it can be used for any Wikibase instance. So when the term "Wikidata" is used here, one can generally substitute "Wikibase".
 
