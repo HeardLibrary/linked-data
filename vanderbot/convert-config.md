@@ -180,11 +180,11 @@ The output CSV files will have the path (filename and location) similar to what 
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --config | -C | log filename, or path and appended filename. Omit to log to console. | "config.json" |
+| --config | -C | configuration file name, or path and appended filename. | "config.json" |
 | --meta | -M | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
 | --lang | -L | language of labels whose output is suppressed | "en" |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
 ----
-Revised 2021-03-10
+Revised 2021-03-13
