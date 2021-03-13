@@ -10,7 +10,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 ### Structure of input configuration JSON
 
-The structure of the input configuration JSON is describe in detail [here](convert-config.md)
+The structure of the input configuration JSON is described in detail [here](convert-config.md)
 
 # Script details
 
@@ -85,7 +85,7 @@ This pattern includes authors (P50) of scholarly articles (Q13442814) whose empl
 
 The script behaves differently depending on whether an output CSV file already exist or not. 
 
-### The CSV file does not yet exist
+### - when the CSV file does not yet exist
 
 If the CSV does not exist, the script makes no attempt to screen the results returned from the SPARQL. The graph pattern includes optional triple patterns for all labels, descriptions, statements, qualifiers, and references represented in the columns of the CSV (as mapped by the metadata description file). So at least one result (represented by a row in the table) will be returned for every item.
 
@@ -96,7 +96,7 @@ The script does not know whether a particular combination of values is more inte
 - manually delete all of the duplicate rows except one. The remaining row should contain the combination of values that the user cares to track. Once the duplicate rows are deleted, they will be ignored if the script is run again.
 - change the configuration file so that properties that tend to have multiple values per item are in a separate CSV file. This will prevent the "multiplier" effect.
 
-### The CSV file already exists
+### - when the CSV file already exists
 
 If the CSV already exists, the script tries to prevent adding duplicate rows per item by ignoring combinations of variable bindings that are different from the combinations that already exist in a row for that item. Duplicates are eliminated by examining the identifiers for the references and statements. When one identifier matches the existing row and another does not, the row with the non-matching identifier is eliminated. The exact process for checking for duplicates is complex and not perfect, although it works well when none of the values in the existing combination have changed. 
 
