@@ -1,7 +1,7 @@
 {
   "data_path": "../../vandycite/gallery_works/",
   "item_source_csv": "",
-  "item_query": "select distinct ?qid where {?qid wdt:P195 wd:Q18563658.}",
+  "item_pattern_file": "graph_pattern.txt",
   "outfiles": [
     {
       "manage_descriptions": true,

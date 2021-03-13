@@ -1,7 +1,7 @@
 {
   "data_path": "../../vandycite/journals/",
   "item_source_csv": "journal-div-qids.csv",
-  "item_query": "",
+  "item_pattern_file": "",
   "outfiles": [
     {
       "manage_descriptions": true,

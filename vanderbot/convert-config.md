@@ -20,27 +20,32 @@ The top level of the configuration file is a JSON object with four name/value pa
 {
   "data_path": "data/",
   "item_source_csv": "sandbox_items.csv",
-  "item_query": "",
+  "item_pattern_file": "",
   "outfiles": [
 file descriptions here
   ]
 }
 ```
 
-
 The `data_path` value defines the path to the directory in which the file whose name is the value of `item_source_csv` is located. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
 
-A value MUST be provided for one of either `item_source_csv` or `item_query`. An empty string should be provided as a value if unused.
+A value MUST be provided for one of either `item_source_csv` or `item_pattern_file`. An empty string should be provided as a value if unused.
 
 The CSV file whose name is the value of `item_source_csv` MUST contain a column with the header `qid`. That column SHOULD contain Q IDs for Wikidata items. Those Q IDs MUST begin with the character `Q` but MUST NOT include any namespace prefix. The CSV file MAY contain other columnms; they will be ignored. The columns MAY be in any order.
 
-If a non-empty string value is provided for `item_query`, it must be a query conforming to the syntax of the W3C [SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/) Recommendation. The query MUST be of the `SELECT` form, with `?qid` as a variable to be selected. The graph pattern of the query must define a set of items that will be included in the data set. The query SHOULD be on a single line, like this:
+If a non-empty string value is provided for `item_pattern_file`, the value MUST be the name of a file containing a graph pattern that specifies the items to be included in the download. The input file MUST be a plain text file. The file SHOULD be UTF-8 encoded. The text MUST be a [basic graph pattern](https://www.w3.org/TR/sparql11-query/#BasicGraphPatterns) valid for a [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/) `SELECT` query. The selected variable MUST be `?qid`. The triple patterns of the graph pattern MAY be separated by newline characters to improve readability. The file MAY end in a trailing newline.
+
+Here is an example of a graph pattern:
 
 ```
-  "item_query": "select distinct ?qid where {?qid wdt:P195 wd:Q18563658.}",
+?qid wdt:P108 wd:Q29052.
+?article wdt:P50 ?qid.
+?article wdt:P31 wd:Q13442814.
 ```
 
-**Note:** As of 2021-03-08, if a configuration file has values for both `item_source_csv` and `item_query`, the query is ignored. However, at some point in the future providing both may be enabled to allow additional screening of the items listed in the item source CSV. 
+This pattern includes authors (P50) of scholarly articles (Q13442814) whose employer (P108) is Vanderbilt University (Q29052). 
+
+**Note:** As of 2021-03-08, if a configuration file has values for both `item_source_csv` and `item_pattern_file`, any graph pattern file is ignored. However, at some point in the future providing both may be enabled to allow additional screening of the items listed in the item source CSV. 
 
 The value of `outfiles` is a JSON array whose items represent CSV files to be described, as described in the next section. 
 
@@ -162,7 +167,7 @@ Copyright 2021 Vanderbilt University. This program is released under a [GNU Gene
 
 ### Use of data in the configuration file
 
-The values of `data_path`, `item_source_csv`, and `item_query` are not used by this script, so they can have any value.
+The values of `data_path`, `item_source_csv`, and `item_pattern_file` are not used by this script, so they can have any value.
 
 ### Running the script
 

@@ -26,6 +26,11 @@ import sys # Read CLI arguments
 # Configuration settings
 # ----------------
 
+sparql_sleep = 0.1 # number of seconds to wait between queries to SPARQL endpoint
+home = str(Path.home()) # gets path to home directory; supposed to work for both Win and Mac
+endpoint = 'https://query.wikidata.org/sparql'
+accept_media_type = 'application/json'
+
 # Set default values
 config_path = 'config.json'
 default_language = 'en'
@@ -62,22 +67,6 @@ if '--lang' in opts: #  set default language for labels in columns whose output 
 if '-L' in opts: 
     default_language = args[opts.index('-L')]
 
-'''
-if len(sys.argv) == 2: # if exactly one argument passed (i.e. the configuration file path)
-    config_path = sys.argv[1] # sys.argv[0] is the script name
-else:
-    config_path = 'config.json'
-'''
-
-with open(config_path, 'rt', encoding='utf-8') as file_object:
-    file_text = file_object.read()
-config = json.loads(file_text)
-
-sparql_sleep = 0.1 # number of seconds to wait between queries to SPARQL endpoint
-home = str(Path.home()) # gets path to home directory; supposed to work for both Win and Mac
-endpoint = 'https://query.wikidata.org/sparql'
-accept_media_type = 'application/json'
-
 # ----------------
 # Utility functions
 # ----------------
@@ -93,6 +82,12 @@ def generate_header_dictionary(accept_media_type):
     return requestHeaderDictionary
 
 requestheader = generate_header_dictionary(accept_media_type)
+
+# Read plain text from file
+def read_plain_text(filename):
+    with open(filename, 'rt', encoding='utf-8') as file_object:
+        text = file_object.read()
+        return text
 
 # read from a CSV file into a list of dictionaries
 def read_dict(filename):
@@ -357,7 +352,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
     # ----------------
 
     print('querying SPARQL endpoint to acquire item metadata')
-    response = requests.post(endpoint, data=query, headers=requestheader)
+    response = requests.post(endpoint, data=query.encode('utf-8'), headers=requestheader)
     #print(response.text)
     data = response.json()
 
@@ -614,11 +609,12 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 # Beginning of main script
 # ----------------
 
-# Note: value of config is set at top of script
+file_text = read_plain_text(config_path)
+config = json.loads(file_text)
 
 data_path = config['data_path']
 item_source_csv = config['item_source_csv'] 
-item_query = config['item_query']
+item_graph_pattern_file = config['item_pattern_file']
 outfiles = config['outfiles']
 
 # ----------------
@@ -631,9 +627,18 @@ outfiles = config['outfiles']
 # when looking at the table.
 
 if item_source_csv == '':
+    # Load item data from csv
+    print('loading graph pattern from file')
+    filename = data_path + item_graph_pattern_file
+    graph_pattern = read_plain_text(filename)
+    print('done loading')
+    item_query = '''select distinct ?qid where {
+''' + graph_pattern + '''
+}'''
+
     # send request to Wikidata Query Service
     print('querying SPARQL endpoint to acquire item QIDs')
-    response = requests.post(endpoint, data=item_query, headers=requestheader)
+    response = requests.post(endpoint, data=item_query.encode('utf-8'), headers=requestheader)
     #print(response.text)
     data = response.json()
     print('results returned')
@@ -664,8 +669,8 @@ print()
 #print(item_qids)
 for outfile in outfiles:
     if outfile['manage_descriptions']:
-        process_file(outfile['manage_descriptions'], outfile['label_description_language_list'], outfile['output_file_name'], outfile['prop_list'])
+        process_file(True, outfile['label_description_language_list'], outfile['output_file_name'], outfile['prop_list'])
     else:
-        process_file(outfile['manage_descriptions'], [default_language], outfile['output_file_name'], outfile['prop_list'])
+        process_file(False, [default_language], outfile['output_file_name'], outfile['prop_list'])
     print()
 print('done')
