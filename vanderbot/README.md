@@ -21,7 +21,7 @@ The source code that generates the web tool includes the files `wikidata-csv2rdf
 
 Another method for generating a metadata description file is to use a simplified JSON configuration file. The script [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) performs the conversion and generates CSV files with appropriate headers. For more information about that script and the format of the configuration file, visit [this information page](convert-config.md). Using the script is described with much hand-holding and many screenshots in [this blog post](http://baskauf.blogspot.com/2021/03/writing-your-own-data-to-wikidata-using_7.html).
 
-The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), which is still under development, downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. It requires the same JSON configuration file as the conversion script above -- the two scripts are designed to work together.
+The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. It requires the same JSON configuration file as the conversion script above -- the two scripts are designed to work together. See [this page](acquire_wikidata.md) for details.
 
 Another utility, [count_entities.py](../json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items.
 
