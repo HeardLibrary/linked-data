@@ -171,13 +171,13 @@ This file generates the metadata description file for the CSV file(s) used by th
 
 ### Use of data in the configuration file
 
-The value of `data_path` indicates the path to the directory (including a trailing slash `/`) where the metadata description file and the CSV header files will be written.
+The value of `data_path` indicates the path to the directory where the metadata description file and the CSV header files will be written. The path MUST include a trailing slash (`/`).
 
-The values of `item_source_csv`, and `item_pattern_file` are not used by this script, so they can have any value.
+The values of `item_source_csv`, and `item_pattern_file` are not used by this script, so they MAY have any value.
 
 ### Running the script
 
-The script requires that you have Python 3 installed on your computer. It is run at the command line by entering
+The script REQUIRES that you have Python 3 installed on your computer. It is run at the command line by entering
 
 ```
 python convert_json_to_metadata_schema.py
@@ -185,7 +185,7 @@ python convert_json_to_metadata_schema.py
 
 (or `python3` if your installation requires it). 
 
-The output CSV files will have the path (filename and location) similar to what is specified within the configuration file. The only difference is that the file names have an `h` prepended to avoid accidentally overwriting any existing files that might have the same name. Those files have only the column headers with no item data. So they require additional processing (in addition to the removal of the `h` prefix) before they can be used.
+The output CSV files will have file names similar to those specified within the configuration file. The only difference is that the file names will have an `h` prepended to avoid accidentally overwriting any existing files that might have the same name. Those files have only the column headers with no item data. So they need additional processing (in addition to the removal of the `h` prefix) before they can be used.
 
 The output CSV files and metadata description file will be written to the directory specified by the `data_path` key in the configuration files.
 
