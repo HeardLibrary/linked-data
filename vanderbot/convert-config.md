@@ -153,7 +153,7 @@ Note that although the Wikibase model allows multiple references per statement, 
 
 # Scripts that use files with this configuration 
 
-There are currently two scripts that use these JSON configuration files. One is used to download existing data from Wikidata and is still under development. The other generates files needed by the VanderBot API uploading script and is described in the next section.
+There are currently two scripts that use these JSON configuration files. One is used to download existing data from Wikidata and is described [here](acquire_wikidata.md). The other generates files needed by the VanderBot API uploading script and is described in the next section.
 
 ## Details of script to convert JSON configuration data to metadata description and CSV files
 
