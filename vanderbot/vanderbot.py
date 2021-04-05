@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
 version = '1.7.1'
-created = '2021-03-xx'
+created = '2021-04-xx'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -1805,7 +1805,11 @@ for table in tables:  # The script can handle multiple tables
                             if count > 1:
                                 # I don't think this should actually happen, since if there were already at least one statement with this value,
                                 # it would have already been downloaded in the processing prior to running this script.
-                                print('Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                                # OK, here's the situation where it happens: the script fails or is killed after writing to the API, but before the data are written to the CSV.
+                                # In that case, the statement will be written a second time and both will show up in the JSON returned from the API
+                                dup_message = 'Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]]
+                                print(dup_message)
+                                error_log += dup_message + '\n'
                             tableData[rowNumber][propertiesUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
 
                             if 'references' in statement: # skip reference checking if the item doesn't have any references
