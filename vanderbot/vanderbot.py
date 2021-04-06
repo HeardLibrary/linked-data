@@ -1352,7 +1352,8 @@ for table in tables:  # The script can handle multiple tables
             new_item = True
         if log_path != '': # if logging to a file, print something so we know something is going on
             print(status_message)
-        print(status_message, file=log_object)
+        if status_message != 'processing row: ':
+            print(status_message, file=log_object)
 
         if new_item:
             # -------------
@@ -1729,8 +1730,9 @@ for table in tables:  # The script can handle multiple tables
         
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
-            print('no data to write', file=log_object)
-            print('', file=log_object)
+            pass
+            #print('no data to write', file=log_object)
+            #print('', file=log_object)
         else:
             if maxlag > 0:
                 parameterDictionary['maxlag'] = maxlag
