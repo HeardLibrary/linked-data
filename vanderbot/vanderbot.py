@@ -101,6 +101,8 @@ from pathlib import Path
 from time import sleep
 import sys
 import uuid
+import re
+from datetime import datetime
 
 # Change the following lines to hard-code different defaults if not running from the command line.
 
@@ -428,51 +430,19 @@ def generateNodeId(rowData, columnNameRoot):
             rowData[columnNameRoot + '_nodeId'] = str(uuid.uuid4())
     return rowData
 
-# Function to convert times to the format required by Wikidata
-def convertDates(rowData, dateColumnNameRoot):
-    error = False
-    # Only do something in the case where there is a date. Missing values should be skipped.
-    if rowData[dateColumnNameRoot + '_val'] != '':
-        # Assume that if the precision column is empty that the dates need to be converted
-        if rowData[dateColumnNameRoot + '_prec'] == '':
-            #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
+# Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
+# See https://stackoverflow.com/questions/41129921/validate-an-iso-8601-datetime-string-in-python
+regex = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[0-9])-(3[01]|0[0-9]|[12][0-9])T([0][0]):([0][0]):([0][0])(Z)$'
+match_iso8601 = re.compile(regex).match
+def validate_iso8601(str_val):
+    try:            
+        if match_iso8601( str_val ) is not None:
+            return True
+    except:
+        pass
+    return False
 
-            # set these two to default to the existing values
-            # precisionNumber = int(rowData[dateColumnNameRoot + '_prec']) # not necessary since conditional on value of ''
-            timeString = rowData[dateColumnNameRoot + '_val']
-
-            value = rowData[dateColumnNameRoot + '_val']
-            # date is YYYY-MM-DD
-            if len(value) == 10:
-                timeString = value + 'T00:00:00Z'
-                precisionNumber = 11 # precision to days
-            # date is YYYY-MM
-            elif len(value) == 7:
-                timeString = value + '-00T00:00:00Z'
-                precisionNumber = 10 # precision to months
-            # date is YYYY
-            elif len(value) == 4:
-                timeString = value + '-00-00T00:00:00Z'
-                precisionNumber = 9 # precision to years
-            # date is xsd:dateTime and doesn't need adjustment
-            elif len(value) == 20:
-                timeString = value
-                precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
-            # date form unknown, don't adjust
-            else:
-                #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
-                error = True
-                precisionNumber = '' # must have a value to prevent an error, will be ignored since the write and save will be killed
-            # assign the changed values back to the dict
-            rowData[dateColumnNameRoot + '_val'] = timeString
-            rowData[dateColumnNameRoot + '_prec'] = precisionNumber
-        else:
-            # a pre-existing precisionNumber must be an integer when written to the API
-            rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
-
-    return rowData, error
-
-# Placeholder function for changes to convertDates()
+# Function to check for valid abbreviated dates
 def validate_time(date_text):
     try:
         if date_text != datetime.strptime(date_text, "%Y-%m-%d").strftime("%Y-%m-%d"):
@@ -491,6 +461,60 @@ def validate_time(date_text):
             except ValueError:
                 form ='none'
     return form
+
+# Function to convert times to the format required by Wikidata
+def convertDates(rowData, dateColumnNameRoot):
+    error = False
+    # Only do something in the case where there is a date. Missing values should be skipped.
+    if rowData[dateColumnNameRoot + '_val'] != '':
+        # Assume that if the precision column is empty that the dates need to be converted
+        if rowData[dateColumnNameRoot + '_prec'] == '':
+            #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
+
+            # set these two to default to the existing values
+            # precisionNumber = int(rowData[dateColumnNameRoot + '_prec']) # not necessary since conditional on value of ''
+            timeString = rowData[dateColumnNameRoot + '_val']
+
+            value = rowData[dateColumnNameRoot + '_val']
+            date_type = validate_time(value)
+            # date is YYYY-MM-DD
+            if date_type == 'day':
+                timeString = value + 'T00:00:00Z'
+                precisionNumber = 11 # precision to days
+            # date is YYYY-MM
+            elif date_type == 'month':
+                timeString = value + '-00T00:00:00Z'
+                precisionNumber = 10 # precision to months
+            # date is YYYY
+            elif date_type == 'year':
+                timeString = value + '-00-00T00:00:00Z'
+                precisionNumber = 9 # precision to years
+            # date does not conform to any of the tested options
+            else:
+                # date is xsd:dateTime and doesn't need adjustment
+                if validate_iso8601(value):
+                    timeString = value
+                    precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
+                # date form unknown, don't adjust
+                else:
+                    #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+                    error = True
+                    precisionNumber = '' # must have a value to prevent an error, will be ignored since the write and save will be killed
+            # assign the changed values back to the dict
+            rowData[dateColumnNameRoot + '_val'] = timeString
+            rowData[dateColumnNameRoot + '_prec'] = precisionNumber
+        else:
+            # Check that a pre-existing value for the date string conforms to the Wikidata format requirements
+            if validate_iso8601(rowData[dateColumnNameRoot + '_val']):
+                # a pre-existing precisionNumber must be an integer when written to the API
+                try:
+                    rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
+                except: # throw an error if characters can't be converted to an integer
+                    error = True
+            else:
+                error = True
+
+    return rowData, error
 
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
@@ -1252,9 +1276,6 @@ for table in tables:  # The script can handle multiple tables
                     print()
     print()
 
-    # If there are dates in the table that are not in the format Wikibase requires, they will be converted here
-    print('converting dates and generating value node IDs')
-
     # Figure out the column name roots for column sets that are dates and value nodes
     dateColumnNameList = []
     valueColumnNameList = []
@@ -1283,29 +1304,6 @@ for table in tables:  # The script can handle multiple tables
                         if propertiesReferencesList[propertyNumber][referenceNumber]['refEntityOrLiteral'][refPropNumber] == 'value':
                             valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
     #print(dateColumnNameList)
-
-    #errorFlag = False
-    #for rowNumber in range(0, len(tableData)):
-        #print('row: ' + str(rowNumber))
-        #print(tableData[rowNumber])
-    #    for dateColumnName in dateColumnNameList:
-    #        tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-    #        if error:
-    #            errorFlag = True
-    #            error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
-    #    for valueColumnName in valueColumnNameList:
-    #        tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
-        #print(tableData[rowNumber])
-        #print()
-    
-    # Write the file with the converted dates in case the script crashes
-    #writeToFile(tableFileName, fieldnames, tableData)
-
-    # If any of the date formats in the table were bad, don't try to write to the API
-    #if errorFlag:
-    #    print(error_log)
-    #    sys.exit('Fix incorrectly formatted dates in file and restart')
-    #print()
 
     # Find out what languages are represented in the labels and descriptions
     languages_list = labelLanguageList + descriptionLanguageList
