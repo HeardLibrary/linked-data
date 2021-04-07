@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
 version = '1.7.1'
-created = '2021-04-xx'
+created = '2021-04-06'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -90,7 +90,7 @@ created = '2021-04-xx'
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
 # - move mutable configuration variables to the top of the script
 # -----------------------------------------
-# Version 1.7.1 change notes (2021-03-xx):
+# Version 1.7.1 change notes (2021-04-06):
 # - enable --version option.
 # add more complete error trapping for dates
 

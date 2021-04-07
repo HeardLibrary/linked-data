@@ -130,7 +130,7 @@ def load_json_into_data_struct(path):
 endpoint = 'https://query.wikidata.org/sparql'
 accept_media_type = 'application/json'
 # Replace this value with your own user agent header string
-user_agent_header = 'VanderBot/1.6.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+user_agent_header = 'VanderBot/1.7.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 
 # The following code generates a request header dictionary suitable for sending to a SPARQL endpoint.
 # If the query is SELECT, use the JSON media type above. For CONSTRUCT queryies use text/turtle to get RDF/Turtle

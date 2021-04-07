@@ -73,7 +73,7 @@ if '-L' in opts:
 
 # Best to send a user-agent header because some Wikimedia servers don't like unidentified clients
 def generate_header_dictionary(accept_media_type):
-    user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    user_agent_header = 'VanderBot/1.7.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
         'Accept' : accept_media_type,
         'Content-Type': 'application/sparql-query',

@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.7
+Current version: v1.7.1
 
 Written by Steve Baskauf 2020-21.
 
@@ -141,4 +141,4 @@ for 30 November 2020
 for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the precision.
 
 ----
-Revised 2021-03-08
+Revised 2021-04-06
