@@ -1,4 +1,7 @@
-# VanderBot v1.7 (2021-03-01) vanderbot.py
+# VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
+version = '1.7.1'
+created = '2021-04-xx'
+
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
@@ -86,6 +89,10 @@
 # - enable logging of some errors to be displayed (and saved to the log file if used): label/description fault, date fault
 # - prior to writing new items, check that there are no existing items with the same labels and descriptions
 # - move mutable configuration variables to the top of the script
+# -----------------------------------------
+# Version 1.7.1 change notes (2021-03-xx):
+# - enable --version option.
+# add more complete error trapping for dates
 
 import json
 import requests
@@ -94,6 +101,8 @@ from pathlib import Path
 from time import sleep
 import sys
 import uuid
+import re
+from datetime import datetime
 
 # Change the following lines to hard-code different defaults if not running from the command line.
 
@@ -102,7 +111,7 @@ log_path = '' # path to log file, default to none
 log_object = sys.stdout # log output defaults to the console screen
 allow_label_description_changes = False # labels and descriptions in the local CSV file that differ from existing Wikidata items are not automatically written
 endpoint = 'https://query.wikidata.org/sparql' # default to the Wikidata Query Service endpoint
-sparqlSleep = 0.25 # delay time between calls to SPARQL endpoint
+sparqlSleep = 0.1 # delay time between calls to SPARQL endpoint
 json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
 credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
@@ -115,9 +124,40 @@ username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 '''
 
+arg_vals = sys.argv[1:]
+# see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
+if '--version' in arg_vals or '-V' in arg_vals: # provide version information according to GNU standards 
+    # Remove version argument to avoid disrupting pairing of other arguments
+    # Not really necessary here, since the script terminates, but use in the future for other no-value arguments
+    if '--version' in arg_vals:
+        arg_vals.remove('--version')
+    if '-V' in arg_vals:
+        arg_vals.remove('-V')
+    print('VanderBot', version)
+    print('Copyright ©', created[:4], 'Vanderbilt University')
+    print('License GNU GPL version 3.0 <http://www.gnu.org/licenses/gpl-3.0>')
+    print('This is free software: you are free to change and redistribute it.')
+    print('There is NO WARRANTY, to the extent permitted by law.')
+    print('Author: Steve Baskauf')
+    print('Revision date:', created)
+    sys.exit()
+
+if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
+    # needs to be expanded to include brief info on invoking the program
+    print('For help, see the VanderBot landing page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/README.md')
+    print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    sys.exit()
+
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
-opts = [opt for opt in sys.argv[1:] if opt.startswith('-')]
-args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
+opts = [opt for opt in arg_vals if opt.startswith('-')]
+args = [arg for arg in arg_vals if not arg.startswith('-')]
+
+if '--version' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('--version')] == 'allow':
+        allow_label_description_changes = True
+if '-V' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
+    if args[opts.index('-V')] == 'allow':
+        allow_label_description_changes = True
 
 if '--log' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('--log')]
@@ -390,6 +430,38 @@ def generateNodeId(rowData, columnNameRoot):
             rowData[columnNameRoot + '_nodeId'] = str(uuid.uuid4())
     return rowData
 
+# Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
+# See https://stackoverflow.com/questions/41129921/validate-an-iso-8601-datetime-string-in-python
+regex = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[0-9])-(3[01]|0[0-9]|[12][0-9])T([0][0]):([0][0]):([0][0])(Z)$'
+match_iso8601 = re.compile(regex).match
+def validate_iso8601(str_val):
+    try:            
+        if match_iso8601( str_val ) is not None:
+            return True
+    except:
+        pass
+    return False
+
+# Function to check for valid abbreviated dates
+def validate_time(date_text):
+    try:
+        if date_text != datetime.strptime(date_text, "%Y-%m-%d").strftime("%Y-%m-%d"):
+            raise ValueError
+        form = 'day'
+    except ValueError:
+        try:
+            if date_text != datetime.strptime(date_text, "%Y-%m").strftime('%Y-%m'):
+                raise ValueError
+            form = 'month'
+        except ValueError:
+            try:
+                if date_text != datetime.strptime(date_text, "%Y").strftime('%Y'):
+                    raise ValueError
+                form = 'year'
+            except ValueError:
+                form ='none'
+    return form
+
 # Function to convert times to the format required by Wikidata
 def convertDates(rowData, dateColumnNameRoot):
     error = False
@@ -404,33 +476,43 @@ def convertDates(rowData, dateColumnNameRoot):
             timeString = rowData[dateColumnNameRoot + '_val']
 
             value = rowData[dateColumnNameRoot + '_val']
+            date_type = validate_time(value)
             # date is YYYY-MM-DD
-            if len(value) == 10:
+            if date_type == 'day':
                 timeString = value + 'T00:00:00Z'
                 precisionNumber = 11 # precision to days
             # date is YYYY-MM
-            elif len(value) == 7:
+            elif date_type == 'month':
                 timeString = value + '-00T00:00:00Z'
                 precisionNumber = 10 # precision to months
             # date is YYYY
-            elif len(value) == 4:
+            elif date_type == 'year':
                 timeString = value + '-00-00T00:00:00Z'
                 precisionNumber = 9 # precision to years
-            # date is xsd:dateTime and doesn't need adjustment
-            elif len(value) == 20:
-                timeString = value
-                precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
-            # date form unknown, don't adjust
+            # date does not conform to any of the tested options
             else:
-                #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
-                error = True
-                precisionNumber = '' # must have a value to prevent an error, will be ignored since the write and save will be killed
+                # date is xsd:dateTime and doesn't need adjustment
+                if validate_iso8601(value):
+                    timeString = value
+                    precisionNumber = 11 # assume precision to days since Wikibase doesn't support greater resolution than that
+                # date form unknown, don't adjust
+                else:
+                    #print('Warning: date for ' + dateColumnNameRoot + '_val:', rowData[dateColumnNameRoot + '_val'], 'does not conform to any standard format! Check manually.')
+                    error = True
+                    precisionNumber = '' # must have a value to prevent an error, will be ignored since the write and save will be killed
             # assign the changed values back to the dict
             rowData[dateColumnNameRoot + '_val'] = timeString
             rowData[dateColumnNameRoot + '_prec'] = precisionNumber
         else:
-            # a pre-existing precisionNumber must be an integer when written to the API
-            rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
+            # Check that a pre-existing value for the date string conforms to the Wikidata format requirements
+            if validate_iso8601(rowData[dateColumnNameRoot + '_val']):
+                # a pre-existing precisionNumber must be an integer when written to the API
+                try:
+                    rowData[dateColumnNameRoot + '_prec'] = int(rowData[dateColumnNameRoot + '_prec'])
+                except: # throw an error if characters can't be converted to an integer
+                    error = True
+            else:
+                error = True
 
     return rowData, error
 
@@ -1194,9 +1276,6 @@ for table in tables:  # The script can handle multiple tables
                     print()
     print()
 
-    # If there are dates in the table that are not in the format Wikibase requires, they will be converted here
-    print('converting dates and generating value node IDs')
-
     # Figure out the column name roots for column sets that are dates and value nodes
     dateColumnNameList = []
     valueColumnNameList = []
@@ -1225,29 +1304,6 @@ for table in tables:  # The script can handle multiple tables
                         if propertiesReferencesList[propertyNumber][referenceNumber]['refEntityOrLiteral'][refPropNumber] == 'value':
                             valueColumnNameList.append(propertiesReferencesList[propertyNumber][referenceNumber]['refValueColumnList'][refPropNumber])
     #print(dateColumnNameList)
-
-    #errorFlag = False
-    #for rowNumber in range(0, len(tableData)):
-        #print('row: ' + str(rowNumber))
-        #print(tableData[rowNumber])
-    #    for dateColumnName in dateColumnNameList:
-    #        tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
-    #        if error:
-    #            errorFlag = True
-    #            error_log += 'Incorrect date format in row ' + str(rowNumber) + ', column ' + dateColumnName + '\n'
-    #    for valueColumnName in valueColumnNameList:
-    #        tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
-        #print(tableData[rowNumber])
-        #print()
-    
-    # Write the file with the converted dates in case the script crashes
-    #writeToFile(tableFileName, fieldnames, tableData)
-
-    # If any of the date formats in the table were bad, don't try to write to the API
-    #if errorFlag:
-    #    print(error_log)
-    #    sys.exit('Fix incorrectly formatted dates in file and restart')
-    #print()
 
     # Find out what languages are represented in the labels and descriptions
     languages_list = labelLanguageList + descriptionLanguageList
@@ -1296,7 +1352,8 @@ for table in tables:  # The script can handle multiple tables
             new_item = True
         if log_path != '': # if logging to a file, print something so we know something is going on
             print(status_message)
-        print(status_message, file=log_object)
+        if status_message != 'processing row: ':
+            print(status_message, file=log_object)
 
         if new_item:
             # -------------
@@ -1673,8 +1730,9 @@ for table in tables:  # The script can handle multiple tables
         
         # don't try to write if there aren't any data to send
         if parameterDictionary['data'] == '{}':
-            print('no data to write', file=log_object)
-            print('', file=log_object)
+            pass
+            #print('no data to write', file=log_object)
+            #print('', file=log_object)
         else:
             if maxlag > 0:
                 parameterDictionary['maxlag'] = maxlag
@@ -1747,7 +1805,11 @@ for table in tables:  # The script can handle multiple tables
                             if count > 1:
                                 # I don't think this should actually happen, since if there were already at least one statement with this value,
                                 # it would have already been downloaded in the processing prior to running this script.
-                                print('Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                                # OK, here's the situation where it happens: the script fails or is killed after writing to the API, but before the data are written to the CSV.
+                                # In that case, the statement will be written a second time and both will show up in the JSON returned from the API
+                                dup_message = 'Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]]
+                                print(dup_message)
+                                error_log += dup_message + '\n'
                             tableData[rowNumber][propertiesUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
 
                             if 'references' in statement: # skip reference checking if the item doesn't have any references
