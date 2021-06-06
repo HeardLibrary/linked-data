@@ -6,7 +6,7 @@ This page is about general use of the VanderBot Wikidata API-writing script and 
 
 ## Summary
 
-VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/managing-linked-open-data-wikidata-using-w3c-generating-rdf-tabular-data-web-recommendation) at the Semantic Web Journal.
+VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/using-w3c-generating-rdf-tabular-data-web-recommendation-manage-small-wikidata-datasets) at the Semantic Web Journal.
 
 Since the project started, the generalized code for writing to the API has been used with modifications of other Python scripts from the original project to carry out several Wikidata projects at Vanderbilt. They include [creating records for items in the Vanderbilt Fine Arts Gallery](https://www.wikidata.org/wiki/Wikidata:WikiProject_Vanderbilt_Fine_Arts_Gallery), connecting and creating image items with the [Vanderbilt Divinity Library's Art in the Christian Tradition (ACT) database](https://www.wikidata.org/wiki/Wikidata:WikiProject_Art_in_the_Christian_Tradition_(ACT)), and managing journal data as part of the [VandyCite WikiProject](https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite). Through these explorations, we are learning how to generalize the process so that it can be used in many areas.
 
@@ -141,4 +141,4 @@ for 30 November 2020
 for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the precision.
 
 ----
-Revised 2021-04-06
+Revised 2021-06-05
