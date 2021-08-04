@@ -140,5 +140,13 @@ for 30 November 2020
 ```
 for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the precision.
 
+# Rate limits
+
+Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded delay](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L215) to prevent it from writing faster than that rate. 
+
+If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edits per minute. A newbie is defined as a user whose account is less than four days old and who has done fewer than 50 edits. If you fall into the newbie category, you probably should do at least 50 manual edits to become familiar with the Wikidata data model and terminology anyway. However, if you don't want to wait, you should change the value of `api_sleep` from 1.25 to 8 in line 221. Once you are no longer a newbie, you can change it back to the higher rate.
+
+For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
+
 ----
-Revised 2021-06-24
+Revised 2021-08-04
