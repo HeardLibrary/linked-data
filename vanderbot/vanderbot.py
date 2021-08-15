@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.7.1'
-created = '2021-04-06'
+version = '1.8'
+created = '2021-08-15'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -93,6 +93,10 @@ created = '2021-04-06'
 # Version 1.7.1 change notes (2021-04-06):
 # - enable --version option.
 # add more complete error trapping for dates
+# -----------------------------------------
+# Version 1.8 change notes (2021-08-15):
+# - enable --version option.
+# 
 
 import json
 import requests
@@ -220,7 +224,7 @@ else:  # credential file is in a directory whose path was specified by the crede
 # Wikimedia guidelines !!!
 api_sleep = 1.25 # number of seconds between API calls.
 # See https://meta.wikimedia.org/wiki/User-Agent_policy
-user_agent_header = 'VanderBot/1.7 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+user_agent_header = 'VanderBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 
 # Set the value of the maxlag parameter to back off when the server is lagged
 # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
