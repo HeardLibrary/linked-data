@@ -1755,6 +1755,13 @@ for table in tables:  # The script can handle multiple tables
             print('Write confirmation: ', json.dumps(responseData), file=log_object)
             print('', file=log_object)
 
+            if 'error' in responseData:
+                error_log = 'Error message from API in row ' + str(rowNumber) + ': ' + responseData['error']['info'] + '\n'
+                print('failed write due to error from API', file=log_object)
+                print('', file=log_object)
+                continue # Do not try to extract data from the response JSON. Go on with the next row and leave CSV unchanged.
+
+
             if newItem:
                 # extract the entity Q number from the response JSON
                 tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
@@ -1822,7 +1829,12 @@ for table in tables:  # The script can handle multiple tables
                                 # it would have already been downloaded in the processing prior to running this script.
                                 # OK, here's the situation where it happens: the script fails or is killed after writing to the API, but before the data are written to the CSV.
                                 # In that case, the statement will be written a second time and both will show up in the JSON returned from the API
-                                dup_message = 'Warning: duplicate statement ', tableData[rowNumber][subjectWikidataIdColumnHeader], ' ', propertiesIdList[statementIndex], ' ', tableData[rowNumber][propertiesColumnList[statementIndex]]
+                                dup_message = 'Warning: duplicate statement ' + tableData[rowNumber][subjectWikidataIdColumnHeader] + ' ' + propertiesIdList[statementIndex] + ' '
+                                if propertiesEntityOrLiteral[statementIndex] == 'value':
+                                    dup_message += tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']
+                                else:
+                                    dup_message += tableData[rowNumber][propertiesColumnList[statementIndex]]
+                                dup_message += '\n'
                                 print(dup_message)
                                 error_log += dup_message + '\n'
                             tableData[rowNumber][propertiesUuidColumnList[statementIndex]] = statement['id'].split('$')[1]  # just keep the UUID part after the dollar sign
