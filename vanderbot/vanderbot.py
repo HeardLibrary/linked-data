@@ -210,19 +210,30 @@ if credentials_path_string == 'home': # credential file is in home directory
     credentials_path = home + '/' + credentials_filename
 elif credentials_path_string == 'working': # credential file is in current working directory
     credentials_path = credentials_filename
+# Note: as of 2021 script will not run from Google Colab due to IP blocking. So this option isn't useful
 elif credentials_path_string == 'gdrive': # credential file is in the root of the Google Drive
     credentials_path = google_drive_root + credentials_filename
 else:  # credential file is in a directory whose path was specified by the credential_path_string
     credentials_path = credentials_path_string + credentials_filename
 
-
 # The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-# To be safe and avoid getting blocked, use 1.25 s as the api_sleep value.
-# DO NOT change this number unless you have obtained a bot flag! If you have a bot flag, then you have created your own
+# To be safe and avoid getting blocked, leave the api_sleep value at its default: 1.25 s.
+# The option to increase the delay is offered if the user is a "newbie", defined as having an
+# account less than four days old and with fewer than 50 edits. The newbie limit is 8 edits per minute.
+# Therefore, newbies should set the API sleep value to 8 to avoid getting blocked.
+api_sleep = 1.25
+if '--apisleep' in opts: # delay between API POSTs. Used by newbies to slow writes to within limits. 
+    api_sleep = args[opts.index('--apisleep')] # Number of seconds between API calls. Numeric only, do not include "s"
+if '-A' in opts:
+    api_sleep = args[opts.index('-A')]
+
+# DO NOT decrease this limit unless you have obtained a bot flag! If you have a bot flag, then you have created your own
 # User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
 # your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
 # Wikimedia guidelines !!!
-api_sleep = 1.25 # number of seconds between API calls.
+if api_sleep < 1.25:
+    api_sleep = 1.25
+
 # See https://meta.wikimedia.org/wiki/User-Agent_policy
 user_agent_header = 'VanderBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 

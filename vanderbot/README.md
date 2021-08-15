@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.7.1
+Current version: v1.8
 
 Written by Steve Baskauf 2020-21.
 
@@ -62,6 +62,7 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 | --credentials | -C | name of the credentials file | "wikibase_credentials.txt" |
 | --path | -P | credentials directory: "home", "working", or path with trailing "/" | "home" |
 | --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | "suppress" |
+| --apisleep | -A | number of seconds to delay between edits (see notes on rate limits below) | 1.25 |
 | --endpoint | -E | a Wikibase SPARQL endpoint URL | "https://query.wikidata.org/sparql" |
 | --version | -V | no values; displays current version information |  |
 | --help | -H | no values; displays link to this page |  |
@@ -142,11 +143,11 @@ for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the pre
 
 # Rate limits
 
-Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded delay](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L215) to prevent it from writing faster than that rate. 
+Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded limit](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L219:L235) to prevent it from writing faster than that rate. 
 
-If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edits per minute. A newbie is defined as a user whose account is less than four days old and who has done fewer than 50 edits. If you fall into the newbie category, you probably should do at least 50 manual edits to become familiar with the Wikidata data model and terminology anyway. However, if you don't want to wait, you should change the value of `api_sleep` from 1.25 to 8 in line 221. Once you are no longer a newbie, you can change it back to the higher rate.
+If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edits per minute. A newbie is defined as a user whose account is less than four days old and who has done fewer than 50 edits. If you fall into the newbie category, you probably should do at least 50 manual edits to become familiar with the Wikidata data model and terminology anyway. However, if you don't want to wait, you should use an `--apisleep` or `-A` option with a value of `8` to set the delay to 8 seconds between writes. Once you are no longer a newbie, you can change it back to the higher rate by omitting this option.
 
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2021-08-04
+Revised 2021-08-15
