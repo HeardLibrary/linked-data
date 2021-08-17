@@ -95,8 +95,8 @@ created = '2021-08-15'
 # add more complete error trapping for dates
 # -----------------------------------------
 # Version 1.8 change notes (2021-08-15):
-# - enable --version option.
-# 
+# - enable --apisleep option to limit API write rate for newbies
+# - add error trapping for errors not allowed by API
 
 import json
 import requests
