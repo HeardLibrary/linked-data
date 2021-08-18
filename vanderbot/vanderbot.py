@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
 version = '1.8'
-created = '2021-08-15'
+created = '2021-08-17'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -94,9 +94,10 @@ created = '2021-08-15'
 # - enable --version option.
 # add more complete error trapping for dates
 # -----------------------------------------
-# Version 1.8 change notes (2021-08-15):
+# Version 1.8 change notes (2021-08-17):
 # - enable --apisleep option to limit API write rate for newbies
 # - add error trapping for errors not allowed by API
+# - add special handling for commons media when P18 is used
 
 import json
 import requests
@@ -107,6 +108,7 @@ import sys
 import uuid
 import re
 from datetime import datetime
+import urllib.parse
 
 # Change the following lines to hard-code different defaults if not running from the command line.
 
@@ -119,6 +121,7 @@ sparqlSleep = 0.1 # delay time between calls to SPARQL endpoint
 json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabular Data on the Web" metadata description file (mapping schema)
 credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
+commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/' # prepended to URL-encoded Commons media filenames
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
 # (the example below is not real).  Save file in the directory specified by the credentials_path_string.
@@ -326,11 +329,25 @@ def writeToFile(tableFileName, fieldnames, tableData):
         for writeRowNumber in range(0, len(tableData)):
             writer.writerow(tableData[writeRowNumber])
 
-# gunction to get local name from an IRI
+# function to get local name from an IRI
 def extractFromIri(iri, numberPieces):
     # with pattern like http://www.wikidata.org/entity/Q6386232 there are 5 pieces with qId as number 4
     pieces = iri.split('/')
     return pieces[numberPieces]
+
+# convert a Commons URL to an unencoded filename string
+def commons_url_to_filename(url):
+    # form of URL is: http://commons.wikimedia.org/wiki/Special:FilePath/Castle%20De%20Haar%20%281892-1913%29%20-%20360%C2%B0%20Panorama%20of%20Castle%20%26%20Castle%20Grounds.jpg
+    string = url.split(commons_prefix)[1] # get local name file part of URL
+    filename = urllib.parse.unquote(string) # reverse URL-encode the string
+    return filename
+
+# convert an unencoded filename string to a URL-encoded Commons URL; inverse of previous function
+def filename_to_commons_url(filename):
+    # form of filename is 'Castle De Haar (1892-1913) - 360° Panorama of Castle & Castle Grounds.jpg'
+    encoded_filename = urllib.parse.quote(filename)
+    url = commons_prefix + encoded_filename
+    return url
 
 # SPARQL ASK query used to determine whether labels and descriptions already exist in Wikidata
 def ask_query(graph_pattern):
@@ -1243,8 +1260,14 @@ for table in tables:  # The script can handle multiple tables
                         propertiesColumnList.append(propColumnHeader)
                         propertiesIdList.append(propertyId)
 
+                        # Special case only for Wikidata and only for P18 (image), which links to a Commons media item
+                        if endpointUrl == 'https://www.wikidata.org/w/api.php' and propertyId == 'P18':
+                            propertiesEntityOrLiteral.append('literal')
+                            propertiesTypeList.append('commonsMedia')
+                            propertiesValueTypeList.append('string')
+                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: commonsMedia')
                         # URLs are detected when there is a valueUrl whose value has a first character of "{"
-                        if column['valueUrl'][0] == '{':
+                        elif column['valueUrl'][0] == '{':
                             propertiesEntityOrLiteral.append('literal')
                             propertiesTypeList.append('url')
                             propertiesValueTypeList.append('string')
@@ -1472,7 +1495,15 @@ for table in tables:  # The script can handle multiple tables
             continue # quit working on this row, return to start of main loop with next row
         for valueColumnName in valueColumnNameList:
             tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
-        # Write the file with the converted dates in case the script crashes
+        
+        # Convert any commons media item values from unencoded filename strings to URLs if they aren't already URLs
+        for propertyNumber in range(len(propertiesColumnList)):
+            if propertiesTypeList[propertyNumber] == 'commonsMedia':
+                valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
+                if not commons_prefix in valueString: # convert from unencoded filename if the URL prefix isn't there
+                    tableData[rowNumber][propertiesColumnList[propertyNumber]] = filename_to_commons_url(valueString) # replace the tabled value
+
+        # Write the file with the converted dates and commons URLs in case the script crashes
         writeToFile(tableFileName, fieldnames, tableData)
 
         # build the parameter string to be posted to the API
@@ -1674,6 +1705,11 @@ for table in tables:  # The script can handle multiple tables
                     if valueString == '':
                         continue  # skip the rest of this iteration and go onto the next property
                     if propertiesEntityOrLiteral[propertyNumber] == 'literal':
+                        # The idiosyncratic nature of P18 requires upload of the unencoded file name, even though RDF triples contain encoded URLs
+                        # So the stored URL must be converted back into the file name prior to writing
+                        if propertiesTypeList[propertyNumber] == 'commonsMedia':
+                            valueString = commons_url_to_filename(valueString)
+
                         snakDict = {
                             'mainsnak': {
                                 'snaktype': 'value',
@@ -1793,7 +1829,11 @@ for table in tables:  # The script can handle multiple tables
                         # does the value in the cell equal the mainsnak value of the claim?
                         # it's necessary to check this because there could be other previous claims for that property (i.e. multiple values)
                         if propertiesEntityOrLiteral[statementIndex] == 'literal':
-                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
+                            # Handle special case of commons images where the raw filename is written to the API, but the value must be stored as an encoded URL
+                            if propertiesTypeList[statementIndex] == 'commonsMedia':
+                                statementFound = commons_url_to_filename(tableData[rowNumber][propertiesColumnList[statementIndex]]) == statement['mainsnak']['datavalue']['value']
+                            else:
+                                statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
                         elif propertiesEntityOrLiteral[statementIndex] == 'entity':
                             statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
                         elif propertiesEntityOrLiteral[statementIndex] == 'monolingualtext':
