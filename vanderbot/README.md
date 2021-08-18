@@ -6,7 +6,7 @@ This page is about general use of the VanderBot Wikidata API-writing script and 
 
 ## Summary
 
-VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper currently under review](http://www.semantic-web-journal.net/content/using-w3c-generating-rdf-tabular-data-web-recommendation-manage-small-wikidata-datasets) at the Semantic Web Journal.
+VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper that is in press](http://www.semantic-web-journal.net/content/using-w3c-generating-rdf-tabular-data-web-recommendation-manage-small-wikidata-datasets) at the Semantic Web Journal.
 
 Since the project started, the generalized code for writing to the API has been used with modifications of other Python scripts from the original project to carry out several Wikidata projects at Vanderbilt. They include [creating records for items in the Vanderbilt Fine Arts Gallery](https://www.wikidata.org/wiki/Wikidata:WikiProject_Vanderbilt_Fine_Arts_Gallery), connecting and creating image items with the [Vanderbilt Divinity Library's Art in the Christian Tradition (ACT) database](https://www.wikidata.org/wiki/Wikidata:WikiProject_Art_in_the_Christian_Tradition_(ACT)), and managing journal data as part of the [VandyCite WikiProject](https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite). Through these explorations, we are learning how to generalize the process so that it can be used in many areas.
 
@@ -141,13 +141,36 @@ for 30 November 2020
 ```
 for 100 BCE. The dateTime strings MUST end in `T00:00:00Z` regardless of the precision.
 
+## The Wikidata Image property (P18) and image file identification
+
+The Wikidata instance of Wikibase has an idiosyncratic way of handling one particular property: Image (P18). The value of P18 must be an image in [Wikimedia Commons](https://commons.wikimedia.org/). The normal situation in Wikibase is that the value uploaded to the API will be the same as the value that is available via the Query Service (i.e. via SPARQL). However, the P18 value is a special type, called `commonsMedia`, which is not described in the standard Wikibase data model. 
+
+The value for P18 that is uploaded to the API must be the unencoded name of the file as it was uploaded to Commons. For example, [this image](https://commons.wikimedia.org/wiki/File:Ru%C3%AFne_Casti_Munt_Sogn_Gieri_Waltensburg_(actm)_17.jpg) has the filename `Ruïne Casti Munt Sogn Gieri Waltensburg (actm) 17.jpg`, which contains spaces, parentheses, and non-Latin characters. However, the value in the linked data graph queried by SPARQL is a URL that includes the URL-encoded version of the file name at the end. In this example, the URL would be `http://commons.wikimedia.org/wiki/Special:FilePath/Ru%C3%AFne%20Casti%20Munt%20Sogn%20Gieri%20Waltensburg%20%28actm%29%2017.jpg`.
+
+The way VanderBot handles P18 values is as follows:
+- The value stored in the spreadsheet is the encoded URL. This is to be consistent with the goal of being able to generate RDF from the table that will match the triples returned from the query service.
+- Users may enter the unencoded file names in the column holding the P18 values. When the VanderBot script encounters values that are not in the encoded URL form, it will convert them and save the changed results in the table.
+- When the script writes to the API, it will convert the encoded URLs into unencoded filenames as required, but will leave the values in the table unaffected.
+
+When setting up the metadata description file `csv-metadata.json` using the [this web tool](https://heardlibrary.github.io/digital-scholarship/script/wikidata/wikidata-csv2rdf-metadata.html), you must select `URL` from the type selection dropdown, even if the values you will initially enter into the table are unencoded filenames (they will eventually be converted to URLs). If you use simplified configuration JSON files to create the metadata description file as described [here](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md), you must use `uri` as the value for `value_type`, as in the following example:
+
+```
+        {
+          "pid": "P18",
+          "variable": "image",
+          "value_type": "uri",
+          "qual": [],
+          "ref": []
+        }
+```
+
 # Rate limits
 
-Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded limit](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L219:L235) to prevent it from writing faster than that rate. 
+Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded limit](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L222:L238) to prevent it from writing faster than that rate. 
 
 If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edits per minute. A newbie is defined as a user whose account is less than four days old and who has done fewer than 50 edits. If you fall into the newbie category, you probably should do at least 50 manual edits to become familiar with the Wikidata data model and terminology anyway. However, if you don't want to wait, you should use an `--apisleep` or `-A` option with a value of `8` to set the delay to 8 seconds between writes. Once you are no longer a newbie, you can change it back to the higher rate by omitting this option.
 
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2021-08-15
+Revised 2021-08-18
