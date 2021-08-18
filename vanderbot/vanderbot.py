@@ -97,7 +97,7 @@ created = '2021-08-17'
 # Version 1.8 change notes (2021-08-17):
 # - enable --apisleep option to limit API write rate for newbies
 # - add error trapping for errors not allowed by API
-# - add special handling for commons media when P18 is used
+# - add special handling for Commons media when P18 is used
 
 import json
 import requests
