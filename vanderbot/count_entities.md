@@ -10,7 +10,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/count_entities.py>
 
-Current version: v1.0.1
+Current version: v1.0.2
 
 Written by Steve Baskauf 2021.
 
@@ -72,5 +72,11 @@ Here is an example of a graph pattern:
 
 This pattern includes authors (P50) of scholarly articles (Q13442814) whose employer (P108) is Vanderbilt University (Q29052). 
 
+To specify items that have a statement involving a property regardless of the value, the `?value` variable can be used in the triple pattern. For example, to screen for all items having an ACT ID statement regardless of the value, this pattern could be used:
+
+```
+?qid wdt:P9092 ?value.
+```
+
 ----
-Revised 2021-03-10
+Revised 2021-09-13
