@@ -7,8 +7,8 @@
 # file. You can then determine the frequency of use of properties in those items, or the frequency of use of values 
 # for a particular property used in those items.
 
-version = '1.0.1'
-created = '2021-03-10'
+version = '1.0.2'
+created = '2021-09-13'
 
 # Some utility functions are from 
 # https://github.com/HeardLibrary/digital-scholarship/blob/2cabda778b585e367527f4dd024b6a7e82613e18/code/wikidata/template.ipynb
@@ -130,7 +130,7 @@ def load_json_into_data_struct(path):
 endpoint = 'https://query.wikidata.org/sparql'
 accept_media_type = 'application/json'
 # Replace this value with your own user agent header string
-user_agent_header = 'VanderBot/1.7.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+user_agent_header = 'VanderBot/1.8 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 
 # The following code generates a request header dictionary suitable for sending to a SPARQL endpoint.
 # If the query is SELECT, use the JSON media type above. For CONSTRUCT queryies use text/turtle to get RDF/Turtle
@@ -281,7 +281,7 @@ def build_id_query(property, screen, find_qualifiers):
     # The wikibase:directClaim triple pattern is necessary to eliminate other kinds of non-statement properties
     else:
         query += '''
-    ?qid ?truthy ?value.
+    ?qid ?truthy ?value8ac6ec0845da4b20a4d279d7f3a7d4b6. # prevent accidental match with screening pattern value
     ?entity wikibase:directClaim ?truthy.'''
         
     query += '''
