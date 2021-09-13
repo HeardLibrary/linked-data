@@ -23,7 +23,7 @@ Another method for generating a metadata description file is to use a simplified
 
 The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. It requires the same JSON configuration file as the conversion script above -- the two scripts are designed to work together. See [this page](acquire_wikidata.md) for details.
 
-Another utility, [count_entities.py](../json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items.
+Another utility, [count_entities.py](../json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items. For more information about using this script, see the [script usage page](count_entities.md) for details.
 
 # Script details
 
@@ -173,4 +173,4 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2021-08-18
+Revised 2021-09-13
