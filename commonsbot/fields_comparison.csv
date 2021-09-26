@@ -1,0 +1,31 @@
+field,information,artwork,photograph,art_photo
+accession number,,x,x,
+artist,,x,,
+artwork license,,,,x
+author,x,x,,
+camera coord,,,x,
+credit line,,x,x,
+date,x,x,x,
+department,,x,x,
+depicted people,,x,x,
+depicted place,,x,x,
+description,x,x,x,
+dimensions,,x,x,
+exhibition history,,x,x,
+inscriptions,,x,x,
+institution,,x,x,
+medium,,x,x,
+notes,,x,x,
+object history,,x,x,
+other_versions,,x,x,x
+permission,x,x,x,
+photo date,,,,x
+photo description,,,,x
+photo license,,,,x
+photographer,,,x,x
+place of creation,,x,,
+place of discovery,,x,,
+references,,x,x,
+source,x,x,x,x
+title,,x,x,
+wikidata,,x,x,x
