@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.8'
-created = '2021-08-17'
+version = '1.8.1'
+created = '2021-10-24'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -98,6 +98,9 @@ created = '2021-08-17'
 # - enable --apisleep option to limit API write rate for newbies
 # - add error trapping for errors not allowed by API
 # - add special handling for Commons media when P18 is used
+# -----------------------------------------
+# Version 1.8.1 change notes (2021-10-24):
+# - fix bug where Commons image URLs are created when there is no value
 
 import json
 import requests
@@ -1500,8 +1503,9 @@ for table in tables:  # The script can handle multiple tables
         for propertyNumber in range(len(propertiesColumnList)):
             if propertiesTypeList[propertyNumber] == 'commonsMedia':
                 valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
-                if not commons_prefix in valueString: # convert from unencoded filename if the URL prefix isn't there
-                    tableData[rowNumber][propertiesColumnList[propertyNumber]] = filename_to_commons_url(valueString) # replace the tabled value
+                if valueString != '':
+                    if not commons_prefix in valueString: # convert from unencoded filename if the URL prefix isn't there
+                        tableData[rowNumber][propertiesColumnList[propertyNumber]] = filename_to_commons_url(valueString) # replace the tabled value
 
         # Write the file with the converted dates and commons URLs in case the script crashes
         writeToFile(tableFileName, fieldnames, tableData)
