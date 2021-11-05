@@ -1,0 +1,49 @@
+[
+  [
+    {
+      "property": "P31",
+      "entity": "Q5",
+      "lang": "",
+      "position": "object",
+      "require": "include",
+      "filter_type": "",
+      "filter_string": ""
+    },
+    {
+      "property": "description",
+      "entity": "",
+      "lang": "",
+      "position": "object",
+      "require": "exclude",
+      "filter_type": "in",
+      "filter_string": "dynasty person"
+    },
+    {
+      "property": "description",
+      "entity": "",
+      "lang": "",
+      "position": "object",
+      "require": "exclude",
+      "filter_type": "in",
+      "filter_string": "Peerage person ID="
+    },
+    {
+      "property": "P570",
+      "entity": "",
+      "lang": "",
+      "position": "object",
+      "require": "exclude",
+      "filter_type": "<",
+      "filter_string": "2000"
+    },
+    {
+      "property": "P569",
+      "entity": "",
+      "lang": "",
+      "position": "object",
+      "require": "exclude",
+      "filter_type": "<",
+      "filter_string": "1920"
+    }
+  ]
+]
