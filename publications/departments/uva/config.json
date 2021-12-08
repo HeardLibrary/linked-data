@@ -1,0 +1,71 @@
+{
+  "data_path": "",
+  "item_source_csv": "",
+  "item_pattern_file": "graph_pattern.txt",
+  "outfiles": [
+    {
+      "manage_descriptions": true,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "departments.csv",
+      "prop_list": [
+        {
+          "pid": "P31",
+          "variable": "instance_of",
+          "value_type": "item",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+      },
+      {
+          "pid": "P361",
+          "variable": "part_of_school",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+            "pid": "P856",
+            "variable": "website",
+            "value_type": "uri",
+            "qual": [
+                {
+                    "pid": "P407",
+                    "variable": "language",
+                    "value_type": "item"
+                } 
+            ],
+            "ref": [
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        }
+      ]
+    }
+  ]
+}
