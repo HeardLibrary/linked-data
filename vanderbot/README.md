@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.8.1
+Current version: v1.8.2
 
 Written by Steve Baskauf 2020-21.
 
@@ -173,4 +173,4 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2021-10-24
+Revised 2021-12-08

@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.8.1'
-created = '2021-10-24'
+version = '1.8.2'
+created = '2021-12-08'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -101,6 +101,9 @@ created = '2021-10-24'
 # -----------------------------------------
 # Version 1.8.1 change notes (2021-10-24):
 # - fix bug where Commons image URLs are created when there is no value
+# -----------------------------------------
+# Version 1.8.2 change notes (2021-12-08):
+# - fixed slow speed of precessing unchanged rows caused by writing the data file for every row in the date and image reformatting section. 
 
 import json
 import requests
@@ -458,12 +461,14 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
 
 # Generate a UUID for the value node identifier when there isn't already one
 def generateNodeId(rowData, columnNameRoot):
+    changed = False
     # Only do something in the case where there is a value. Missing values should be skipped.
     if rowData[columnNameRoot + '_val'] != '':
         # If there is no UUID in the _nodeId column, generate one
         if rowData[columnNameRoot + '_nodeId'] == '':
             rowData[columnNameRoot + '_nodeId'] = str(uuid.uuid4())
-    return rowData
+            changed = True
+    return rowData, changed
 
 # Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
 # See https://stackoverflow.com/questions/41129921/validate-an-iso-8601-datetime-string-in-python
@@ -500,10 +505,12 @@ def validate_time(date_text):
 # Function to convert times to the format required by Wikidata
 def convertDates(rowData, dateColumnNameRoot):
     error = False
+    changed = False
     # Only do something in the case where there is a date. Missing values should be skipped.
     if rowData[dateColumnNameRoot + '_val'] != '':
         # Assume that if the precision column is empty that the dates need to be converted
         if rowData[dateColumnNameRoot + '_prec'] == '':
+            changed = True
             #print(dateColumnNameRoot, rowData[dateColumnNameRoot + '_val'])
 
             # set these two to default to the existing values
@@ -549,7 +556,7 @@ def convertDates(rowData, dateColumnNameRoot):
             else:
                 error = True
 
-    return rowData, error
+    return rowData, error, changed
 
 # Find the column with the UUID for the statement
 def findPropertyUuid(propertyId, columns):
@@ -1485,19 +1492,24 @@ for table in tables:  # The script can handle multiple tables
                 print('', file=log_object)
                 continue
 
+        cells_converted = False
         # Convert any dates in the row that aren't in the standard format from the shorthand format to standard
         for dateColumnName in dateColumnNameList:
-            tableData[rowNumber], error = convertDates(tableData[rowNumber], dateColumnName)
+            tableData[rowNumber], error, changed_date = convertDates(tableData[rowNumber], dateColumnName)
             if error:
                 error_log += 'Incorrect date format. Row: ' + str(rowNumber) + ', column: "' + dateColumnName + '"\n'
                 abort_writing = True
                 break # Quit working on dates in this row
+            if changed_date:
+                cells_converted = True
         if abort_writing: # set to True by a malformed date
             print('failed write due to date error', file=log_object)
             print('', file=log_object)
             continue # quit working on this row, return to start of main loop with next row
         for valueColumnName in valueColumnNameList:
-            tableData[rowNumber] = generateNodeId(tableData[rowNumber], valueColumnName)
+            tableData[rowNumber], changed_date = generateNodeId(tableData[rowNumber], valueColumnName)
+            if changed_date:
+                cells_converted = True
         
         # Convert any commons media item values from unencoded filename strings to URLs if they aren't already URLs
         for propertyNumber in range(len(propertiesColumnList)):
@@ -1506,9 +1518,11 @@ for table in tables:  # The script can handle multiple tables
                 if valueString != '':
                     if not commons_prefix in valueString: # convert from unencoded filename if the URL prefix isn't there
                         tableData[rowNumber][propertiesColumnList[propertyNumber]] = filename_to_commons_url(valueString) # replace the tabled value
+                        cells_converted = True
 
         # Write the file with the converted dates and commons URLs in case the script crashes
-        writeToFile(tableFileName, fieldnames, tableData)
+        if cells_converted:
+            writeToFile(tableFileName, fieldnames, tableData)
 
         # build the parameter string to be posted to the API
         parameterDictionary = {
