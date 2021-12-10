@@ -31,7 +31,7 @@
       {
           "pid": "P361",
           "variable": "part_of_school",
-          "value_type": "string",
+          "value_type": "item",
           "qual": [],
           "ref": [
             {
