@@ -18,9 +18,11 @@ There is also information comparing the different templates that are available f
 
 `commons_data.ipynb` Python Jupyter notebook with code for scraping Commons file MediaWiki HTML tables. There is also some code for acquiring technical metadata and some metadata about the file from the Commons API, although for the non-technical metadata, the quality of data retrieved from scraping the page is better.
 
-`commonsbot.ipynb` Python Jupyter notebook with code for uploading media files to Commons and adding Structured Data on Commons (the Commons Wikibase instance). This is still very much under development and may not meet your needs at all. However, you may find it instructive to help understand how the confusing mess of Commons metadata all fit together. The final cell, which uploads multiple files using a loop, may be more useful, although currently it uses only the minimal information template. Come back later when I'll be enabling the artwork template for this.
+`commonsbot.ipynb` Python Jupyter notebook with code for uploading media files to Commons and adding Structured Data on Commons (the Commons Wikibase instance). This script is now functional, although the data input is pretty idiosyncratic. However, you may find it instructive to help understand how the confusing mess of Commons metadata all fit together. 
 
-`upload_metadata.csv` an idiosyncratic CSV file used to provide the metadata for `commonsbot.ipynb` when uploads are done using a loop.
+`tranfer_to_vanderbot.ipynb` Python Jupyter notebook with code that takes the output of commonsbot and inserts it into the CSV file needed by the [VanderBot](https://github.com/HeardLibrary/linked-data/tree/master/vanderbot) script to upload statements to Wikidata. This allows the created Commons artwork files to be linked to their corresponding Wikidata items.
+
+Input files: `works_multiprop.csv`, `config.json`, `item_status_abbrev.csv`, and `commons_images.csv`. See comments in scripts for the roles played by these files.
 
 ----
-Last modified: 2021-10-29
+Last modified: 2021-12-10
