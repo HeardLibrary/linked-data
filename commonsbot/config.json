@@ -1,0 +1,460 @@
+{
+  "data_path": "",
+  "item_source_csv": "",
+  "item_pattern_file": "graph_pattern.txt",
+  "outfiles": [
+    {
+      "manage_descriptions": true,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "works_multiprop.csv",
+      "prop_list": [
+        {
+          "pid": "P217",
+          "variable": "inventory_number",
+          "value_type": "string",
+          "qual": [
+            {
+                "pid": "P195",
+                "variable": "collection",
+                "value_type": "item"
+              }  
+          ],
+          "ref": [
+            {
+              "pid": "P248",
+              "variable": "statedIn",
+              "value_type": "item"
+            },
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+            "pid": "P1476",
+            "variable": "title",
+            "value_type": "monolingualtext",
+            "language": "en",
+            "qual": [
+              {
+                  "pid": "P1680",
+                  "variable": "subtitle",
+                  "value_type": "monolingualtext",
+                  "language": "en"
+                }  
+            ],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P170",
+            "variable": "creator",
+            "value_type": "item",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P31",
+            "variable": "instance_of",
+            "value_type": "item",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P571",
+            "variable": "inception",
+            "value_type": "date",
+            "qual": [
+                {
+                    "pid": "P1319",
+                    "variable": "earliest_date",
+                    "value_type": "date"
+                },
+                {
+                    "pid": "P1326",
+                    "variable": "latest_date",
+                    "value_type": "date"
+                },
+                {
+                    "pid": "P1480",
+                    "variable": "sourcing_circumstances",
+                    "value_type": "item"
+                } 
+            ],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P17",
+            "variable": "country",
+            "value_type": "item",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P495",
+            "variable": "country_of_origin",
+            "value_type": "item",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P2048",
+            "variable": "height",
+            "value_type": "quantity",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P2049",
+            "variable": "width",
+            "value_type": "quantity",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P2610",
+            "variable": "thickness",
+            "value_type": "quantity",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P2386",
+            "variable": "diameter",
+            "value_type": "quantity",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P1684",
+            "variable": "inscription",
+            "value_type": "monolingualtext",
+            "qual": [],
+            "language": "zxx",
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P6216",
+            "variable": "copyright_status",
+            "value_type": "item",
+            "qual": [
+                {
+                    "pid": "P1001",
+                    "variable": "applies_to_jurisdiction",
+                    "value_type": "item"
+                },
+                {
+                    "pid": "P459",
+                    "variable": "determination_method",
+                    "value_type": "item"
+                }
+            ],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P18",
+            "variable": "image",
+            "value_type": "uri",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P195",
+            "variable": "collection",
+            "value_type": "item",
+            "qual": [
+                {
+                    "pid": "P580",
+                    "variable": "start_time",
+                    "value_type": "date"
+                },
+                {
+                    "pid": "P582",
+                    "variable": "end_time",
+                    "value_type": "date"
+                } 
+            ],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P276",
+            "variable": "location",
+            "value_type": "item",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        },
+        {
+            "pid": "P6108",
+            "variable": "iiif_manifest",
+            "value_type": "uri",
+            "qual": [],
+            "ref": [
+              {
+                "pid": "P248",
+                "variable": "statedIn",
+                "value_type": "item"
+              },
+              {
+                "pid": "P854",
+                "variable": "referenceUrl",
+                "value_type": "uri"
+              },
+              {
+                "pid": "P813",
+                "variable": "retrieved",
+                "value_type": "date"
+              }
+            ]
+        }
+      ]
+    }
+  ]
+}
