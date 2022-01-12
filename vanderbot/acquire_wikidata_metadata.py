@@ -7,8 +7,8 @@
 # The input JSON is the same as that which is used for input by convert_json_to_metadata_schema.py and its format
 # is described at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
 
-version = '1.0.1'
-created = '2021-03-12'
+version = '1.0.2'
+created = '2022-01-12'
 
 # Note: if the single value of an existing property changes to another single value, the script will replace the data
 # to be the current value without any comment. If this is not the desired behavior, the data should be checked for changes
@@ -110,7 +110,7 @@ def write_dicts_to_csv(table, filename, fieldnames):
 def extract_qnumber(iri):
     # pattern is http://www.wikidata.org/entity/Q6386232
     pieces = iri.split('/')
-    return pieces[4]
+    return pieces[-1]
 
 # extracts the UUID and qId from a statement IRI
 def extract_statement_uuid(iri):
