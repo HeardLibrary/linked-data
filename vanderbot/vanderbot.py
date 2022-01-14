@@ -1849,7 +1849,7 @@ for table in tables:  # The script can handle multiple tables
             print('', file=log_object)
 
             if 'error' in responseData:
-                error_log = 'Error message from API in row ' + str(rowNumber) + ': ' + responseData['error']['info'] + '\n'
+                error_log += 'Error message from API in row ' + str(rowNumber) + ': ' + responseData['error']['info'] + '\n'
                 print('failed write due to error from API', file=log_object)
                 print('', file=log_object)
                 continue # Do not try to extract data from the response JSON. Go on with the next row and leave CSV unchanged.
