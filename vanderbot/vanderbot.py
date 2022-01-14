@@ -1439,11 +1439,11 @@ for table in tables:  # The script can handle multiple tables
                 # Perform a check to strip off leading and trailing whitespace, which will cause the API to throw an error.
                 # Not sure if this applies for other kind of strings.
                 stripped = False
-                if language['label_column'].strip() != language['label_column']:
-                    language['label_column'] = language['label_column'].strip()
+                if tableData[rowNumber][language['label_column']].strip() != tableData[rowNumber][language['label_column']]:
+                    tableData[rowNumber][language['label_column']] = tableData[rowNumber][language['label_column']].strip()
                     stripped = True
-                if language['description_column'].strip() != language['description_column']:
-                    language['description_column'] = language['description_column'].strip()
+                if tableData[rowNumber][language['description_column']].strip() != tableData[rowNumber][language['description_column']]:
+                    tableData[rowNumber][language['description_column']] = tableData[rowNumber][language['description_column']].strip()
                     stripped = True
                 # If either or both were changed, rewrite the file to make sure the changes stick if the script crashes.
                 if stripped:
