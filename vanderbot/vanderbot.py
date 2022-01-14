@@ -1,8 +1,8 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.8.2'
-created = '2021-12-08'
+version = '1.9'
+created = '2022-01-14'
 
-# (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
@@ -104,6 +104,9 @@ created = '2021-12-08'
 # -----------------------------------------
 # Version 1.8.2 change notes (2021-12-08):
 # - fixed slow speed of precessing unchanged rows caused by writing the data file for every row in the date and image reformatting section. 
+# -----------------------------------------
+# Version 1.9 change notes (2022-01-14):
+# - added support for somevalue snaks (required to handle anonymous creators and authors). Fixed error when property had a somevalue snak.
 
 import json
 import requests
@@ -1830,7 +1833,7 @@ for table in tables:  # The script can handle multiple tables
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        print(json.dumps(dataStructure, indent = 2))
+        #print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
         
         # don't try to write if there aren't any data to send
