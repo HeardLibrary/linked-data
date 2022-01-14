@@ -107,6 +107,7 @@ created = '2022-01-14'
 # -----------------------------------------
 # Version 1.9 change notes (2022-01-14):
 # - added support for somevalue snaks (required to handle anonymous creators and authors). Fixed error when property had a somevalue snak.
+# - trap API error cause when labels or descriptions have leading or trailing whitespace
 
 import json
 import requests
