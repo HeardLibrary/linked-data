@@ -462,13 +462,20 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
 # Generate a UUID for the value node identifier when there isn't already one
 def generateNodeId(rowData, columnNameRoot):
     changed = False
-    # Only do something in the case where there is a value. Missing values should be skipped.
-    if rowData[columnNameRoot + '_val'] != '':
+    # Only do something in the case where there is a value. Missing values and blank nodes should be skipped.
+    if rowData[columnNameRoot + '_val'] != '' and rowData[columnNameRoot + '_val'][:2] != '_:':
         # If there is no UUID in the _nodeId column, generate one
         if rowData[columnNameRoot + '_nodeId'] == '':
             rowData[columnNameRoot + '_nodeId'] = str(uuid.uuid4())
             changed = True
     return rowData, changed
+
+def generate_uuid_bnode(string):
+    """If string is bnode abbreviation, add UUID and return as string."""
+    if string == '_:':
+        return True, '_:' + str(uuid.uuid4())
+    else:
+        return False, string
 
 # Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
 # See https://stackoverflow.com/questions/41129921/validate-an-iso-8601-datetime-string-in-python
@@ -506,8 +513,8 @@ def validate_time(date_text):
 def convertDates(rowData, dateColumnNameRoot):
     error = False
     changed = False
-    # Only do something in the case where there is a date. Missing values should be skipped.
-    if rowData[dateColumnNameRoot + '_val'] != '':
+    # Only do something in the case where there is a date. Missing values and bland nodes should be skipped.
+    if rowData[dateColumnNameRoot + '_val'] != '' and rowData[dateColumnNameRoot + '_val'][:2] != '_:':
         # Assume that if the precision column is empty that the dates need to be converted
         if rowData[dateColumnNameRoot + '_prec'] == '':
             changed = True
@@ -1515,10 +1522,20 @@ for table in tables:  # The script can handle multiple tables
         for propertyNumber in range(len(propertiesColumnList)):
             if propertiesTypeList[propertyNumber] == 'commonsMedia':
                 valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
-                if valueString != '':
+                if valueString != '' and valueString[:2] != '_:':
                     if not commons_prefix in valueString: # convert from unencoded filename if the URL prefix isn't there
                         tableData[rowNumber][propertiesColumnList[propertyNumber]] = filename_to_commons_url(valueString) # replace the tabled value
                         cells_converted = True
+
+        # Convert any blank node abbreviations into Turtle bnode strings with UUID identifiers
+        for propertyNumber in range(len(propertiesColumnList)):
+            if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                changed, tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val'] = generate_uuid_bnode(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val'])
+            else:
+                changed, tableData[rowNumber][propertiesColumnList[propertyNumber]] = generate_uuid_bnode(tableData[rowNumber][propertiesColumnList[propertyNumber]])
+
+            if changed:
+                cells_converted = True
 
         # Write the file with the converted dates and commons URLs in case the script crashes
         if cells_converted:
@@ -1646,136 +1663,155 @@ for table in tables:  # The script can handle multiple tables
                     valueString = tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val']
                     if valueString == '':
                         continue  # skip the rest of this iteration and go onto the next property
-                    # Currently time is the only kind of value node supported
-                    if propertiesTypeList[propertyNumber] == 'time':
-                        # for compatibility with xsd:datatype requirements for dates, the leading + required by Wikidata is not stored and must be added
-                        if valueString[0] != '-':
-                            valueString = '+' + valueString
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue':{
-                                    'value': {
-                                        'time': valueString,
-                                        'timezone': 0,
-                                        'before': 0,
-                                        'after': 0,
-                                        'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
-                                        'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
-                                        },
-                                    'type': 'time'
+                    if len(valueString) >= 2 and valueString[:2] == '_:': # value is a blank node
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'somevalue',
+                                    'property': propertiesIdList[propertyNumber]
                                     },
-                                'datatype': 'time'
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    # had to guess that datatype was "quantity"; not in documentation
-                    # XML datatypes allow (but don't require) leading +, but spreadsheets drop it, 
-                    # but Wikibase requires it, so add it here
-                    # not currently supporting upperBound and lowerBound
-                    elif propertiesTypeList[propertyNumber] == 'quantity':
-                        if valueString[0] != '-':
-                            valueString = '+' + valueString
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue':{
-                                    'value':{
-                                        'amount': valueString, # a string for a decimal number; must have leading + or -
-                                        'unit': 'http://www.wikidata.org/entity/' + tableData[rowNumber][propertiesColumnList[propertyNumber] + '_unit'] # IRI as a string
-                                        },
-                                    'type': 'quantity',
-                                    },
-                                'datatype': 'quantity'
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    elif propertiesTypeList[propertyNumber] == 'globe-coordinate':
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue': {
-                                    'value': {
-                                        'latitude': float(valueString), # latitude; decimal number
-                                        'longitude': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_long']), # longitude; decimal number
-                                        'precision': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec']), # precision; decimal number
-                                        'globe': 'http://www.wikidata.org/entity/Q2' # the earth
-                                        },
-                                    'type': 'globecoordinate'
-                                    },
-                                'datatype': 'globe-coordinate'
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }        
                     else:
-                        # there are some other value types not currently supported
-                        print('unsupported value type')
+                        if propertiesTypeList[propertyNumber] == 'time':
+                            # for compatibility with xsd:datatype requirements for dates, the leading + required by Wikidata is not stored and must be added
+                            if valueString[0] != '-':
+                                valueString = '+' + valueString
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datavalue':{
+                                        'value': {
+                                            'time': valueString,
+                                            'timezone': 0,
+                                            'before': 0,
+                                            'after': 0,
+                                            'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
+                                            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                                            },
+                                        'type': 'time'
+                                        },
+                                    'datatype': 'time'
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        # had to guess that datatype was "quantity"; not in documentation
+                        # XML datatypes allow (but don't require) leading +, but spreadsheets drop it, 
+                        # but Wikibase requires it, so add it here
+                        # not currently supporting upperBound and lowerBound
+                        elif propertiesTypeList[propertyNumber] == 'quantity':
+                            if valueString[0] != '-':
+                                valueString = '+' + valueString
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datavalue':{
+                                        'value':{
+                                            'amount': valueString, # a string for a decimal number; must have leading + or -
+                                            'unit': 'http://www.wikidata.org/entity/' + tableData[rowNumber][propertiesColumnList[propertyNumber] + '_unit'] # IRI as a string
+                                            },
+                                        'type': 'quantity',
+                                        },
+                                    'datatype': 'quantity'
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        elif propertiesTypeList[propertyNumber] == 'globe-coordinate':
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datavalue': {
+                                        'value': {
+                                            'latitude': float(valueString), # latitude; decimal number
+                                            'longitude': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_long']), # longitude; decimal number
+                                            'precision': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec']), # precision; decimal number
+                                            'globe': 'http://www.wikidata.org/entity/Q2' # the earth
+                                            },
+                                        'type': 'globecoordinate'
+                                        },
+                                    'datatype': 'globe-coordinate'
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        else:
+                            # there are some other value types not currently supported
+                            print('unsupported value type')
 
                 # For other property columns, the column name is stored directly in the propertiesColumnList
                 else:
                     valueString = tableData[rowNumber][propertiesColumnList[propertyNumber]]
                     if valueString == '':
                         continue  # skip the rest of this iteration and go onto the next property
-                    if propertiesEntityOrLiteral[propertyNumber] == 'literal':
-                        # The idiosyncratic nature of P18 requires upload of the unencoded file name, even though RDF triples contain encoded URLs
-                        # So the stored URL must be converted back into the file name prior to writing
-                        if propertiesTypeList[propertyNumber] == 'commonsMedia':
-                            valueString = commons_url_to_filename(valueString)
-
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue':{
-                                    'value': valueString,
-                                    'type': propertiesValueTypeList[propertyNumber]
+                    if len(valueString) >= 2 and valueString[:2] == '_:': # value is a blank node
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'somevalue',
+                                    'property': propertiesIdList[propertyNumber]
                                     },
-                                'datatype': propertiesTypeList[propertyNumber]
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    elif propertiesEntityOrLiteral[propertyNumber] == 'monolingualtext':
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datavalue': {
-                                    'value': {
-                                        'text': valueString,
-                                        'language': propertiesLangList[propertyNumber]
-                                        },
-                                    'type': 'monolingualtext'
-                                    },
-                                'datatype': 'monolingualtext'
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
-                    elif propertiesEntityOrLiteral[propertyNumber] == 'entity':
-                        snakDict = {
-                            'mainsnak': {
-                                'snaktype': 'value',
-                                'property': propertiesIdList[propertyNumber],
-                                'datatype': 'wikibase-item',
-                                'datavalue': {
-                                    'value': {
-                                        'id': valueString
-                                        },
-                                    'type': 'wikibase-entityid'
-                                    }
-                                },
-                            'type': 'statement',
-                            'rank': 'normal'
-                            }
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }        
                     else:
-                        print('This should not happen')
+                        if propertiesEntityOrLiteral[propertyNumber] == 'literal':
+                            # The idiosyncratic nature of P18 requires upload of the unencoded file name, even though RDF triples contain encoded URLs
+                            # So the stored URL must be converted back into the file name prior to writing
+                            if propertiesTypeList[propertyNumber] == 'commonsMedia':
+                                valueString = commons_url_to_filename(valueString)
+
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datavalue':{
+                                        'value': valueString,
+                                        'type': propertiesValueTypeList[propertyNumber]
+                                        },
+                                    'datatype': propertiesTypeList[propertyNumber]
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        elif propertiesEntityOrLiteral[propertyNumber] == 'monolingualtext':
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datavalue': {
+                                        'value': {
+                                            'text': valueString,
+                                            'language': propertiesLangList[propertyNumber]
+                                            },
+                                        'type': 'monolingualtext'
+                                        },
+                                    'datatype': 'monolingualtext'
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        elif propertiesEntityOrLiteral[propertyNumber] == 'entity':
+                            snakDict = {
+                                'mainsnak': {
+                                    'snaktype': 'value',
+                                    'property': propertiesIdList[propertyNumber],
+                                    'datatype': 'wikibase-item',
+                                    'datavalue': {
+                                        'value': {
+                                            'id': valueString
+                                            },
+                                        'type': 'wikibase-entityid'
+                                        }
+                                    },
+                                'type': 'statement',
+                                'rank': 'normal'
+                                }
+                        else:
+                            print('This should not happen')
 
                 # Look for references and qualifiers for all properties whose values are being written
                 if len(propertiesReferencesList[propertyNumber]) != 0:  # skip references if there aren't any
@@ -1794,7 +1830,7 @@ for table in tables:  # The script can handle multiple tables
 
         # The data value has to be turned into a JSON string
         parameterDictionary['data'] = json.dumps(dataStructure)
-        #print(json.dumps(dataStructure, indent = 2))
+        print(json.dumps(dataStructure, indent = 2))
         #print(parameterDictionary)
         
         # don't try to write if there aren't any data to send
@@ -1815,7 +1851,6 @@ for table in tables:  # The script can handle multiple tables
                 print('', file=log_object)
                 continue # Do not try to extract data from the response JSON. Go on with the next row and leave CSV unchanged.
 
-
             if newItem:
                 # extract the entity Q number from the response JSON
                 tableData[rowNumber][subjectWikidataIdColumnHeader] = responseData['entity']['id']
@@ -1825,10 +1860,14 @@ for table in tables:  # The script can handle multiple tables
                 referencesForStatement = propertiesReferencesList[statementIndex]
                 #print(tableData[rowNumber][propertiesColumnList[statementIndex]])
 
-                # need to find out if the value is empty. Value-node values must have their nodeId's checked. Otherwise, just check whether the cell is empty.
+                # Need to find out if the value is empty. Value-node values must have their nodeId's checked. Otherwise, just check whether the cell is empty.
                 if propertiesEntityOrLiteral[statementIndex] =='value':
                     if tableData[rowNumber][propertiesColumnList[statementIndex] + '_nodeId'] == '':
-                        value = False
+                        # If the nodeId is empty, the cell still could have a blank node, so we need to check for that.
+                        if len(tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) >= 2 and tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][:2] =='_:':
+                            value = True
+                        else:
+                            value = False
                     else:
                         value = True
                 else:
@@ -1836,7 +1875,7 @@ for table in tables:  # The script can handle multiple tables
                         value = False
                     else:
                         value = True
-                # only add the claim if the UUID cell for that row is empty AND there is a value for the property
+                # Only add the claim if the UUID cell for that row is empty AND there is a value for the property
                 if tableData[rowNumber][propertiesUuidColumnList[statementIndex]] =='' and value:
                     count = 0
                     statementFound = False
@@ -1844,41 +1883,56 @@ for table in tables:  # The script can handle multiple tables
                     for statement in responseData['entity']['claims'][propertiesIdList[statementIndex]]:
                         #print(statement)
 
-                        # does the value in the cell equal the mainsnak value of the claim?
-                        # it's necessary to check this because there could be other previous claims for that property (i.e. multiple values)
-                        if propertiesEntityOrLiteral[statementIndex] == 'literal':
-                            # Handle special case of commons images where the raw filename is written to the API, but the value must be stored as an encoded URL
-                            if propertiesTypeList[statementIndex] == 'commonsMedia':
-                                statementFound = commons_url_to_filename(tableData[rowNumber][propertiesColumnList[statementIndex]]) == statement['mainsnak']['datavalue']['value']
-                            else:
-                                statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
-                        elif propertiesEntityOrLiteral[statementIndex] == 'entity':
-                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
-                        elif propertiesEntityOrLiteral[statementIndex] == 'monolingualtext':
-                            statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['text'] and propertiesLangList[statementIndex] == statement['mainsnak']['datavalue']['value']['language']
-                        elif propertiesEntityOrLiteral[statementIndex] == 'value':
-                            if propertiesTypeList[statementIndex] == 'time':
-                                # need to handle negative dates (BCE)
-                                if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
-                                    # make comparison with the leading minus present
-                                    statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['time']
+                        # Before checking the value in the returned JSON, need to check first if the snaktype is novalue or somevalue.
+                        # Oterwise, an error will be thrown when the script looks for the datavalue
+                        if statement['mainsnak']['snaktype'] == 'novalue':
+                            pass # Script currently does not support novalue
+                        elif statement['mainsnak']['snaktype'] == 'somevalue':
+                            # If the value in the table is a blank node, then consider this to be a match.
+                            # NOTE: there is no way to properly handle the case where there are multiple somevalue claims for a property. 
+                            # This is not impossible, but should be rare. It will generate the duplicate values error below.
+                            value_value_bnode = propertiesEntityOrLiteral[statementIndex] =='value' and len(tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) >= 2 and tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][:2] =='_:'
+                            plain_value_bnode = propertiesEntityOrLiteral[statementIndex] !='value' and len(tableData[rowNumber][propertiesColumnList[statementIndex]]) >= 2 and tableData[rowNumber][propertiesColumnList[statementIndex]][:2] =='_:'
+                            if value_value_bnode or plain_value_bnode:
+                                statementFound = True
+                        elif statement['mainsnak']['snaktype'] == 'value':
+                            # does the value in the cell equal the mainsnak value of the claim?
+                            # it's necessary to check this because there could be other previous claims for that property (i.e. multiple values)
+                            if propertiesEntityOrLiteral[statementIndex] == 'literal':
+                                # Handle special case of commons images where the raw filename is written to the API, but the value must be stored as an encoded URL
+                                if propertiesTypeList[statementIndex] == 'commonsMedia':
+                                    statementFound = commons_url_to_filename(tableData[rowNumber][propertiesColumnList[statementIndex]]) == statement['mainsnak']['datavalue']['value']
                                 else:
-                                    # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
-                                    statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['time']
-                            elif propertiesTypeList[statementIndex] == 'quantity':
-                                # need to handle negative quantities
-                                if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
-                                    # make comparison with the leading minus present
-                                    statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['amount']
-                                else:
-                                    # must add leading plus (not stored in the table) to match the plus required by Wikibase
-                                    statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['amount']
-                            elif propertiesTypeList[statementIndex] == 'globe-coordinate':
-                                statementFound = float(tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['latitude']
+                                    statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']
+                            elif propertiesEntityOrLiteral[statementIndex] == 'entity':
+                                statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['id']
+                            elif propertiesEntityOrLiteral[statementIndex] == 'monolingualtext':
+                                statementFound = tableData[rowNumber][propertiesColumnList[statementIndex]] == statement['mainsnak']['datavalue']['value']['text'] and propertiesLangList[statementIndex] == statement['mainsnak']['datavalue']['value']['language']
+                            elif propertiesEntityOrLiteral[statementIndex] == 'value':
+                                if propertiesTypeList[statementIndex] == 'time':
+                                    # need to handle negative dates (BCE)
+                                    if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                        # make comparison with the leading minus present
+                                        statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['time']
+                                    else:
+                                        # must add leading plus (not stored in the table) to match the non-standard plus included by Wikibase
+                                        statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['time']
+                                elif propertiesTypeList[statementIndex] == 'quantity':
+                                    # need to handle negative quantities
+                                    if tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'][0] == '-':
+                                        # make comparison with the leading minus present
+                                        statementFound = tableData[rowNumber][propertiesColumnList[statementIndex] + '_val'] == statement['mainsnak']['datavalue']['value']['amount']
+                                    else:
+                                        # must add leading plus (not stored in the table) to match the plus required by Wikibase
+                                        statementFound = ('+' + tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['amount']
+                                elif propertiesTypeList[statementIndex] == 'globe-coordinate':
+                                    statementFound = float(tableData[rowNumber][propertiesColumnList[statementIndex] + '_val']) == statement['mainsnak']['datavalue']['value']['latitude']
 
-                            else: # non-supported types
+                                else: # non-supported types of value nodes
+                                    pass
+                            else: # non-supported types of values
                                 pass
-                        else:
+                        else: # currently there are no other snaktypes other than novalue, somevalue, or value, but who knows.
                             pass
                         if statementFound:
                             count += 1
@@ -2079,3 +2133,4 @@ else:
 if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
     log_object.close() 
 print('done')
+    
