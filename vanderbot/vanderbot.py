@@ -1435,6 +1435,20 @@ for table in tables:  # The script can handle multiple tables
             # perform the label/description check for each language represented in the table
             for language in language_structure:
                 #print(language['language'])
+
+                # Perform a check to strip off leading and trailing whitespace, which will cause the API to throw an error.
+                # Not sure if this applies for other kind of strings.
+                stripped = False
+                if language['label_column'].strip() != language['label_column']:
+                    language['label_column'] = language['label_column'].strip()
+                    stripped = True
+                if language['description_column'].strip() != language['description_column']:
+                    language['description_column'] = language['description_column'].strip()
+                    stripped = True
+                # If either or both were changed, rewrite the file to make sure the changes stick if the script crashes.
+                if stripped:
+                    writeToFile(tableFileName, fieldnames, tableData)
+
                 # The first screen is that both types of columns must exist for a language
                 if language['label_column'] != '' and language['description_column'] != '':
                     # The second screen is that both columns must have values for that row
