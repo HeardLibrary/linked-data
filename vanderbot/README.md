@@ -166,30 +166,31 @@ When setting up the metadata description file `csv-metadata.json` using the [thi
 
 ## `somevalue` claims (blank nodes)
 
-The [Wikibase model](https://www.mediawiki.org/wiki/Wikibase/DataModel#PropertySomeValueSnak) allows for claims where it is known that a property has some value, but that value is not known. Although this feature is not as commonly used as claims where a property has a stated value, it has an important use case for unknown artists or authors. Although it is possible to provide a value of `Q4233718` (anonymous) as a value for `P170` (creator), this is not the [preferred practice](https://www.wikidata.org/wiki/Wikidata:Requests_for_comment/Cleaning_up_the_ontology_of_anonymous). If `Q4233718` is used, [a bot](https://www.wikidata.org/wiki/User:BotMultichillT) will automatically change it from a `value` claim to a `somevalue` claim with a qualifier property of `P3831` and value (object has role) `Q4233718`. So it is better to handle anonymous creators correctly from the start.
+The [Wikibase model](https://www.mediawiki.org/wiki/Wikibase/DataModel#PropertySomeValueSnak) allows for claims where it is known that a property has some value, but that value is not known. Although this feature is not as commonly used as claims where a property has a stated value, it has an important use case for unknown artists or authors. Although it is possible to provide a value of `Q4233718` (anonymous) as a value for `P170` (creator), this is not the [preferred practice](https://www.wikidata.org/wiki/Wikidata:Requests_for_comment/Cleaning_up_the_ontology_of_anonymous). If `Q4233718` is used, [a bot](https://www.wikidata.org/wiki/User:BotMultichillT) will automatically change it from a `value` claim to a `somevalue` claim with a qualifier property of `P3831` (object has role) and value `Q4233718` (anonymous). So it is better to handle anonymous creators correctly from the start.
 
-The [Wikibase RDF model](https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Somevalue) handles `somevalue` claims by treating them as triples with a blank node as the object. When a query is made to the Query Service that involves a `somevalue` claim, the value returned for the corresponding triple is  a [Skolem IRI](https://www.w3.org/TR/rdf11-concepts/#section-skolemization) blank node identifier in the form: `http://www.wikidata.org/.well-known/genid/86c4ed0e862509f61bba3ad98a1d5840` where `86c4ed0e862509f61bba3ad98a1d5840` is a hash that is unique within Wikidata. 
+The [Wikibase RDF model](https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Somevalue) handles `somevalue` claims by treating them as triples with a blank node as the object. When a query is made to the Query Service that involves a `somevalue` claim, the object value returned for the corresponding triple is  a [Skolem IRI](https://www.w3.org/TR/rdf11-concepts/#section-skolemization) blank node identifier in the form: `http://www.wikidata.org/.well-known/genid/86c4ed0e862509f61bba3ad98a1d5840` where `86c4ed0e862509f61bba3ad98a1d5840` is a hash that is unique within Wikidata. 
 
 Because `somevalue` claims can be made for properties of any value type (string, IRI, item, date, etc.), their RDF representations can't properly be generated from a CSV using the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation. So the solution adopted for CSV input to VanderBot is a hack that allows users to write `somevalue` claims and provide unique values in the cells of the CSV (representing that each value is a different blank node), but not to generate RDF from the table that will exactly match what is in the graph used by the Query Service. 
 
-To specify that a property should have a `somevalue` claim, the cell in that property's column for the subject item row should contain a string that begins with `_:` (a [RDF Turtle blank node label](https://www.w3.org/TR/turtle/#BNodes)). For value node properties (e.g. time), the string should be placed in the column whose header ends in `_val`.) Any characters can follow these initial two characters, but if a cell contains only those two characters, VanderBot will generate a random UUID suffix and append it (e.g. `_:fd655ec7-a596-41da-916c-2bd680808165`) to ensure uniqueness. (If the [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py) script is used to download existing data, the hash from the Skolem IRI will be used to create the blank node label, e.g. `_:86c4ed0e862509f61bba3ad98a1d5840` for the example above.) 
+To specify that a property should have a `somevalue` claim, the cell in that property's column for the subject item row should contain a string that begins with `_:` (a [RDF Turtle blank node label](https://www.w3.org/TR/turtle/#BNodes)). For value node properties (e.g. time), the string should be placed in the column whose header ends in `_val`.) Any characters can follow these initial two characters, but if a cell contains only those two characters, VanderBot will generate a random UUID suffix and append it (e.g. `_:fd655ec7-a596-41da-916c-2bd680808165`) to ensure uniqueness. (If the [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py) script is used to download existing data, the hash from the downloaded Skolem IRI will be used to create the blank node label, e.g. `_:86c4ed0e862509f61bba3ad98a1d5840` for the example above.) 
 
 Here is an example:
 
-*before writing to the API*
+*before writing to the API:*
 
 | creator_uuid | creator | creator_object_has_role | inception_uuid | inception_nodeId | inception_val | inception_prec |
 | ------------ | ------- | ----------------------- | -------------- | ---------------- | ------------- | -------------- |
 |              | Q364350 |                         |                |                  | _:            |                |
 |              | _:      | Q4233718                |                |                  | 1635          |                |
 
-*after writing to the API*
+*after writing to the API:*
 
 | creator_uuid | creator | creator_object_has_role | inception_uuid | inception_nodeId | inception_val | inception_prec |
 | ------------ | ------- | ----------------------- | -------------- | ---------------- | ------------- | -------------- |
 | 3829C5F8-C5F3-4ECE-AE56-8C4689A3A057 | Q364350 | | DDD9982B-5E30-4A51-A950-E7339B939D0E | | _:757ac080-a8a5-4d7f-9d5c-9bb8331b846e |  |
 | 4E8637FD-A0F9-4467-BAB2-E26EFBBD2D04 | _:fd655ec7-a596-41da-916c-2bd680808165 | Q4233718 | 64F5DFAF-DBA2-4DCA-8699-2EE5F202E43F | 2fd04384-737c-4f2e-b001-09db7b1e9818 | 1635-01-01T00:00:00Z | 9 |
 
+**Technical note:** If a CSV containing `somevalue` data of this form is used to generate RDF using the W3C Recommendation, columns where an item is expected will generate IRIs of the form `http://www.wikidata.org/entity/_:86c4ed0e862509f61bba3ad98a1d5840` rather than the expected form `http://www.wikidata.org/.well-known/genid/86c4ed0e862509f61bba3ad98a1d5840`. For some queries that simply require different values for IRIs in the object position of triples, this probably doesn't matter, but for federated queries comparing the state of the local graph against the Wikidata graph, there could be problems. 
 
 # Rate limits
 
