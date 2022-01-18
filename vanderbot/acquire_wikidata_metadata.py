@@ -8,7 +8,7 @@
 # is described at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
 
 version = '1.1'
-created = '2022-01-14'
+created = '2022-01-18'
 
 # Note: if the single value of an existing property changes to another single value, the script will replace the data
 # to be the current value without any comment. If this is not the desired behavior, the data should be checked for changes
@@ -371,8 +371,11 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 
     print('querying SPARQL endpoint to acquire item metadata')
     response = requests.post(endpoint, data=query.encode('utf-8'), headers=requestheader)
-    #print(response.text)
-    data = response.json()
+    # If there is an error message, the conversion to JSON will fail and the error message will be printed. There will then be an error because "data" isn't defined
+    try:
+        data = response.json()
+    except:
+        print(response.text)
 
     # extract the values from the response JSON
     results = data['results']['bindings']
@@ -405,27 +408,29 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                 row_dict[property['variable'] + '_uuid'] = ''
 
             # Need to check for blank nodes first
-            converted, row_dict[property['variable']] = convert_skolem_to_turtle_bnode(result[property['variable']]['value'])
+            try:
+                converted, ps_value = convert_skolem_to_turtle_bnode(result[property['variable']]['value'])
 
-            # If there was a blank node, the value node cells need to set to empty strings except for the _val cell, to which the blank node identifier should be transferred.
-            if converted:
-                if property['value_type'] == 'date':
-                    row_dict[property['variable'] + '_nodeId'] = ''
-                    row_dict[property['variable'] + '_val'] = row_dict[property['variable']]
-                    row_dict[property['variable'] + '_prec'] = ''
-                    # The dict item for the generic "cell" needs to be removed since it only exists to enable checking for blank nodes.
-                    del row_dict[property['variable']]
-                elif property['value_type'] == 'quantity':
-                    row_dict[property['variable'] + '_nodeId'] = ''
-                    row_dict[property['variable'] + '_val'] = row_dict[property['variable']]
-                    row_dict[property['variable'] + '_unit'] = ''
-                    del row_dict[property['variable']]
-                elif property['value_type'] == 'globecoordinate':
-                    row_dict[property['variable'] + '_nodeId'] = ''
-                    row_dict[property['variable'] + '_val'] = row_dict[property['variable']]
-                    row_dict[property['variable'] + '_long'] = ''
-                    row_dict[property['variable'] + '_prec'] = ''
-                    del row_dict[property['variable']]
+                # If there was a blank node, the value node cells need to set to empty strings except for the _val cell, to which the blank node identifier should be transferred.
+                if converted:
+                    if property['value_type'] == 'date':
+                        row_dict[property['variable'] + '_nodeId'] = ''
+                        row_dict[property['variable'] + '_val'] = ps_value
+                        row_dict[property['variable'] + '_prec'] = ''
+                    elif property['value_type'] == 'quantity':
+                        row_dict[property['variable'] + '_nodeId'] = ''
+                        row_dict[property['variable'] + '_val'] = ps_value
+                        row_dict[property['variable'] + '_unit'] = ''
+                    elif property['value_type'] == 'globecoordinate':
+                        row_dict[property['variable'] + '_nodeId'] = ''
+                        row_dict[property['variable'] + '_val'] = ps_value
+                        row_dict[property['variable'] + '_long'] = ''
+                        row_dict[property['variable'] + '_prec'] = ''
+                    else:
+                        row_dict[property['variable']] = ps_value
+            # In cases where the property doesn't have a value, the dict won't have that key. So do nothing -- null values will be handled in the next section.
+            except:
+                pass
 
             # Value is not a blank node, so process normally
             if not converted:
@@ -436,18 +441,15 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                         row_dict[property['variable'] + '_nodeId'] = extract_qnumber(result[property['variable'] + '_nodeId']['value'])
                         row_dict[property['variable'] + '_val'] = result[property['variable'] + '_val']['value']
                         row_dict[property['variable'] + '_prec'] = result[property['variable'] + '_prec']['value']
-                        del row_dict[property['variable']]
                     elif property['value_type'] == 'quantity':
                         row_dict[property['variable'] + '_nodeId'] = extract_qnumber(result[property['variable'] + '_nodeId']['value'])
                         row_dict[property['variable'] + '_val'] = result[property['variable'] + '_val']['value']
                         row_dict[property['variable'] + '_unit'] = extract_qnumber(result[property['variable'] + '_unit']['value'])
-                        del row_dict[property['variable']]
                     elif property['value_type'] == 'globecoordinate':
                         row_dict[property['variable'] + '_nodeId'] = extract_qnumber(result[property['variable'] + '_nodeId']['value'])
                         row_dict[property['variable'] + '_val'] = result[property['variable'] + '_val']['value']
                         row_dict[property['variable'] + '_long'] = result[property['variable'] + '_long']['value']
                         row_dict[property['variable'] + '_prec'] = result[property['variable'] + '_prec']['value']
-                        del row_dict[property['variable']]
                     else:
                         row_dict[property['variable']] = result[property['variable']]['value']
             
@@ -456,18 +458,15 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                         row_dict[property['variable'] + '_nodeId'] = ''
                         row_dict[property['variable'] + '_val'] = ''
                         row_dict[property['variable'] + '_prec'] = ''
-                        del row_dict[property['variable']]
                     elif property['value_type'] == 'quantity':
                         row_dict[property['variable'] + '_nodeId'] = ''
                         row_dict[property['variable'] + '_val'] = ''
                         row_dict[property['variable'] + '_unit'] = ''
-                        del row_dict[property['variable']]
                     elif property['value_type'] == 'globecoordinate':
                         row_dict[property['variable'] + '_nodeId'] = ''
                         row_dict[property['variable'] + '_val'] = ''
                         row_dict[property['variable'] + '_long'] = ''
                         row_dict[property['variable'] + '_prec'] = ''
-                        del row_dict[property['variable']]
                     else:
                         row_dict[property['variable']] = ''
             
