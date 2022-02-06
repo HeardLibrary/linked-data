@@ -8,7 +8,8 @@
 | CrossRef | http://dx.doi.org/{doi} | | retrieval of RDF metadata through content negotiation (request Content-type: application/rdf+xml)|
 | NCBI Entrez (PubMed) | https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi | https://www.ncbi.nlm.nih.gov/books/NBK25501/ | Programmatic searches of NCBI datasets including PubMed |
 | Web Of Science | | https://developer.clarivate.com/ | Clarivate Developer Portal (Web of Science API Lite) |
+| OpenAlex | https://api.openalex.org/ | https://docs.openalex.org/api | Open catalog of scholarly papers, authors, etc. |
 
 
 ----
-Revised 2019-05-02
+Revised 2022-02-05
