@@ -1,0 +1,271 @@
+{
+  "data_path": "data/",
+  "item_source_csv": "",
+  "item_pattern_file": "graph_pattern.txt",
+  "outfiles": [
+    {
+      "manage_descriptions": true,
+      "label_description_language_list": [
+        "en"
+      ],
+      "output_file_name": "articles.csv",
+      "prop_list": [
+        {
+          "pid": "P31",
+          "variable": "instance_of",
+          "value_type": "item",
+          "qual": [],
+          "ref": []
+        },
+        {
+          "pid": "P356",
+          "variable": "doi",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P698",
+          "variable": "pmid",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P577",
+          "variable": "published",
+          "value_type": "date",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P1476",
+          "variable": "title_en",
+          "value_type": "monolingualtext",
+          "language": "en",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P1433",
+          "variable": "journal",
+          "value_type": "item",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P478",
+          "variable": "volume",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P304",
+          "variable": "page",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P433",
+          "variable": "issue",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P957",
+          "variable": "isbn10",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        },
+        {
+          "pid": "P212",
+          "variable": "isbn13",
+          "value_type": "string",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [],
+      "output_file_name": "authors.csv",
+      "prop_list": [
+        {
+          "pid": "P50",
+          "variable": "author",
+          "value_type": "item",
+          "qual": [
+            {
+              "pid": "P1545",
+              "variable": "series_ordinal",
+              "value_type": "string"
+            },
+            {
+              "pid": "P1932",
+              "variable": "stated_as",
+              "value_type": "string"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [],
+      "output_file_name": "author_strings.csv",
+      "prop_list": [
+        {
+          "pid": "P2093",
+          "variable": "author_string",
+          "value_type": "string",
+          "qual": [
+            {
+              "pid": "P1545",
+              "variable": "series_ordinal",
+              "value_type": "string"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
