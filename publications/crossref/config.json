@@ -197,6 +197,24 @@
               "value_type": "date"
             }
           ]
+        },
+        {
+          "pid": "P123",
+          "variable": "publisher",
+          "value_type": "item",
+          "qual": [],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
         }
       ]
     },
