@@ -257,6 +257,42 @@
     {
       "manage_descriptions": false,
       "label_description_language_list": [],
+      "output_file_name": "editors.csv",
+      "prop_list": [
+        {
+          "pid": "P98",
+          "variable": "editor",
+          "value_type": "item",
+          "qual": [
+            {
+              "pid": "P1545",
+              "variable": "series_ordinal",
+              "value_type": "string"
+            },
+            {
+              "pid": "P1932",
+              "variable": "stated_as",
+              "value_type": "string"
+            }
+          ],
+          "ref": [
+            {
+              "pid": "P854",
+              "variable": "referenceUrl",
+              "value_type": "uri"
+            },
+            {
+              "pid": "P813",
+              "variable": "retrieved",
+              "value_type": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manage_descriptions": false,
+      "label_description_language_list": [],
       "output_file_name": "author_strings.csv",
       "prop_list": [
         {
