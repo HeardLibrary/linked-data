@@ -7,8 +7,8 @@
 # The input JSON is the same as that which is used for input by convert_json_to_metadata_schema.py and its format
 # is described at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
 
-version = '1.1'
-created = '2022-01-18'
+version = '1.1.1'
+created = '2022-02-13'
 
 # Note: if the single value of an existing property changes to another single value, the script will replace the data
 # to be the current value without any comment. If this is not the desired behavior, the data should be checked for changes
@@ -408,6 +408,7 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                 row_dict[property['variable'] + '_uuid'] = ''
 
             # Need to check for blank nodes first
+            converted = False
             try:
                 converted, ps_value = convert_skolem_to_turtle_bnode(result[property['variable']]['value'])
 
