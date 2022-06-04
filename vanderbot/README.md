@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9
+Current version: v1.9.1
 
 Written by Steve Baskauf 2020-22.
 
