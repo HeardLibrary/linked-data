@@ -267,7 +267,7 @@ accept_media_type = 'application/json'
 def generate_header_dictionary(accept_media_type,user_agent_header):
     request_header_dictionary = {
         'Accept' : accept_media_type,
-        'Content-Type': 'application/sparql-query',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': user_agent_header
     }
     return request_header_dictionary
@@ -365,7 +365,8 @@ def ask_query(graph_pattern):
 '''+ graph_pattern + '''
       }'''
     #print(query_string)
-    response = requests.post(endpoint, data=query_string.encode('utf-8'), headers=request_header)
+    #response = requests.post(endpoint, data=query_string.encode('utf-8'), headers=request_header)
+    response = requests.post(endpoint, data=dict(query=query_string), headers=request_header)
     #print(response.text) # uncomment to view the raw response, e.g. if you are getting an error
     data = response.json() # NOTE: the conversion from JSON to Python data structure turns JSON true into Python True
     #print(json.dumps(data, indent=2))
@@ -376,7 +377,7 @@ def ask_query(graph_pattern):
 # The following two functions use the ASK function above for cases where only a label or only a description is present
 def check_for_only_label(label_string, language):
     # Label must exist
-    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '.'
+    graph_pattern = '''  ?entity rdfs:label """'''+ label_string + '"""@' + language + '.'
     #print('Checking ' + language + ' label: "' + label_string)
     #print(graph_pattern)
     label_exists = ask_query(graph_pattern)
@@ -385,7 +386,7 @@ def check_for_only_label(label_string, language):
     #print()
     
     # Also label must exist with NO description
-    graph_pattern = '''  ?entity rdfs:label "'''+ label_string + '"@' + language + '''.
+    graph_pattern = '''  ?entity rdfs:label """'''+ label_string + '"""@' + language + '''.
   ?entity schema:description ?desc.
   filter(lang(?desc)="''' + language + '")'
     #print('Checking ' + language + ' label: "' + label_string + '" with description')
@@ -399,7 +400,7 @@ def check_for_only_label(label_string, language):
 
 def check_for_only_description(description_string, language):
     # Description must exist
-    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '.'
+    graph_pattern = '''  ?entity schema:description """'''+ description_string + '"""@' + language + '.'
     #print('Checking ' + language + ' description: "' + description_string + '"')
     #print(graph_pattern)
     description_exists = ask_query(graph_pattern)
@@ -408,7 +409,7 @@ def check_for_only_description(description_string, language):
     #print()
     
     # Also description must exist with NO label
-    graph_pattern = '''  ?entity schema:description "'''+ description_string + '"@' + language + '''.
+    graph_pattern = '''  ?entity schema:description """'''+ description_string + '"""@' + language + '''.
   ?entity rdfs:label ?label.
   filter(lang(?label)="''' + language + '")'
     #print('Checking ' + language + ' description: "' + description_string + '" with label')
@@ -448,7 +449,8 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
     #print(query)
 
     returnValue = []
-    r = requests.post(endpoint, data=query.encode('utf-8'), headers=request_header)
+    #r = requests.post(endpoint, data=query.encode('utf-8'), headers=request_header)
+    r = requests.post(endpoint, data=dict(query=query), headers=request_header)
     data = r.json()
     results = data['results']['bindings']
     for result in results:
@@ -1455,8 +1457,8 @@ for table in tables:  # The script can handle multiple tables
                     # The second screen is that both columns must have values for that row
                     if tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] != '':
                         has_some_value = True
-                        graph_pattern = '''  ?entity rdfs:label "'''+ tableData[rowNumber][language['label_column']] + '"@' + language['language'] + '''.
-      ?entity schema:description "'''+ tableData[rowNumber][language['description_column']] + '"@' + language['language'] + '.'
+                        graph_pattern = '''  ?entity rdfs:label """'''+ tableData[rowNumber][language['label_column']] + '"""@' + language['language'] + '''.
+      ?entity schema:description """'''+ tableData[rowNumber][language['description_column']] + '"""@' + language['language'] + '.'
                         #print('Checking ' + language['language'] + ' label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"')
                         #print(graph_pattern)
                         exists = ask_query(graph_pattern)
