@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.9'
-created = '2022-01-14'
+version = '1.9.1'
+created = '2022-06-03'
 
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -107,7 +107,12 @@ created = '2022-01-14'
 # -----------------------------------------
 # Version 1.9 change notes (2022-01-14):
 # - added support for somevalue snaks (required to handle anonymous creators and authors). Fixed error when property had a somevalue snak.
-# - trap API error cause when labels or descriptions have leading or trailing whitespace
+# - trap API error caused when labels or descriptions have leading or trailing whitespace
+# -----------------------------------------
+# Version 1.9.1 change notes (2022-06-03):
+# - fixed error that caused SPARQL queries to fail if they contained double quotes (solution: triple double quotes).
+# - switched SPARQL queries to use POST with the application/x-www-form-urlencoded Content-Type. This fixed the problem where
+#   strings containing non-ASCII UTF-8 characters were not matching with existing identical labels and descriptions in Wikidata.
 
 import json
 import requests
