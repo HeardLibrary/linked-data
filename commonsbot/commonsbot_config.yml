@@ -1,0 +1,170 @@
+# --------------
+# File locations
+# --------------
+
+# Note: the location of the Wikimedia login credentials is hard-coded to be the file "commons_credentials.txt"
+# located in the user's home directory. This can be changed, but if so you must take care to isolate
+# that file from the code and configuration files if they are publicly exposed (e.g. on GitHub).
+
+# When value is present, sets path value as working directory. To leave working directory as is, leave blank.
+# Data files are relative to this directory. The error log is in this directory.
+# The commons_images.csv file that logs data about the uploaded images is also in this directory.
+working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upload/
+
+# Controls whether paths for images to upload are relative to the home directory or not. 
+# If not, they may be absolute or relative to the current working directory.
+path_is_relative_to_home_directory: true
+local_image_directory_path: gallery_digital_image_archive/ # location of raw images to upload
+tiff_image_directory_path: gallery_pyramidal_tiffs/ # location of pyramidal tiled TIFF images
+
+# File locations in AWS S3
+s3_iiif_bucket_name: iiif-library-cantaloupe-storage
+s3_manifest_bucket_name: iiif-manifest.library.vanderbilt.edu
+# The s3_iiif_project_directory is a subdirectory of these buckets. No trailing slash.
+# The subdir value in the image data is a subdirectory of this one.
+s3_iiif_project_directory: gallery
+
+# Root URLs for IIIF-related files
+iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
+manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
+
+
+# --------
+# Behavior
+# --------
+
+# Places a limit on the number of items to upload in a session. 
+# To remove the limit, use zero or a negative value.
+max_items_to_upload: 1
+
+# Controls whether the newly created Commons media page opens in a new browser window. 
+# Useful when testing on a few images, but may be annoying if uploading many media items.
+open_browser_tab_after_upload: true
+
+
+# ---------------------------
+# Institutional customization
+# ---------------------------
+
+# Currently only affects language tag designation for the caption fir structured data on Commons
+default_language: en
+
+# This supposedly causes a GLAM institution's Institution: template to be transcluded as an infobox
+# into Artwork and Art Photo file description pages. Leave blank to omit.
+# Example https://commons.wikimedia.org/wiki/Institution:Vanderbilt_University_Fine_Arts_Gallery
+# As of 2022-08-21, it doesn't seem to be working. 
+templated_institution: Vanderbilt University Fine Arts Gallery
+
+# The name of the institution to be inserted between the descriptive text and the local filename to form
+# the Commons filename. Example: 
+# Four Studies of a Draped Torso - Vanderbilt Fine Arts Gallery - 1973.016.med.jpg
+filename_institution: Vanderbilt Fine Arts Gallery
+
+# Commons categories to be added to the images.
+category_strings:
+  - Vanderbilt University Fine Arts Gallery
+
+# Attribution for IIIF manifest
+iiif_manifest_attribution: Provided by Vanderbilt University Fine Arts Gallery
+
+# URL of logo to include in IIIF manifest. Leave blank to omit.
+iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/3/vanderbilt_logo.png/full/!100,100/0/default.jpg
+
+# -----------------------------------
+# Copyright and license configuration
+# -----------------------------------
+
+# Page wikitext templates
+
+# NOTE: The PD-old-100-expired tag provides notices for both US: more than 95 years (Q47246828)
+# and countries where copyright expires 100 or fewer years after author's death (Q29940705)
+# It's used here because all works to be posted from the Vanderbilt Fine Arts Gallery are
+# covered in one or the other of these categories. However, the called function allows other reasons
+# that could vary from work to work and would require modification of this value.
+artwork_license_text_3d: PD-old-100-expired
+
+# Refer to https://commons.wikimedia.org/wiki/Commons:Licensing#License_information
+# https://commons.wikimedia.org/wiki/Commons:Credit_line#Creative_Commons
+# and https://commons.wikimedia.org/wiki/Template:Cc-by-4.0
+photo_license_text_3d: Cc-by-4.0 |1=photo © [https://www.vanderbilt.edu/ Vanderbilt University] / [https://www.library.vanderbilt.edu/gallery/ Fine Arts Gallery] / [https://creativecommons.org/licenses/by/4.0/ CC BY 4.0]
+
+# The PD-Art tag provides the justification for saying that the photo isn't covered by copyright.
+# See the note above about PD-old-100-expired.
+artwork_license_text_2d: PD-Art|PD-old-100-expired
+
+# Structured data on Commons (SDC) values
+
+# Note that SDC values apply to the media item and not the underlying artwork. Licensing information for the
+# artwork is given on the Wikidata page for the artwork. So these values are only used for photos of 3D artwork
+# since 2D artwork is considered to lack creative input and therefore not be copyrightable.
+
+# Copyright status of photograph of a 3D work, value for P6216
+# copyrighted (Q50423863) or 
+# copyrighted, dedicated to the public domain by copyright holder (Q88088423, use with CC0),
+# or public domain (Q19652, needs qualifier for why it's in the public domain)
+photo_copyright_qid: Q50423863
+
+# License of copyrighted photo, value for P275
+# Typically a Creative Commons License, for example CC BY (Q6905323)
+photo_license_qid: Q6905323
+
+# For photographer structured data
+photographer_of_work: Q29052 # Vanderbilt University
+
+
+# ----------------------------------------------------------------------
+# Screening criteria
+# ----------------------------------------------------------------------
+
+public_domain_categories:
+  - artist died before copyright cutoff
+  - artist was born before 1800
+  - assessed to be out of copyright
+  - from style or period that ended prior to copyright cutoff
+  - inception prior to copyright cutoff
+copyright_cutoff_date: 1926
+
+# size_filter options are pixsquared or filesize (filetype not yet implemented)
+size_filter: pixsquared
+minimum_filesize: 1000 # minimum filesize in kilobytes, only used for filesize filter
+minimum_pixel_squared: 1000000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter
+requrired_filetype: tiff # required filetype, only used for filetype filter (not yet implemented)
+
+
+# ----------------------------------------------------------------------
+# DO NOT MESS WITH VALUES BELOW THIS UNLESS YOU KNOW WHAT YOU ARE DOING!
+# ----------------------------------------------------------------------
+
+# Non-critical edits to commons should be made no faster than once every 5 seconds. 
+# See https://commons.wikimedia.org/wiki/Commons:Bots#Bot_speed
+# Therefore a waiting time of at least 5 seconds is enforced between file uploads to commons by the value of commons_sleep.
+
+# IMPORTANT NOTE: If you hack this script to upload media to Commons, you MUST NOT decrease the delay time between
+# Commons API uploads to less than 5 seconds in order to speed up writing. If you do, then your script isn't 
+# BaskaufCommonsBot and you need to change the user_agent_string_template to use your own URL and email address.
+# The same holds true if you make other substantive changes to the way that the script interacts with the API.
+# This script attempts to respect the "good citizen" guidelines for using the API and you should too.
+
+# Because the ASW IIIF s3 bucket upload of the media file is slow, more than 5 seconds may elapse before the next Commons
+# file upload. If that occurrs, then no additional delay is added prior to the next Commons file upload. However, if you  
+# do not use the IIIF server features of the script, or if the file is small and takes less than 5 seconds to upload, 
+# the script will automatically sleep long enough to impose a total delay of the number of seconds given in the 
+# commons_sleep setting.
+
+# NOTE: upload rate limits for structured data in Commons are controlled by a different mechanism (maxlag). If the server is 
+# lagged when uploading structured data, this may also cause more than 5 seconds to elapse and also eliminate the need for
+# an additional delay before the next Commons media upload.
+commons_sleep: 5
+
+# Set the value of the maxlag parameter to back off when the Commons API server is lagged.
+# This applies only to uploads to the structured data on Commons Wikibase instance.
+# see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
+# The recommended value is 5 seconds.
+# To not use maxlang, set the value to 0
+# To test the maxlag handler code, set maxlag to a very low number like .1
+# If you don't know what you are doing, leave this value alone. In any case, it is rude to use a value greater than 5.
+maxlag: 5
+
+# If you change these values or significantly modify the software, you need to use your own user-agent string.
+# %s will be replaced with the current script_version value from the script global variables.
+user_agent_string_template: BaskaufCommonsBot/%s (https://github.com/HeardLibrary/linked-data/tree/master/commonsbot; mailto:steve.baskauf@vanderbilt.edu)
