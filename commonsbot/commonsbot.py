@@ -8,7 +8,7 @@
 # ----------------
 
 script_version = '0.5.1'
-version_modified = '2022-08-21'
+version_modified = '2022-08-24'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 
@@ -24,8 +24,6 @@ commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # - clean up code and convert login to an object
 # - remove hard-coded values and replace with YAML configuration file
 # - improve control of throttling between media file uploads to the Commons API
-# NOTE: the image_metadata['photo_inception'] value is still hard-coded. It needs to be extracted from the EXIF
-# and provided in a table. This is only needed for 3D images, so the script doesn't yet fully support them.
 # -----------------------------------------
 
 # Generic Commons API reference: https://commons.wikimedia.org/w/api.php
@@ -1107,8 +1105,7 @@ for index, work in works_metadata.iterrows():
     
     image_metadata = {}
     
-    # !!! Need to extract this from EXIF !
-    image_metadata['photo_inception'] = '2010-07-19' # Use any form of yyyy, yyyy-mm, or yyyy-mm-dd
+    image_metadata['photo_inception'] = image_dimension_series['create_date'] # Use any form of yyyy, yyyy-mm, or yyyy-mm-dd
 
     image_metadata['work_qid'] = index
     
