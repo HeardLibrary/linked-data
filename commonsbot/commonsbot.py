@@ -626,8 +626,8 @@ def commons_image_upload(image_metadata, config_values, commons_login):
     # flag the image to have its name changed manually, rather than automatically changing spaces to underscores 
     # (potentially causing a naming collision).
     if ' ' in image_metadata['local_filename']:
-        print('Raw filename "' + image_metadata['local_filename'] + '" for ' + work_qid + ' contains spaces that need to be removed manually.')
-        print('Unallowed spaces in raw filename "' + image_metadata['local_filename'] + '" for ' + work_qid, file=log_object)
+        print('Raw filename "' + image_metadata['local_filename'] + '" contains spaces that need to be removed manually.')
+        print('Unallowed spaces in raw filename "' + image_metadata['local_filename'] + '"', file=log_object)
         errors = True
         return errors, ''
     else:
@@ -822,9 +822,9 @@ def upload_image_to_iiif(image_metadata, config_values):
 
     # For the image in the "iiif-library-cantaloupe-storage" bucket with the key "gallery/1979/1979.0264P.tif"
     # the IIIF URL would be https://iiif.library.vanderbilt.edu/iiif/3/gallery%2F1979%2F1979.0264P.tif/full/max/0/default.jpg
-    print(config_values['iiif_server_url_root'] + config_values['s3_iiif_project_directory'] + '%2F' + subdirectory_escaped + local_filename + '/full/1000,/0/default.jpg')
+    print(config_values['iiif_server_url_root'] + config_values['s3_iiif_project_directory'] + '%2F' + subdirectory_escaped + urllib.parse.quote(local_filename) + '/full/1000,/0/default.jpg')
     
-def generate_iiif_canvas(index_string, service_iri, manifest_iri, image_metadata):
+def generate_iiif_canvas(index_string, manifest_iri, image_metadata):
     """Generate the canvas dictionary for a particular image.
     
     Parameters
@@ -860,14 +860,14 @@ def generate_iiif_canvas(index_string, service_iri, manifest_iri, image_metadata
                         "height": ''' + image_metadata['height'] + ''',
                         "service": {
                             "@context": "http://iiif.io/api/image/2/context.json",
-                            "@id": "'''+ service_iri + '''",
+                            "@id": "'''+ image_metadata['iiif_service_iri'] + '''",
                             "profile": "http://iiif.io/api/image/2/level2.json"
                             }
                         },
                     "on": "''' + manifest_iri + '_' + index_string + '''"
                     }],
                 "thumbnail": {
-                    "@id": "'''+ service_iri + '''/full/!100,100/0/default.jpg",
+                    "@id": "'''+ image_metadata['iiif_service_iri'] + '''/full/!100,100/0/default.jpg",
                     "@type": "dctypes:Image",
                     "format": "image/jpeg",
                     "width": 100,
@@ -954,7 +954,7 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
     print('Uploading manifest to s3:', work_metadata['escaped_inventory_number'] + '.json')
     s3_resource = boto3.resource('s3')
     s3_resource.Object(config_values['s3_manifest_bucket_name'], s3_manifest_key).put(Body = manifest, ContentType = 'application/json')
-    print(work_metadata['iiif_service_iri'] + '.json')
+    print(work_metadata['iiif_manifest_iri'])
 
 # ---------------------------
 # Body of main script
@@ -1157,7 +1157,7 @@ for index, work in works_metadata.iterrows():
         subdirectory = ''
         subdirectory_escaped = ''
     else:
-        subdirectory = image_metadata['subdir'] + '/'
+        subdirectory = work_subdirectory + '/'
         subdirectory_escaped = work_subdirectory + '%2F'
 
     work_metadata = {} 
@@ -1168,11 +1168,11 @@ for index, work in works_metadata.iterrows():
     work_metadata['wikidata_description'] = work['description_en']
     work_metadata['work_subdirectory'] = work_subdirectory
 
-    # Must URL encode the inventory number because it might contain weird characters like ampersand, spaces, 
-    # and who knows what other garbage that isn't safe for a URL.
-    work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'])
-    work_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(work['inventory_number'])
-    work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + urllib.parse.quote(work['inventory_number']) + '.json'
+    # Must URL encode the inventory number because it might contain weird characters like ampersand  
+    # and who knows what other garbage that isn't safe for a URL. Also, spaces need to be replaced with underscores
+    # because the IIIF server will turn the URL encoded spaces back into spaces, then create an error.
+    work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'].replace(' ', '_'))
+    work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
     
     if work['inception_val'] == '':
         work_metadata['creation_year'] = ''
@@ -1222,6 +1222,8 @@ for index, work in works_metadata.iterrows():
         image_metadata['width'] = str(image_to_upload['width'])
         image_metadata['height'] = str(image_to_upload['height'])
         image_metadata['rank'] = image_to_upload['rank']
+
+        image_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(image_metadata['local_filename'])
 
         # If there is only one image for the work, then just use the work label for the image label (used in the IIIF canvas)
         # If there are more than one image, then the label is the sub-description of that particular view of the work,
@@ -1293,7 +1295,7 @@ for index, work in works_metadata.iterrows():
             index_string = str(image_count)
 
             # Generate IIIF canvas for image
-            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_service_iri'], work_metadata['iiif_manifest_iri'], image_metadata)
+            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata)
             if image_count > 1:
                 canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
             canvases_string += canvas_string
@@ -1311,7 +1313,7 @@ for index, work in works_metadata.iterrows():
             'local_filename': image_metadata['local_filename'],
             'rank': image_metadata['rank'],
             'image_name': image_metadata['commons_filename'],
-            'iiif_manifest': work_metadata['iiif_service_iri'] + '.json',
+            'iiif_manifest': work_metadata['iiif_manifest_iri'],
             'notes': ''
         }]
         existing_images = existing_images.append(new_image_data, ignore_index=True, sort=False)
