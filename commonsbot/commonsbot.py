@@ -750,8 +750,8 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
     sdc_claims_list = [
         {'property': 'P180', 'value': work_qid}, # depicts artwork in Wikidata
         {'property': 'P921', 'value': work_qid}, # main subject is artwork in Wikidata
-        {'property': 'P170', 'value': image_metadata['photographer_of_work']} # creator of image file
-        {'property': 'P7482', 'value': image_metadata['source_qid']}, # source of the image file
+        {'property': 'P170', 'value': image_metadata['photographer_of_work']}, # creator of image file
+        {'property': 'P7482', 'value': image_metadata['source_qid']} # source of the image file
     ]
     if image_metadata['n_dimensions'] == '2D':
         sdc_claims_list.append({'property': 'P6243', 'value': work_qid}) # digital representaion of artwork in Wikidata
