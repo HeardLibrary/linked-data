@@ -30,6 +30,9 @@ commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # - require images to be designated as "primary" or "secondary" in the rank column of the 
 #   image.csv data file in order to be uploaded
 # - build a single IIIF manifest for the work with canvases for one or more images, rather than a manifest for each image.
+# - enable construction of subtitle when there are multiple images for a work.
+# - add source as a field in the Artwork template to prevent warning message.
+# - add source of image as structured data for 2D works to match the template info. Suggested best practice, but no real effect.
 # -----------------------------------------
 
 # Generic Commons API reference: https://commons.wikimedia.org/w/api.php
@@ -319,16 +322,24 @@ class Wikimedia_api_login:
 # Data upload functions
 # ------------------------
 
-def create_commons_template(n_dimensions, artwork_license_text, photo_license_text, category_strings, templated_institution):
+def create_commons_template(n_dimensions, artwork_license_text, photo_license_text, category_strings, templated_institution, source):
     """Creates initial file Wikitext. Template metadata omitted since page tables will be populated using structured
     data from SDC or Wikidata.
     
     Parameters
     ----------
-    template_type : string
-        Name of page template to use. Options are: "Artwork", "Art Photo", "Information", or "Book".
-    category_strings : list of strings
-        Category names to be assigned to the media item.
+    n_dimensions : str
+        Indicates whether the work is 2D or 3D.
+    artwork_license_text : str
+        Text describing the copyright and license for the artwork.
+    photo_license_text : str
+        Text describing the copyright and licens for the photo of the artwork.
+    category_strings : list
+        List of Commons categories to be applied to the image.
+    templated_institution : str
+        The name of the institution template to be inserted in the image metadata table.
+    source : str
+        Text description of the source of the photo.
         
     Note
     ----
@@ -352,7 +363,12 @@ def create_commons_template(n_dimensions, artwork_license_text, photo_license_te
         if templated_institution != '':
             page_wikitext += ''' |institution = {{Institution:''' + templated_institution + '''}}
 '''
-        page_wikitext += '''}}
+        # As of 2022-09-01, leaving this out of the Artwork template generates the warning 
+        # "This file is lacking source information. Please edit this file's description and provide a source. "
+        # Including the image source in the structured data doesn't seem to be enough. Does not seem to be
+        # necessary for the Art Photo template.
+        page_wikitext += ''' |source = ''' + source + '''
+}}
 
 =={{int:license-header}}==
 {{''' + artwork_license_text + '''}}
@@ -619,7 +635,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     """
 
     # Generate the page wikitext based on licensing metadata appropriate for the kind of artwork.
-    page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['templated_institution'])
+    page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['templated_institution'], config_values['source'])
     #print(page_wikitext)
 
     # The local_filename is the name of the file as it exists locally.
@@ -735,6 +751,7 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
         {'property': 'P180', 'value': work_qid}, # depicts artwork in Wikidata
         {'property': 'P921', 'value': work_qid}, # main subject is artwork in Wikidata
         {'property': 'P170', 'value': image_metadata['photographer_of_work']} # creator of image file
+        {'property': 'P7482', 'value': image_metadata['source_qid']}, # source of the image file
     ]
     if image_metadata['n_dimensions'] == '2D':
         sdc_claims_list.append({'property': 'P6243', 'value': work_qid}) # digital representaion of artwork in Wikidata
@@ -1266,6 +1283,7 @@ for index, work in works_metadata.iterrows():
         image_metadata['category_strings'] = config_values['category_strings'] # Commons categories to be added to the image.
         image_metadata['filename_institution'] = config_values['filename_institution']
         image_metadata['photographer_of_work'] = config_values['photographer_of_work']
+        image_metadata['source_qid'] = config_values['source_qid']
         
         print(image_metadata['local_filename'], image_metadata['rank'])
 

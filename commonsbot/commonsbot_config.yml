@@ -55,6 +55,20 @@ default_language: en
 # As of 2022-08-21, it doesn't seem to be working. 
 templated_institution: Vanderbilt University Fine Arts Gallery
 
+# Provides the text value to be used in the source field of the Artwork template.
+# As of 2022-09-01, leaving this out generates the warning 
+# "This file is lacking source information. Please edit this file's description and provide a source. "
+# Including the image source in the structured data doesn't seem to be enough.
+source: Vanderbilt University
+
+# Providing information about the image file source is strongly suggested for artworks. See 
+# https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks#Basic_structured_data_(SDC)
+# For suggested values see https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Source
+# Q66458942 (original creation by uploader) doesn't really seem to fit in our circumstance since Baskaufs 
+# is doing the uploading but the images are created by Vanderbilt as an institution. So as of
+# 2022-09-01 I'm using the Vanderbilt Q ID to match what's given in the license for 3D works.
+source_qid: Q29052
+
 # The name of the institution to be inserted between the descriptive text and the local filename to form
 # the Commons filename. Example: 
 # Four Studies of a Draped Torso - Vanderbilt Fine Arts Gallery - 1973.016.med.jpg
