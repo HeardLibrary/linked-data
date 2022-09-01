@@ -33,9 +33,9 @@ manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 # Behavior
 # --------
 
-# Places a limit on the number of items to upload in a session. 
+# Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
 # To remove the limit, use zero or a negative value.
-max_items_to_upload: 1
+max_items_to_upload: 0
 
 # Controls whether the newly created Commons media page opens in a new browser window. 
 # Useful when testing on a few images, but may be annoying if uploading many media items.
@@ -126,8 +126,9 @@ copyright_cutoff_date: 1926
 
 # size_filter options are pixsquared or filesize (filetype not yet implemented)
 size_filter: pixsquared
-minimum_filesize: 1000 # minimum filesize in kilobytes, only used for filesize filter
-minimum_pixel_squared: 1000000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter
+#size_filter:
+minimum_filesize: 100 # minimum filesize in kilobytes, only used for filesize filter (originally used 1000)
+minimum_pixel_squared: 100000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter (originally used 1000000)
 requrired_filetype: tiff # required filetype, only used for filetype filter (not yet implemented)
 
 
