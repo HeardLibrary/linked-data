@@ -776,6 +776,9 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
         caption = work_label + ', ' + image_metadata['wikidata_description']
     else:
         caption = work_label + ' - ' + image_metadata['label'] + ', ' + image_metadata['wikidata_description']
+    # The caption is a Wikibase label and an error will be thrown if it's longer than 250 characters.
+    if len(caption) >= 250:
+        caption = caption[:250]
     
     get_id_response = get_commons_image_pageid(image_metadata['commons_filename'])
     if get_id_response == '-1': # returns an error
@@ -791,6 +794,7 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
         response = wbeditentity_upload(commons_login, config_values['maxlag'], mid, caption, config_values['default_language'], sdc_claims_list)
         #response = {'success': 1} # Uncomment this line to test without actually doing the upload
         #print(json.dumps(response, indent=2))
+        no_success = False
         try:
             if response['success'] == 1:
                 print('API reports success')
@@ -802,6 +806,15 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
             print('API did not respond with "Success"')
             print('Structured data upload failed with no "Success" response for ' + work_qid + ': ' + commons_filename, file=log_object)
             errors = True
+            no_success = True
+        # Try to capture the error message
+        if no_success:
+            try:
+                error_message = response['error']['info']
+                print('Error message:', error_message)
+                print('Error message:', error_message, file=log_object)
+            except:
+                print(response)
             
     if not errors:
         print(filename_to_commons_page_url(image_metadata['commons_filename']))
@@ -820,7 +833,6 @@ def upload_image_to_iiif(image_metadata, config_values):
     config_values : dict
         Global configuration values.
     """
-    print('in IIIF S3 upload function')
     local_filename = image_metadata['local_filename']
     
     # Code to allow omission of subdirectory in path
@@ -857,7 +869,7 @@ def upload_image_to_iiif(image_metadata, config_values):
     # the IIIF URL would be https://iiif.library.vanderbilt.edu/iiif/3/gallery%2F1979%2F1979.0264P.tif/full/max/0/default.jpg
     print(config_values['iiif_server_url_root'] + config_values['s3_iiif_project_directory'] + '%2F' + subdirectory_escaped + urllib.parse.quote(local_filename) + '/full/1000,/0/default.jpg')
     
-def generate_iiif_canvas(index_string, manifest_iri, image_metadata):
+def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
     """Generate the canvas dictionary for a particular image.
     
     Parameters
@@ -868,8 +880,9 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata):
         IRI linking to the manifest file.
     image_metadata : dict
         Metadata about a particular image to be uploaded.
+    label : str
+        Label for the canvas. If no specific label, it will be the label of the work.
     """
-    label = image_metadata['label']
     # Used this manifest as a template: https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
 
     # NOTE: See https://iiif.io/api/presentation/3.0/#53-canvas which among other things says that canvases MUST have HTTP(S) URIs and
@@ -978,7 +991,6 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
         ]
     }
     '''
-
     #print(manifest)
 
     s3_manifest_key = s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
@@ -1260,7 +1272,7 @@ for index, work in works_metadata.iterrows():
         # If there are more than one image, then the label is the sub-description of that particular view of the work,
         # e.g. "front", "back", "page 1", etc.
         if len(images_to_upload) == 1:
-            image_metadata['label'] = work_metadata['label']
+            image_metadata['label'] = ''
         else:
             image_metadata['label'] = image_to_upload['description']
 
@@ -1326,8 +1338,15 @@ for index, work in works_metadata.iterrows():
             image_count += 1
             index_string = str(image_count)
 
+            # If no explicit label given for the individual image (e.g. single image works), 
+            # use the work label as the canvas label. 
+            if image_metadata['label'] == '':
+                canvas_label = work_metadata['label']
+            else:
+                canvas_label = image_metadata['label']
+
             # Generate IIIF canvas for image
-            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata)
+            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
             if image_count > 1:
                 canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
             canvases_string += canvas_string
