@@ -8,7 +8,7 @@
 # ----------------
 
 script_version = '0.5.2'
-version_modified = '2022-08-31'
+version_modified = '2022-09-01'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 
@@ -603,7 +603,7 @@ def attempt_post(api_url, parameters, session):
 # Major processes functions
 # ---------------------------
 
-def commons_image_upload(image_metadata, config_values, commons_login):
+def commons_image_upload(image_metadata, config_values, work_label, commons_login):
     """Construct labels, templates, and paths necessary to upload a media file to Commons, then upload.
     
     Parameters
@@ -612,6 +612,8 @@ def commons_image_upload(image_metadata, config_values, commons_login):
         Metadata about a particular image to be uploaded.
     config_values : dict
         Global configuration values.
+    work_label : str
+        Label of the overall work, needed to construct the Commons image filename.
     commons_login : Wikimedia_api_login object
         Needed to supply the session and csrftoken attributes needed for authentication during upload.
     """
@@ -638,7 +640,14 @@ def commons_image_upload(image_metadata, config_values, commons_login):
     # If images are directly in the directory_path, use empty string ('') as the value.
     subdirectory = image_metadata['subdir']
 
-    label = image_metadata['label']
+    # As of 2022-09-01, single-image work images are generally described only by the work label.
+    # The specific image label is only appended to the work label if there are multiple images.
+    # For example, "Famous Sculpture - front view"
+    if image_metadata['label'] == '':
+        label = work_label
+    else:
+        label = work_label + ' - ' + image_metadata['label']
+    
     # NOTE: square brackets [] and colons : are not allowed in the filenames. So replace them if they exist
     if '[' in label:
         clean_label = label.replace('[', '(')
@@ -699,7 +708,7 @@ def commons_image_upload(image_metadata, config_values, commons_login):
 
     return errors, commons_filename
 
-def structured_data_upload(image_metadata, config_values, commons_login):
+def structured_data_upload(image_metadata, config_values, work_label, commons_login):
     """Assemble medata for and upload Commons structured data using the Wikibase API wbeditentity method.
     
     Parameters
@@ -742,7 +751,14 @@ def structured_data_upload(image_metadata, config_values, commons_login):
         sdc_claims_list.append({'property': 'P571', 'value': image_metadata['photo_inception']}) # creation date of image file
 
     # caption and caption_language used in structured data upload
-    caption = image_metadata['label'] + ', ' + image_metadata['wikidata_description']
+
+    # As of 2022-09-01, single-image work images are generally described only by the work label.
+    # The specific image label is only appended to the work label if there are multiple images.
+    # For example, "Famous Sculpture - front view"
+    if image_metadata['label'] == '':
+        caption = work_label + ', ' + image_metadata['wikidata_description']
+    else:
+        caption = work_label + ' - ' + image_metadata['label'] + ', ' + image_metadata['wikidata_description']
     
     get_id_response = get_commons_image_pageid(image_metadata['commons_filename'])
     if get_id_response == '-1': # returns an error
@@ -831,12 +847,10 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata):
     ----------
     image_string : str
         numeric index in string form to distingish this canvas from others.
-    service_iri : str
-        base IRI for forming other IRIs in the manifest.
+    manifest_iri : str
+        IRI linking to the manifest file.
     image_metadata : dict
         Metadata about a particular image to be uploaded.
-    config_values : dict
-        Global configuration values.
     """
     label = image_metadata['label']
     # Used this manifest as a template: https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
@@ -1261,7 +1275,7 @@ for index, work in works_metadata.iterrows():
 
         # Upload the media file to Commons
         sleep(commons_upload_sleep_time) # Delay the next media item upload if less than commons_sleep time since the last upload.
-        upload_error, commons_filename = commons_image_upload(image_metadata, config_values, commons_login)
+        upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label'], commons_login)
         
         # If the media file fails to upload, there is no point in continuing nor to add to the commons_images.csv
         # file. Just log the error and go on.
@@ -1276,7 +1290,7 @@ for index, work in works_metadata.iterrows():
         start_time = datetime.now()
 
         # Upload structured data for Commons
-        upload_error, mid = structured_data_upload(image_metadata, config_values, commons_login)
+        upload_error, mid = structured_data_upload(image_metadata, config_values, work_metadata['label'], commons_login)
         image_metadata['mid'] = mid
         
         # If the structured data fails to upload, the data from the file upload still needs to be saved.
@@ -1304,11 +1318,19 @@ for index, work in works_metadata.iterrows():
         # Add data to record of Commons images
         # ----------------
 
+        # As of 2022-09-01, single-image work images are generally described only by the work label.
+        # The specific image label is only appended to the work label if there are multiple images.
+        # For example, "Famous Sculpture - front view"
+        if image_metadata['label'] == '':
+            output_label = work_metadata['label']
+        else:
+            output_label = work_metadata['label'] + ' - ' + image_metadata['label']
+
         new_image_data = [{
             'qid': image_metadata['work_qid'],
             'commons_id': image_metadata['mid'],
             'accession_number': image_metadata['inventory_number'],
-            'label_en': image_metadata['label'],
+            'label_en': output_label,
             'directory': image_metadata['subdir'],
             'local_filename': image_metadata['local_filename'],
             'rank': image_metadata['rank'],
