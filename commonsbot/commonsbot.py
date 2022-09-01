@@ -824,7 +824,7 @@ def upload_image_to_iiif(image_metadata, config_values):
     # the IIIF URL would be https://iiif.library.vanderbilt.edu/iiif/3/gallery%2F1979%2F1979.0264P.tif/full/max/0/default.jpg
     print(config_values['iiif_server_url_root'] + config_values['s3_iiif_project_directory'] + '%2F' + subdirectory_escaped + local_filename + '/full/1000,/0/default.jpg')
     
-def generate_iiif_canvas(index_string, service_iri, image_metadata):
+def generate_iiif_canvas(index_string, service_iri, manifest_iri, image_metadata):
     """Generate the canvas dictionary for a particular image.
     
     Parameters
@@ -838,7 +838,6 @@ def generate_iiif_canvas(index_string, service_iri, image_metadata):
     config_values : dict
         Global configuration values.
     """
-    manifest_iri = service_iri + '.json'
     label = image_metadata['label']
     # Used this manifest as a template: https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
 
@@ -904,7 +903,7 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
 
     manifest = '''{
         "@context": "http://iiif.io/api/presentation/2/context.json",
-        "@id": "''' + work_metadata['iiif_service_iri'] + '''.json",
+        "@id": "''' + work_metadata['iiif_manifest_iri'] + '''",
         "@type": "sc:Manifest",
         "label": "''' + label + '''",
         "description": "''' + work_metadata['wikidata_description'] + '''",
@@ -1148,13 +1147,17 @@ for index, work in works_metadata.iterrows():
     canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
     
     if config_values['s3_iiif_project_directory'] == '':
+        s3_iiif_project_directory = ''
         s3_iiif_project_directory_escaped = ''
     else:
+        s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
         s3_iiif_project_directory_escaped = config_values['s3_iiif_project_directory'] + '%2F'
 
     if work_subdirectory == '':
+        subdirectory = ''
         subdirectory_escaped = ''
     else:
+        subdirectory = image_metadata['subdir'] + '/'
         subdirectory_escaped = work_subdirectory + '%2F'
 
     work_metadata = {} 
@@ -1168,7 +1171,8 @@ for index, work in works_metadata.iterrows():
     # Must URL encode the inventory number because it might contain weird characters like ampersand, spaces, 
     # and who knows what other garbage that isn't safe for a URL.
     work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'])
-    work_metadata['iiif_service_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(work['inventory_number'])
+    work_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(work['inventory_number'])
+    work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + urllib.parse.quote(work['inventory_number']) + '.json'
     
     if work['inception_val'] == '':
         work_metadata['creation_year'] = ''
@@ -1289,7 +1293,7 @@ for index, work in works_metadata.iterrows():
             index_string = str(image_count)
 
             # Generate IIIF canvas for image
-            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_service_iri'], image_metadata)
+            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_service_iri'], work_metadata['iiif_manifest_iri'], image_metadata)
             if image_count > 1:
                 canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
             canvases_string += canvas_string
