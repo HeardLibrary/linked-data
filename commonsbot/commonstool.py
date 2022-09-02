@@ -29,7 +29,7 @@ user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbil
 # - remove hard-coded values and replace with YAML configuration file
 # - improve control of throttling between media file uploads to the Commons API
 # -----------------------------------------
-# Version 0.5.2 change notes:
+# Version 0.5.2 change notes: 2022-08-31
 # - transition to works-based looping rather than image-based
 # - require images to be designated as "primary" or "secondary" in the rank column of the 
 #   image.csv data file in order to be uploaded
@@ -38,10 +38,11 @@ user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbil
 # - add source as a field in the Artwork template to prevent warning message.
 # - add source of image as structured data for 2D works to match the template info. Suggested best practice, but no real effect.
 # -----------------------------------------
-# Version 0.5.3 change notes:
+# Version 0.5.3 change notes: 2022-09-02
 # - change script name from commonsbot.py to commonstool.py
 # - get creator names via SPARQL query instead of requiring them to be in a separate file
-# - 
+# - remove more hard-coded values, clean up source data files and simplify assembly of work and image metadata dictionaries
+# - add support for command line arguments
 # -----------------------------------------
 
 
@@ -70,6 +71,47 @@ import pandas as pd
 import urllib.parse
 import webbrowser
 import boto3 # AWS Python SDK
+
+# ------------
+# Support command line arguments
+# ------------
+
+arg_vals = sys.argv[1:]
+# see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
+if '--version' in arg_vals or '-V' in arg_vals: # provide version information according to GNU standards 
+    # Remove version argument to avoid disrupting pairing of other arguments
+    # Not really necessary here, since the script terminates, but use in the future for other no-value arguments
+    if '--version' in arg_vals:
+        arg_vals.remove('--version')
+    if '-V' in arg_vals:
+        arg_vals.remove('-V')
+    print('CommonsTool', version)
+    print('Copyright ©', created[:4], 'Vanderbilt University')
+    print('License GNU GPL version 3.0 <http://www.gnu.org/licenses/gpl-3.0>')
+    print('This is free software: you are free to change and redistribute it.')
+    print('There is NO WARRANTY, to the extent permitted by law.')
+    print('Author: Steve Baskauf')
+    print('Revision date:', created)
+    sys.exit()
+
+if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
+    # needs to be expanded to include brief info on invoking the program
+    print('For help, see the CommonsTool landing page at https://github.com/HeardLibrary/linked-data/tree/master/commonsbot/README.md')
+    print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    sys.exit()
+
+# Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
+opts = [opt for opt in arg_vals if opt.startswith('-')]
+args = [arg for arg in arg_vals if not arg.startswith('-')]
+
+'''
+if '--log' in opts: # set output to specified log file or path including file name
+    log_path = args[opts.index('--log')]
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
+if '-L' in opts: # set output to specified log file or path including file name
+    log_path = args[opts.index('-L')]
+    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
+'''
 
 
 # ------------------------
