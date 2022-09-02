@@ -2,11 +2,17 @@
 # It uses CSV output from commonsbot.ipynb (https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonsbot.ipynb) 
 # and produces input for VanderBot (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot) by 
 # modifying an existing VanderBot-formatted CSV file.
-version = '0.1'
-created = '2021-12-10'
 
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
+
+version = '0.2'
+created = '2022-09-01'
+
+# -----------------------------------------
+# Version 0.2 change notes: 
+# Screen images so that only those designated as "primary" are linked from Wikidata items.
+# -----------------------------------------
 
 import pandas as pd
 import datetime
@@ -58,6 +64,10 @@ for index, work in existing_images.iterrows():
     # If the work failed to upload, skip it.
     if work['commons_id'] == 'error':
         continue
+
+    # Only the images designated as "primary" have are linked to the Wikidata item.
+    if work['rank'] != 'primary':
+        continue
         
     # Check to make sure that there is a single row that matches the Q ID of the work to be updated
     qid = work['qid']
@@ -107,6 +117,7 @@ for index, work in existing_images.iterrows():
                         # all of the images being added will have inventory numbers, so safe to use this:
                         works_metadata.at[row_index, 'copyright_status_ref1_referenceUrl'] = row_series['inventory_number_ref1_referenceUrl'].array[0]
                         works_metadata.at[row_index, 'copyright_status_ref1_retrieved_val'] = today
+    print()
 
 # Write the updated dataframe to CSV
 works_metadata.to_csv(works_data_directory + 'works_multiprop.csv', index = False)
