@@ -1104,7 +1104,7 @@ commons_upload_sleep_time = 0
 # The items in the row series can be referred to by their labels, which are the column headers, e.g. work['label_en']
 for index, work in works_metadata.iterrows():
     print()
-    print(work['label_en'])
+    print(artwork_items_uploaded, work['label_en'])
 
     # This defines the subdirectory into which the work is sorted (if any).
     # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
