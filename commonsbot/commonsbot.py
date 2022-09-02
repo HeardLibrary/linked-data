@@ -715,12 +715,21 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
         errors = True
     else:
         #print(json.dumps(data, indent=2))
+        exception_thrown = False
         try:
             print('API response:', data['upload']['result'])
         except:
             print('API did not respond with "Success"')
             print('Commons file upload failed with non-"Success" response for ' + local_filename, file=log_object)
+            exception_thrown = True
             errors = True
+        # If the upload fails, try to extract the error message
+        if exception_thrown:
+            try:
+                print('Error info:', data['error']['info'])
+                print('Error info:', data['error']['info'], file=log_object)
+            except:
+                pass
 
     return errors, commons_filename
 
