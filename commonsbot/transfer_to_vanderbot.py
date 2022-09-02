@@ -92,6 +92,7 @@ for index, work in existing_images.iterrows():
         #print(row_series['image_uuid'].array[0])
         if row_series['image_uuid'].array[0] == '': # If image is already uploaded, it will have a UUID
             # Find the image name and insert it into the works metadata DataFrame
+            print()
             image_name = work['image_name']
             print('transferring image name for', qid, ':', image_name)
             works_metadata.at[row_index, 'image'] = image_name
@@ -117,7 +118,6 @@ for index, work in existing_images.iterrows():
                         # all of the images being added will have inventory numbers, so safe to use this:
                         works_metadata.at[row_index, 'copyright_status_ref1_referenceUrl'] = row_series['inventory_number_ref1_referenceUrl'].array[0]
                         works_metadata.at[row_index, 'copyright_status_ref1_retrieved_val'] = today
-    print()
 
 # Write the updated dataframe to CSV
 works_metadata.to_csv(works_data_directory + 'works_multiprop.csv', index = False)

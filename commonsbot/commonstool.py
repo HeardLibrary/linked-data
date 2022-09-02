@@ -1,4 +1,4 @@
-# commonsbot.py, a Python script for uploading files and data to Wikimedia Commons using the API.
+# commonstool.py, a Python script for uploading files and data to Wikimedia Commons using the API.
 
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -7,10 +7,14 @@
 # Global variables
 # ----------------
 
-script_version = '0.5.2'
-version_modified = '2022-09-01'
+script_version = '0.5.3'
+version_modified = '2022-09-02'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
+# The user_agent string identifies this application to Wikimedia APIs.
+# If you modify this script, you need to change the user-agent string to something else!
+user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbilt.edu)'
+
 
 # -----------------------------------------
 # Version 0.4 change notes: 
@@ -34,6 +38,12 @@ commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # - add source as a field in the Artwork template to prevent warning message.
 # - add source of image as structured data for 2D works to match the template info. Suggested best practice, but no real effect.
 # -----------------------------------------
+# Version 0.5.3 change notes:
+# - change script name from commonsbot.py to commonstool.py
+# - get creator names via SPARQL query instead of requiring them to be in a separate file
+# - 
+# -----------------------------------------
+
 
 # Generic Commons API reference: https://commons.wikimedia.org/w/api.php
 
@@ -53,17 +63,13 @@ import requests
 import csv
 from pathlib import Path
 from time import sleep
-import sys
 import re # regex. Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
 from datetime import datetime
 import os
 import pandas as pd
 import urllib.parse
 import webbrowser
-
-# AWS Python SDK
-import boto3
-import botocore
+import boto3 # AWS Python SDK
 
 
 # ------------------------
@@ -155,6 +161,202 @@ def convert_dates(time_string):
             precision_number = ''
 
     return time_string, precision_number, error
+
+# ------------------------
+# SPARQL query class
+# ------------------------
+
+# This is a condensed version of the more full-featured script at 
+# https://github.com/HeardLibrary/digital-scholarship/blob/master/code/wikidata/sparqler.py
+# It includes only the method for the query form.
+
+class Sparqler:
+    """Build SPARQL queries of various sorts
+
+    Parameters
+    -----------
+    useragent : str
+        Required if using the Wikidata Query Service, otherwise optional.
+        Use the form: appname/v.v (URL; mailto:email@domain.com)
+        See https://meta.wikimedia.org/wiki/User-Agent_policy
+    endpoint: URL
+        Defaults to Wikidata Query Service if not provided.
+    method: str
+        Possible values are "post" (default) or "get". Use "get" if read-only query endpoint.
+        Must be "post" for update endpoint.
+    sleep: float
+        Number of seconds to wait between queries. Defaults to 0.1
+        
+    Required modules:
+    -------------
+    requests, datetime, time
+    """
+    def __init__(self, method='post', endpoint='https://query.wikidata.org/sparql', useragent=None, sleep=0.1):
+        # attributes for all methods
+        self.http_method = method
+        self.endpoint = endpoint
+        if useragent is None:
+            if self.endpoint == 'https://query.wikidata.org/sparql':
+                print('You must provide a value for the useragent argument when using the Wikidata Query Service.')
+                print()
+                raise KeyboardInterrupt # Use keyboard interrupt instead of sys.exit() because it works in Jupyter notebooks
+        self.sleep = sleep
+
+        self.requestheader = {}
+        if useragent:
+            self.requestheader['User-Agent'] = useragent
+        
+        if self.http_method == 'post':
+            self.requestheader['Content-Type'] = 'application/x-www-form-urlencoded'
+
+    def query(self, query_string, form='select', verbose=False, **kwargs):
+        """Sends a SPARQL query to the endpoint.
+        
+        Parameters
+        ----------
+        form : str
+            The SPARQL query form.
+            Possible values are: "select" (default), "ask", "construct", and "describe".
+        mediatype: str
+            The response media type (MIME type) of the query results.
+            Some possible values for "select" and "ask" are: "application/sparql-results+json" (default) and "application/sparql-results+xml".
+            Some possible values for "construct" and "describe" are: "text/turtle" (default) and "application/rdf+xml".
+            See https://docs.aws.amazon.com/neptune/latest/userguide/sparql-media-type-support.html#sparql-serialization-formats-neptune-output
+            for response serializations supported by Neptune.
+        verbose: bool
+            Prints status when True. Defaults to False.
+        default: list of str
+            The graphs to be merged to form the default graph. List items must be URIs in string form.
+            If omitted, no graphs will be specified and default graph composition will be controlled by FROM clauses
+            in the query itself. 
+            See https://www.w3.org/TR/sparql11-query/#namedGraphs and https://www.w3.org/TR/sparql11-protocol/#dataset
+            for details.
+        named: list of str
+            Graphs that may be specified by IRI in a query. List items must be URIs in string form.
+            If omitted, named graphs will be specified by FROM NAMED clauses in the query itself.
+            
+        Returns
+        -------
+        If the form is "select" and mediatype is "application/json", a list of dictionaries containing the data.
+        If the form is "ask" and mediatype is "application/json", a boolean is returned.
+        If the mediatype is "application/json" and an error occurs, None is returned.
+        For other forms and mediatypes, the raw output is returned.
+
+        Notes
+        -----
+        To get UTF-8 text in the SPARQL queries to work properly, send URL-encoded text rather than raw text.
+        That is done automatically by the requests module for GET. I guess it also does it for POST when the
+        data are sent as a dict with the urlencoded header. 
+        See SPARQL 1.1 protocol notes at https://www.w3.org/TR/sparql11-protocol/#query-operation        
+        """
+        query_form = form
+        if 'mediatype' in kwargs:
+            media_type = kwargs['mediatype']
+        else:
+            if query_form == 'construct' or query_form == 'describe':
+            #if query_form == 'construct':
+                media_type = 'text/turtle'
+            else:
+                media_type = 'application/sparql-results+json' # default for SELECT and ASK query forms
+        self.requestheader['Accept'] = media_type
+            
+        # Build the payload dictionary (query and graph data) to be sent to the endpoint
+        payload = {'query' : query_string}
+        if 'default' in kwargs:
+            payload['default-graph-uri'] = kwargs['default']
+        
+        if 'named' in kwargs:
+            payload['named-graph-uri'] = kwargs['named']
+
+        if verbose:
+            print('querying SPARQL endpoint')
+
+        start_time = datetime.now()
+        if self.http_method == 'post':
+            response = requests.post(self.endpoint, data=payload, headers=self.requestheader)
+        else:
+            response = requests.get(self.endpoint, params=payload, headers=self.requestheader)
+        elapsed_time = (datetime.now() - start_time).total_seconds()
+        self.response = response.text
+        sleep(self.sleep) # Throttle as a courtesy to avoid hitting the endpoint too fast.
+
+        if verbose:
+            print('done retrieving data in', int(elapsed_time), 's')
+
+        if query_form == 'construct' or query_form == 'describe':
+            return response.text
+        else:
+            if media_type != 'application/sparql-results+json':
+                return response.text
+            else:
+                try:
+                    data = response.json()
+                except:
+                    return None # Returns no value if an error. 
+
+                if query_form == 'select':
+                    # Extract the values from the response JSON
+                    results = data['results']['bindings']
+                else:
+                    results = data['boolean'] # True or False result from ASK query 
+                return results           
+
+# ------------------------
+# SPARQL query-based functions
+# ------------------------
+
+def query_artwork_creator_name(qid):
+    query_string = '''select distinct ?label ?role_label where {
+    optional {
+    wd:''' + qid + ''' p:P170 ?creator_node.
+    ?creator_node pq:P3831 ?role.
+    ?role rdfs:label ?role_label.
+    FILTER(lang(?role_label)='en')
+    }
+    optional {
+    wd:''' + qid + ''' wdt:P170 ?creator.
+    ?creator rdfs:label ?label.
+    FILTER(lang(?label)='en')
+    }
+      }
+    '''
+    #print(query_string)
+
+    error = False
+    wdqs = Sparqler(useragent=user_agent)
+    data = wdqs.query(query_string)
+    if data is None:
+        error = True
+        creator_names = 'Query error'
+    elif len(data) == 1 and data[0] == {}:
+        error = True
+        creator_names = 'No creators'
+    else:
+        creator_names = ''
+        # Case where object has role (presumably anonymous)
+        if 'role_label' in data[0]:
+            if data[0]['role_label']['value'] == 'anonymous':
+                creator_names = 'artist unknown'
+            else:
+                error = True
+                creator_names = 'unknown artist role'
+        else:
+            creator_names = ''
+            #print(json.dumps(data, indent=2))
+            for index, creator in enumerate(data):
+                creator_name = creator['label']['value']
+                if index == 0:
+                    if len(data) > 2:
+                        creator_names = creator_name + ','
+                    else:
+                        creator_names = creator_name
+                elif index == len(data) -1:
+                    creator_names += ' and ' + creator_name
+                else:
+                    if len(data) > 2:
+                        creator_names += ' ' + creator_name + ',' # stubbornly insist on Oxford comma
+    return error, creator_names
+
 
 # ------------------------
 # Commons identifier/URL conversion functions
@@ -733,13 +935,15 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
 
     return errors, commons_filename
 
-def structured_data_upload(image_metadata, config_values, work_label, commons_login):
+def structured_data_upload(image_metadata, work_metadata, config_values, commons_login):
     """Assemble medata for and upload Commons structured data using the Wikibase API wbeditentity method.
     
     Parameters
     ----------
     image_metadata : dict
         Metadata about a particular image to be uploaded.
+    work_metadata : dict
+        Metadata about the artwork depicted in the image.
     config_values : dict
         Global configuration values.
     commons_login : Wikimedia_api_login object
@@ -749,7 +953,6 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
     # See also this on GLAM https://commons.wikimedia.org/wiki/Commons:Structured_data/GLAM
     
     errors = False
-    work_qid = image_metadata['work_qid']
 
     # NOTE: 2D artworks will get flagged if they don't have P6243 in their structured data
     # non-public domain works get flagged if they don't have a P275 license statement in structured data
@@ -757,13 +960,13 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
     # Define claims for structured data in Commons
     # See https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks 
     sdc_claims_list = [
-        {'property': 'P180', 'value': work_qid}, # depicts artwork in Wikidata
-        {'property': 'P921', 'value': work_qid}, # main subject is artwork in Wikidata
+        {'property': 'P180', 'value': work_metadata['work_qid']}, # depicts artwork in Wikidata
+        {'property': 'P921', 'value': work_metadata['work_qid']}, # main subject is artwork in Wikidata
         {'property': 'P170', 'value': image_metadata['photographer_of_work']}, # creator of image file
         {'property': 'P7482', 'value': image_metadata['source_qid']} # source of the image file
     ]
     if image_metadata['n_dimensions'] == '2D':
-        sdc_claims_list.append({'property': 'P6243', 'value': work_qid}) # digital representaion of artwork in Wikidata
+        sdc_claims_list.append({'property': 'P6243', 'value': work_metadata['work_qid']}) # digital representaion of artwork in Wikidata
     else:
         # Despite what is said on 2022-08-13 at https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks#Basic_structured_data_(SDC)
         # the license templates are mostly about the artwork and are really a justification for omitting 
@@ -782,9 +985,9 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
     # The specific image label is only appended to the work label if there are multiple images.
     # For example, "Famous Sculpture - front view"
     if image_metadata['label'] == '':
-        caption = work_label + ', ' + image_metadata['wikidata_description']
+        caption = work_metadata['label_en'] + ', ' + work_metadata['description_en']
     else:
-        caption = work_label + ' - ' + image_metadata['label'] + ', ' + image_metadata['wikidata_description']
+        caption = work_metadata['label_en'] + ' - ' + image_metadata['label'] + ', ' + work_metadata['description_en']
     # The caption is a Wikibase label and an error will be thrown if it's longer than 250 characters.
     if len(caption) >= 250:
         caption = caption[:250]
@@ -793,7 +996,7 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
     if get_id_response == '-1': # returns an error
         mid = 'error'
         print('Could not find Commons page ID. Will not upload structured data!')
-        print('Could not find Commons page ID for ' + work_qid + ': ' + image_metadata['commons_filename'], file=log_object)
+        print('Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'], file=log_object)
         errors = True
     else:
         mid = "M" + get_id_response
@@ -809,11 +1012,11 @@ def structured_data_upload(image_metadata, config_values, work_label, commons_lo
                 print('API reports success')
             else:
                 print('API reports failure')
-                print('API reports failure of structured data upload for ' + work_qid + ': ' + commons_filename, file=log_object)
+                print('API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
                 errors = True
         except:
             print('API did not respond with "Success"')
-            print('Structured data upload failed with no "Success" response for ' + work_qid + ': ' + commons_filename, file=log_object)
+            print('Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
             errors = True
             no_success = True
         # Try to capture the error message
@@ -940,26 +1143,18 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
         Metadata about the work whose media is described in the manifest.
     config_values : dict
         Global configuration values.
+    
+    Notes
+    -----
+    Used this manifest as a template: 
+    https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
     """
-    if config_values['s3_iiif_project_directory'] == '':
-        s3_iiif_project_directory = ''
-    else:
-        s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
-
-    if work_metadata['work_subdirectory'] == '':
-        subdirectory = ''
-    else:
-        subdirectory = work_metadata['work_subdirectory'] + '/'
-
-    label = work_metadata['label']
-    # Used this manifest as a template: https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
-
     manifest = '''{
         "@context": "http://iiif.io/api/presentation/2/context.json",
         "@id": "''' + work_metadata['iiif_manifest_iri'] + '''",
         "@type": "sc:Manifest",
-        "label": "''' + label + '''",
-        "description": "''' + work_metadata['wikidata_description'] + '''",
+        "label": "''' + work_metadata['label_en'] + '''",
+        "description": "''' + work_metadata['description_en'] + '''",
     '''
 
     if config_values['iiif_manifest_logo_url'] != '':
@@ -987,20 +1182,30 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
 
     manifest += '''        {
             "label": "Title",
-            "value": "''' + label + '''"
+            "value": "''' + work_metadata['label_en'] + '''"
             }
         ],
         "viewingDirection": "left-to-right",
         "viewingHint": "individuals",
         "sequences": [{
             "@type": "sc:Sequence",
-            "label": "''' + label + '''",
+            "label": "''' + work_metadata['label_en'] + '''",
             "canvases": [''' + canvases_string + ''']
             }
         ]
     }
     '''
     #print(manifest)
+
+    if config_values['s3_iiif_project_directory'] == '':
+        s3_iiif_project_directory = ''
+    else:
+        s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
+
+    if work_metadata['work_subdirectory'] == '':
+        subdirectory = ''
+    else:
+        subdirectory = work_metadata['work_subdirectory'] + '/'
 
     s3_manifest_key = s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
     print('Uploading manifest to s3:', work_metadata['escaped_inventory_number'] + '.json')
@@ -1021,7 +1226,7 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
 print('Loading data')
 
 # Load configuration values
-with open('commonsbot_config.yml', 'r') as file:
+with open('commonstool_config.yml', 'r') as file:
     config_values = yaml.safe_load(file)
 
 if config_values['working_directory_path'] != '':
@@ -1045,18 +1250,14 @@ errors = False
 works_metadata = pd.read_csv('../works_multiprop.csv', na_filter=False, dtype = str)
 works_metadata.set_index('qid', inplace=True)
 
-raw_metadata = pd.read_csv('../gallery_works_renamed1.csv', na_filter=False, dtype = str)
-raw_metadata.set_index('accession_number', inplace=True)
-
-image_dimensions = pd.read_csv('images.csv', na_filter=False, dtype = str)
-# Convert some columns to integers
-image_dimensions[['kilobytes', 'height', 'width']] = image_dimensions[['kilobytes', 'height', 'width']].astype(int)
+images_dataframe = pd.read_csv('images.csv', na_filter=False, dtype = str)
 
 works_classification = pd.read_csv('../../gallery_buchanan/works_classification.csv', na_filter=False, dtype = str)
 works_classification.set_index('qid', inplace=True)
 
 works_ip_status = pd.read_csv('../items_status_abbrev.csv', na_filter=False, dtype = str)
 works_ip_status.set_index('qid', inplace=True)
+
 
 existing_images = pd.read_csv('commons_images.csv', na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
@@ -1103,33 +1304,31 @@ commons_upload_sleep_time = 0
 # The row index is the Q ID and is a string. The work object is the data in the row and is a Pandas series
 # The items in the row series can be referred to by their labels, which are the column headers, e.g. work['label_en']
 for index, work in works_metadata.iterrows():
-    print()
-    print(artwork_items_uploaded, work['label_en'])
+    if config_values['verbose']:
+        print()
+        print(artwork_items_uploaded, work['label_en'])
 
-    # This defines the subdirectory into which the work is sorted (if any).
-    # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
-    # So resources associated with a particular inventory number are located in a directory whose name is that year string.
-    # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
-    work_subdirectory = work['inventory_number'].split('.')[0]
-    
     # ---------------------------
     # Screen works for appropriate images to upload
     # ---------------------------
 
     # Screen out works whose images are already in Commons
     if index in existing_images.qid.values:
-        print('already done')
+        if config_values['verbose']:
+            print('already done')
         continue
     
     # There are at least a thousand works that will get screened out here because they aren't imaged.
     if not index in works_ip_status.index:
-        print('not imaged')
+        if config_values['verbose']:
+            print('not imaged')
         continue
 
     # Screen for public domain works
     ip_status = works_ip_status.loc[index, 'status']
     if not ip_status in config_values['public_domain_categories']:
-        print('not public domain')
+        if config_values['verbose']:
+            print('not public domain')
         continue
     # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
     # inception date was given as after 1926
@@ -1139,30 +1338,34 @@ for index, work in works_metadata.iterrows():
             # If the date is BCE, it will be a negative integer and it will be processed
             inception_date = int(work['inception_val'][:4])
             if inception_date > config_values['copyright_cutoff_date']:
-                print('insufficient evidence out of copyright')
+                if config_values['verbose']:
+                    print('insufficient evidence out of copyright')
                 continue  # skip this work if it has an inception date and it's after 1926
         except:
-            print('Kali determined it was old.')
+            if config_values['verbose']:
+                print('Kali determined it was old.')
             pass # if there isn't an inception date, then Kali just determined that the work was really old
 
     # Skip over works that don't (yet) have a designated primary image
-    image_dimension_frame = image_dimensions.loc[image_dimensions.accession == work['inventory_number']] # result is DataFrame
-    if len(image_dimension_frame) == 0: # skip any works whose image can't be found in the dimensions data
-        print('no image data')
+    images_subframe = images_dataframe.loc[images_dataframe.accession == work['inventory_number']] # result is DataFrame
+    if len(images_subframe) == 0: # skip any works whose image can't be found in the dimensions data
+        if config_values['verbose']:
+            print('no image data')
         continue
-    if not 'primary' in image_dimension_frame['rank'].tolist():
-        print('no primary value')
+    if not 'primary' in images_subframe['rank'].tolist():
+        if config_values['verbose']:
+            print('no primary value')
         continue
 
     images_to_upload = []
     # This .loc result should be a one-row dataframe that has a "primary" value
     # The .iloc[0] gets the zeroith row as a pandas series.
     # The .to_dict() method turns it into a generic dictionary
-    image_to_upload = image_dimension_frame.loc[image_dimension_frame['rank'] == 'primary'].iloc[0].to_dict()
+    image_to_upload = images_subframe.loc[images_subframe['rank'] == 'primary'].iloc[0].to_dict()
     images_to_upload.append(image_to_upload)
 
     # Step through the rows that have "secondary" values in their rank column (if any) and append as dictionaries.
-    secondary_images_frame = image_dimension_frame.loc[image_dimension_frame['rank'] == 'secondary']
+    secondary_images_frame = images_subframe.loc[images_subframe['rank'] == 'secondary']
     for dummy, image_series in secondary_images_frame.iterrows():
         images_to_upload.append(image_series.to_dict())
 
@@ -1170,24 +1373,27 @@ for index, work in works_metadata.iterrows():
     for image_to_upload in images_to_upload:
         # Screen for acceptable resolution. Skip work if its image doesn't meet the minimum size requirement
         if config_values['size_filter'] == 'pixsquared':
-            if image_to_upload['height'] * image_to_upload['width'] < config_values['minimum_pixel_squared']:
-                print('Image size', image_to_upload['height'] * image_to_upload['width'], ' square pixels too small.', work['label_en'])
-                print('Inadequate pixel squared for', image_to_upload['name'], file=log_object)
+            if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
+                if config_values['verbose']:
+                    print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work['label_en'])
+                print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
                 errors = True
                 all_good = False
         elif config_values['size_filter'] == 'filesize':
-            if image_to_upload['kilobytes'] < config_values['minimum_filesize']:
-                print('Image too small.')
-                print('Inadequate file size', image_to_upload['kilobytes'], 'kb for', image_to_upload['name'], file=log_object)
+            if int(image_to_upload['kilobytes']) < config_values['minimum_filesize']:
+                if config_values['verbose']:
+                    print('Image too small.')
+                print('Inadequate file size', int(image_to_upload['kilobytes']), 'kb for', image_to_upload['local_filename'], file=log_object)
                 errors = True
                 all_good = False
         else: # don't apply a size filter
             pass
 
         # Flag possible oversize error. Commons upload interface says limit is 100 MB
-        if image_to_upload['kilobytes'] > 102400:
-            print('Warning: image size exceeds 100 Mb!')
-            print('Image size exceeds 100 Mb for ' + image_to_upload['name'], file=log_object)
+        if int(image_to_upload['kilobytes']) > 102400:
+            if config_values['verbose']:
+                print('Warning: image size exceeds 100 Mb!')
+            print('Image size exceeds 100 Mb for ' + image_to_upload['local_filename'], file=log_object)
             errors = True
             all_good = False
     
@@ -1195,9 +1401,44 @@ for index, work in works_metadata.iterrows():
     if not all_good:
         continue
         
-    image_count = 0
-    canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
+    # Get the artist name from Wikidata. Failure to find a name will cause this work to be skipped
+    query_error, response_string = query_artwork_creator_name(index)
+    if query_error:
+        if config_values['verbose']:
+            print('Failed find creator string in Wikidata with error:', response_string)
+        print('Failed find creator string in Wikidata for', work['inventory_number'], 'with error:', response_string, file=log_object)
+        errors = True
+        continue
+    else:
+        artist_name_string = response_string
+
+    # ----------------------
+    # Set variables for artwork metadata
+    # ----------------------
     
+    # Create a dict from the work object, which I think is a series (originating from the works_multiprop.csv file).
+    # Make this a dict so that items can easily be added to it.
+    work_metadata = dict(work)
+    work_metadata['work_qid'] = index
+    work_metadata['creator_string'] = artist_name_string
+
+    if work['inception_val'] == '':
+        work_metadata['creation_year'] = ''
+    else:
+        work_metadata['creation_year'] = work['inception_val'][:4]
+
+    # -----------------
+    # Machinations for generating path-related strings
+    # -----------------
+
+    # These various strings are used to construct IIIF IRIs and to designate AWS S3 bucket paths
+
+    # This defines the subdirectory into which the work is sorted (if any).
+    # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
+    # So resources associated with a particular inventory number are located in a directory whose name is that year string.
+    # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
+    work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
+
     if config_values['s3_iiif_project_directory'] == '':
         s3_iiif_project_directory = ''
         s3_iiif_project_directory_escaped = ''
@@ -1205,85 +1446,37 @@ for index, work in works_metadata.iterrows():
         s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
         s3_iiif_project_directory_escaped = config_values['s3_iiif_project_directory'] + '%2F'
 
-    if work_subdirectory == '':
+    if work_metadata['work_subdirectory'] == '':
         subdirectory = ''
         subdirectory_escaped = ''
     else:
-        subdirectory = work_subdirectory + '/'
-        subdirectory_escaped = work_subdirectory + '%2F'
+        subdirectory = work_metadata['work_subdirectory'] + '/'
+        subdirectory_escaped = work_metadata['work_subdirectory'] + '%2F'
 
-    work_metadata = {} 
-
-    work_metadata['work_qid'] = index
-    work_metadata['inventory_number'] = work['inventory_number']
-    work_metadata['label'] = work['label_en']
-    work_metadata['wikidata_description'] = work['description_en']
-    work_metadata['work_subdirectory'] = work_subdirectory
-
-    # Must URL encode the inventory number because it might contain weird characters like ampersand  
+   # Must URL encode the inventory number because it might contain weird characters like ampersand  
     # and who knows what other garbage that isn't safe for a URL. Also, spaces need to be replaced with underscores
     # because the IIIF server will turn the URL encoded spaces back into spaces, then create an error.
     work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'].replace(' ', '_'))
     work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
     
-    if work['inception_val'] == '':
-        work_metadata['creation_year'] = ''
-    else:
-        work_metadata['creation_year'] = work['inception_val'][:4]
+    # ======================
+    # Loop through all images depicting a particular artwork
+    # ======================
 
-    # Get raw string data directly from the Artstor download
-    try:
-        work_metadata['creator_string'] = raw_metadata.loc[work_metadata['inventory_number']]['creator_string']
-    except:
-        print('Failed to load raw metadata!')
-        print('Failed to load raw metadata for', work_metadata['inventory_number'], file=log_object)
-        errors = True
-        continue
-
+    image_count = 0
+    canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
+    
     for image_to_upload in images_to_upload:
-        #print(image_to_upload['name'])
+
         # ------------
         # Set variable values for image metadata 
-        # Uses data from the various input tables previously opened
         #-------------
         
-        image_metadata = {}
+        # Create a dict from the image_to_upload object, which I think is a series (originating from the images.csv file).
+        image_metadata = dict(image_to_upload)
         
-        image_metadata['photo_inception'] = image_to_upload['create_date'] # Use any form of yyyy, yyyy-mm, or yyyy-mm-dd
-
-        image_metadata['work_qid'] = index
-        
-        image_metadata['inventory_number'] = work['inventory_number']
-        image_metadata['creation_year'] = work['inception_val'][:4]
-        image_metadata['wikidata_description'] = work['description_en']
-        
-        # Get raw string data directly from the Artstor download
-        try:
-            image_metadata['creator_string'] = raw_metadata.loc[image_metadata['inventory_number']]['creator_string']
-        except:
-            print('Failed to load raw metadata!')
-            print('Failed to load raw metadata for', image_metadata['inventory_number'], file=log_object)
-            errors = True
-            continue
-        
-        # subdirectory is the directory that contains the local file. It's within the local_image_directory_path. 
-        # Don't include a trailing slash.
-        # If images are directly in the directory_path, use empty string ('') as the value.
-        image_metadata['subdir'] = image_to_upload['subdir']
-        image_metadata['local_filename'] = image_to_upload['name']
-        image_metadata['width'] = str(image_to_upload['width'])
-        image_metadata['height'] = str(image_to_upload['height'])
-        image_metadata['rank'] = image_to_upload['rank']
-
+        # Create the base IRI to be used to make calls to the IIIF server (will be specified in the manifest).
         image_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(image_metadata['local_filename'])
-
-        # If there is only one image for the work, then just use the work label for the image label (used in the IIIF canvas)
-        # If there are more than one image, then the label is the sub-description of that particular view of the work,
-        # e.g. "front", "back", "page 1", etc.
-        if len(images_to_upload) == 1:
-            image_metadata['label'] = ''
-        else:
-            image_metadata['label'] = image_to_upload['description']
 
         # ------------
         # Set fixed values for image metadata
@@ -1306,6 +1499,9 @@ for index, work in works_metadata.iterrows():
         image_metadata['photographer_of_work'] = config_values['photographer_of_work']
         image_metadata['source_qid'] = config_values['source_qid']
         
+        print()
+        if not config_values['verbose']: # already printed above if set to verbose
+            print(artwork_items_uploaded, work['label_en'])
         print(image_metadata['local_filename'], image_metadata['rank'])
 
         # -----------
@@ -1314,7 +1510,7 @@ for index, work in works_metadata.iterrows():
 
         # Upload the media file to Commons
         sleep(commons_upload_sleep_time) # Delay the next media item upload if less than commons_sleep time since the last upload.
-        upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label'], commons_login)
+        upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label_en'], commons_login)
         
         # If the media file fails to upload, there is no point in continuing nor to add to the commons_images.csv
         # file. Just log the error and go on.
@@ -1329,7 +1525,7 @@ for index, work in works_metadata.iterrows():
         start_time = datetime.now()
 
         # Upload structured data for Commons
-        upload_error, mid = structured_data_upload(image_metadata, config_values, work_metadata['label'], commons_login)
+        upload_error, mid = structured_data_upload(image_metadata, work_metadata, config_values, commons_login)
         image_metadata['mid'] = mid
         
         # If the structured data fails to upload, the data from the file upload still needs to be saved.
@@ -1350,9 +1546,9 @@ for index, work in works_metadata.iterrows():
             # If no explicit label given for the individual image (e.g. single image works), 
             # use the work label as the canvas label. 
             if image_metadata['label'] == '':
-                canvas_label = work_metadata['label']
+                canvas_label = work_metadata['label_en']
             else:
-                canvas_label = image_metadata['label']
+                canvas_label = image_metadata['label_en']
 
             # Generate IIIF canvas for image
             canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
@@ -1368,14 +1564,14 @@ for index, work in works_metadata.iterrows():
         # The specific image label is only appended to the work label if there are multiple images.
         # For example, "Famous Sculpture - front view"
         if image_metadata['label'] == '':
-            output_label = work_metadata['label']
+            output_label = work_metadata['label_en']
         else:
-            output_label = work_metadata['label'] + ' - ' + image_metadata['label']
+            output_label = work_metadata['label_en'] + ' - ' + image_metadata['label']
 
         new_image_data = [{
-            'qid': image_metadata['work_qid'],
+            'qid': work_metadata['work_qid'],
             'commons_id': image_metadata['mid'],
-            'accession_number': image_metadata['inventory_number'],
+            'accession_number': work_metadata['inventory_number'],
             'label_en': output_label,
             'directory': image_metadata['subdir'],
             'local_filename': image_metadata['local_filename'],

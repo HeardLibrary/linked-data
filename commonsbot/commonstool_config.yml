@@ -35,12 +35,15 @@ manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 # Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
 # To remove the limit, use zero or a negative value.
-max_items_to_upload: 10
+max_items_to_upload: 1
 
 # Controls whether the newly created Commons media page opens in a new browser window. 
 # Useful when testing on a few images, but may be annoying if uploading many media items.
 open_browser_tab_after_upload: true
 
+# Controls whether to show works that have been skipped over and the reason for skipping.
+# true shows the information and false suppresses display.
+verbose: false
 
 # ---------------------------
 # Institutional customization
