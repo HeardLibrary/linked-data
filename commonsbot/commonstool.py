@@ -62,6 +62,7 @@ import json
 import yaml
 import requests
 import csv
+import sys
 from pathlib import Path
 from time import sleep
 import re # regex. Function to check for the particular form of xsd:dateTime required for full dates in Wikidata
@@ -85,19 +86,21 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
         arg_vals.remove('--version')
     if '-V' in arg_vals:
         arg_vals.remove('-V')
-    print('CommonsTool', version)
-    print('Copyright ©', created[:4], 'Vanderbilt University')
+    print('CommonsTool', script_version)
+    print('Copyright ©', version_modified[:4], 'Vanderbilt University')
     print('License GNU GPL version 3.0 <http://www.gnu.org/licenses/gpl-3.0>')
     print('This is free software: you are free to change and redistribute it.')
     print('There is NO WARRANTY, to the extent permitted by law.')
     print('Author: Steve Baskauf')
-    print('Revision date:', created)
+    print('Revision date:', version_modified)
+    print()
     sys.exit()
 
 if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
     # needs to be expanded to include brief info on invoking the program
     print('For help, see the CommonsTool landing page at https://github.com/HeardLibrary/linked-data/tree/master/commonsbot/README.md')
     print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    print()
     sys.exit()
 
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
