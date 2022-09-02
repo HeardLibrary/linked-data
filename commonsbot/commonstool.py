@@ -1245,21 +1245,21 @@ errors = False
 # ---------------------------
 
 # These files are all relative to the current working directory
-
 # Note: setting the index to be the Q ID requires that qid has a unique value for each row. This should be the case.
-works_metadata = pd.read_csv('../works_multiprop.csv', na_filter=False, dtype = str)
+
+# File with VanderBot upload data for artworks
+works_metadata = pd.read_csv(config_values['artwork_items_metadata_file'], na_filter=False, dtype = str)
 works_metadata.set_index('qid', inplace=True)
 
-images_dataframe = pd.read_csv('images.csv', na_filter=False, dtype = str)
+# File with supplemental data about dimensions and copyright status of artworks
+works_supplemental_metadata = pd.read_csv(config_values['artwork_additional_metadata_file'], na_filter=False, dtype = str)
+works_supplemental_metadata.set_index('qid', inplace=True)
 
-works_classification = pd.read_csv('../../gallery_buchanan/works_classification.csv', na_filter=False, dtype = str)
-works_classification.set_index('qid', inplace=True)
+# File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
+images_dataframe = pd.read_csv(config_values['image_metadata_file'], na_filter=False, dtype = str)
 
-works_ip_status = pd.read_csv('../items_status_abbrev.csv', na_filter=False, dtype = str)
-works_ip_status.set_index('qid', inplace=True)
-
-
-existing_images = pd.read_csv('commons_images.csv', na_filter=False, dtype = str) # Don't make the Q IDs the index!
+# File for record keeping of uploads to Commons
+existing_images = pd.read_csv(config_values['existing_commons_images_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
 # ---------------------------
 # Commons API Post Authentication (create session and generate CSRF token)
@@ -1317,19 +1317,21 @@ for index, work in works_metadata.iterrows():
         if config_values['verbose']:
             print('already done')
         continue
-    
-    # There are at least a thousand works that will get screened out here because they aren't imaged.
-    if not index in works_ip_status.index:
+
+    ip_status = works_supplemental_metadata.loc[index, 'status']
+
+    # Skip unevaluated copyright (empty status cells).
+    if ip_status == '':
         if config_values['verbose']:
-            print('not imaged')
+            print('copyright not evaluated')
         continue
 
-    # Screen for public domain works
-    ip_status = works_ip_status.loc[index, 'status']
+    # Screen for public domain works. 
     if not ip_status in config_values['public_domain_categories']:
         if config_values['verbose']:
             print('not public domain')
         continue
+
     # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
     # inception date was given as after 1926
     if ip_status == 'assessed to be out of copyright':
@@ -1348,7 +1350,7 @@ for index, work in works_metadata.iterrows():
 
     # Skip over works that don't (yet) have a designated primary image
     images_subframe = images_dataframe.loc[images_dataframe.accession == work['inventory_number']] # result is DataFrame
-    if len(images_subframe) == 0: # skip any works whose image can't be found in the dimensions data
+    if len(images_subframe) == 0: # skip any works whose image can't be found in the images data
         if config_values['verbose']:
             print('no image data')
         continue
@@ -1483,7 +1485,7 @@ for index, work in works_metadata.iterrows():
         # These config values are used for all images, but they could at some point be varied image by image.
         # ------------
 
-        if works_classification.loc[index, 'dimension'] == '3D':
+        if works_supplemental_metadata.loc[index, 'dimension'] == '3D':
             image_metadata['n_dimensions'] = '3D'
             image_metadata['artwork_license_text'] = config_values['artwork_license_text_3d']
             image_metadata['photo_license_text'] = config_values['photo_license_text_3d']
