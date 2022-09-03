@@ -1,5 +1,5 @@
 # --------------
-# File locations
+# File names and locations
 # --------------
 
 # Note: the location of the Wikimedia login credentials is hard-coded to be the file "commons_credentials.txt"
@@ -10,6 +10,20 @@
 # Data files are relative to this directory. The error log is in this directory.
 # The commons_images.csv file that logs data about the uploaded images is also in this directory.
 working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upload/
+
+# Paths of the following four files are relative to the working directory path above.
+
+# File with VanderBot upload data for artworks
+artwork_items_metadata_file: ../works_multiprop.csv
+
+# File with supplemental data about dimensions and copyright status of artworks
+artwork_additional_metadata_file: artwork_metadata.csv
+
+# File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
+image_metadata_file: images.csv
+
+# File for record keeping of uploads to Commons
+existing_commons_images_file: commons_images.csv
 
 # Controls whether paths for images to upload are relative to the home directory or not. 
 # If not, they may be absolute or relative to the current working directory.
@@ -35,12 +49,15 @@ manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 # Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
 # To remove the limit, use zero or a negative value.
-max_items_to_upload: 10
+max_items_to_upload: 1
 
 # Controls whether the newly created Commons media page opens in a new browser window. 
 # Useful when testing on a few images, but may be annoying if uploading many media items.
 open_browser_tab_after_upload: true
 
+# Controls whether to show works that have been skipped over and the reason for skipping.
+# true shows the information and false suppresses display.
+verbose: false
 
 # ---------------------------
 # Institutional customization
