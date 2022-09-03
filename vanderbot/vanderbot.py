@@ -140,7 +140,7 @@ json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabu
 credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/' # prepended to URL-encoded Commons media filenames
-terse = False # True suppresses display of progress output. False dispays information about the current line being processed
+terse_string = 'false' # True suppresses display of progress output. False dispays information about the current line being processed
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
 # (the example below is not real).  Save file in the directory specified by the credentials_path_string.
