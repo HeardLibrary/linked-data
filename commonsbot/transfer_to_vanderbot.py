@@ -122,3 +122,4 @@ for index, work in existing_images.iterrows():
 # Write the updated dataframe to CSV
 works_metadata.to_csv(works_data_directory + 'works_multiprop.csv', index = False)
 print('done')
+print()

@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.9.1'
-created = '2022-06-03'
+version = '1.9.2'
+created = '2022-09-03'
 
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -113,6 +113,9 @@ created = '2022-06-03'
 # - fixed error that caused SPARQL queries to fail if they contained double quotes (solution: triple double quotes).
 # - switched SPARQL queries to use POST with the application/x-www-form-urlencoded Content-Type. This fixed the problem where
 #   strings containing non-ASCII UTF-8 characters were not matching with existing identical labels and descriptions in Wikidata.
+# ----------------------------------------
+# Version 1.9.2 change notes (2022-09-03)
+# - add option for "terse" mode to suppress displaying progress. (Reporting of errors at end and logging not affected.)
 
 import json
 import requests
@@ -137,6 +140,7 @@ json_metadata_description_file = 'csv-metadata.json' # "Generating RDF from Tabu
 credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/' # prepended to URL-encoded Commons media filenames
+terse = False # True suppresses display of progress output. False dispays information about the current line being processed
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
 # (the example below is not real).  Save file in the directory specified by the credentials_path_string.
@@ -221,6 +225,15 @@ if '--credentials' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('--credentials')]
 if '-C' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('-C')]
+
+if '--terse' in opts: # specifies the name of the credentials file.
+    terse_string = args[opts.index('--terse')]
+if '-T' in opts: # specifies the name of the credentials file.
+    terse_string = args[opts.index('-T')]
+if terse_string == 'true':
+    terse = True
+else:
+    terse = False
 
 google_drive_root = '/content/drive/My Drive/'
 if credentials_path_string == 'home': # credential file is in home directory
@@ -1063,6 +1076,9 @@ def attemptPost(apiUrl, parameters):
 # ----------------------------------------------------------------
 # authentication
 
+if terse:
+    print('authenticating and loading data')
+
 # default API resource URL when a Wikibase/Wikidata instance is installed.
 resourceUrl = '/w/api.php'
 
@@ -1100,7 +1116,8 @@ tables = metadata['tables']
 for table in tables:  # The script can handle multiple tables
     error_log = '' # start the error log for this table
     tableFileName = table['url']
-    print('\nFile name: ', tableFileName)
+    if not terse:
+        print('\nFile name: ', tableFileName)
     if log_path != '':
         print('\nFile name: ' + tableFileName + '\n', file=log_object)
     tableData = readDict(tableFileName)
@@ -1152,7 +1169,8 @@ for table in tables:  # The script can handle multiple tables
     for column in columns:
         if column['name'] == subjectWikidataIdName:
             subjectWikidataIdColumnHeader = column['titles']
-            print('Subject column: ', subjectWikidataIdColumnHeader)
+            if not terse:
+                print('Subject column: ', subjectWikidataIdColumnHeader)
 
     # create a list of the entities that have Wikidata qIDs
     qIds = []
@@ -1171,12 +1189,13 @@ for table in tables:  # The script can handle multiple tables
         # This hack allows aliases to be processed by the script, but also to allow a csv2rdf to serialize the CSV data as valid RDF.
         # However, it limits aliases to a single language.
         if 'suppressOutput' in column:
-            # find columns that contain aliases and ignor any others with suppressOutput
+            # find columns that contain aliases and ignore any others with suppressOutput
             # GUI calls it "Also known as"; RDF as skos:altLabel
             if column['name'] == 'alias':
                 altLabelColumnHeader = column['titles']
                 altLabelLanguage = column['lang']
-                print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
+                if not terse:
+                    print('Alternate label column: ', altLabelColumnHeader, ', language: ', altLabelLanguage)
                 aliasColumnList.append(altLabelColumnHeader)
                 aliasLanguageList.append(altLabelLanguage)
 
@@ -1201,7 +1220,8 @@ for table in tables:  # The script can handle multiple tables
             if column['propertyUrl'] == 'rdfs:label':
                 labelColumnHeader = column['titles']
                 labelLanguage = column['lang']
-                print('Label column: ', labelColumnHeader, ', language: ', labelLanguage)
+                if not terse:
+                    print('Label column: ', labelColumnHeader, ', language: ', labelLanguage)
                 labelColumnList.append(labelColumnHeader)
                 labelLanguageList.append(labelLanguage)
 
@@ -1227,7 +1247,8 @@ for table in tables:  # The script can handle multiple tables
             elif column['propertyUrl'] == 'schema:description':
                 descriptionColumnHeader = column['titles']
                 descriptionLanguage = column['lang']
-                print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
+                if not terse:
+                    print('Description column: ', descriptionColumnHeader, ', language: ', descriptionLanguage)
                 descriptionColumnList.append(descriptionColumnHeader)
                 descriptionLanguageList.append(descriptionLanguage)
 
@@ -1278,7 +1299,8 @@ for table in tables:  # The script can handle multiple tables
                                         propertiesValueTypeList.append('quantity')
                                     else:
                                         continue
-                                    print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: ', propKind)
+                                    if not terse:
+                                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: ', propKind)
                             except:
                                 pass
 
@@ -1293,25 +1315,29 @@ for table in tables:  # The script can handle multiple tables
                             propertiesEntityOrLiteral.append('literal')
                             propertiesTypeList.append('commonsMedia')
                             propertiesValueTypeList.append('string')
-                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: commonsMedia')
+                            if not terse:
+                                print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: commonsMedia')
                         # URLs are detected when there is a valueUrl whose value has a first character of "{"
                         elif column['valueUrl'][0] == '{':
                             propertiesEntityOrLiteral.append('literal')
                             propertiesTypeList.append('url')
                             propertiesValueTypeList.append('string')
-                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: url')
+                            if not terse:
+                                print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: url')
                         # Otherwise having a valueUrl indicates that it's an item
                         else:
                             propertiesEntityOrLiteral.append('entity')
                             propertiesTypeList.append('wikibase-item')
                             propertiesValueTypeList.append('wikibase-entityid')
-                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: item')
+                            if not terse:
+                                print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: item')
 
                     propertyUuidColumn = findPropertyUuid(propertyId, columns)
                     propertiesUuidColumnList.append(propertyUuidColumn)
                     propertiesReferencesList.append(findReferencesForProperty(propertyUuidColumn, columns))
                     propertiesQualifiersList.append(findQualifiersForProperty(propertyUuidColumn, columns))
-                    print()
+                    if not terse:
+                        print()
 
             # remaining columns should have properties with literal values
             else:
@@ -1328,19 +1354,23 @@ for table in tables:  # The script can handle multiple tables
 
                     # differentiate between plain literals and language-tagged literals (monolingualtext)
                     if 'lang' in column:
-                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: monolingualtext  Language: ', column['lang'])
+                        if not terse:
+                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: monolingualtext  Language: ', column['lang'])
                         propertiesEntityOrLiteral.append('monolingualtext')
                         propertiesTypeList.append('monolingualtext')
                         propertiesValueTypeList.append('monolingualtext')
                         propertiesLangList.append(column['lang'])
                     else:
-                        print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: string')
+                        if not terse:
+                            print('Property column: ', propColumnHeader, ', Property ID: ', propertyId, ' Value type: string')
                         propertiesEntityOrLiteral.append('literal')
                         propertiesTypeList.append('string')
                         propertiesValueTypeList.append('string')
                         propertiesLangList.append('')
-                    print()
-    print()
+                    if not terse:
+                        print()
+    if not terse:
+        print()
 
     # Figure out the column name roots for column sets that are dates and value nodes
     dateColumnNameList = []
@@ -1403,8 +1433,9 @@ for table in tables:  # The script can handle multiple tables
 
     # process each row of the table for item writing
     print('Writing items')
-    print('--------------------------')
-    print()
+    if not terse:
+        print('--------------------------')
+        print()
     for rowNumber in range(0, len(tableData)):            
         new_item = False
         abort_writing = False # Flag to suppress writing a row
@@ -1416,8 +1447,9 @@ for table in tables:  # The script can handle multiple tables
         else:
             status_message += '  new record'
             new_item = True
-        if log_path != '': # if logging to a file, print something so we know something is going on
-            print(status_message)
+        if not terse:
+            if log_path != '': # if logging to a file, print something so we know something is going on
+                print(status_message)
         if status_message != 'processing row: ':
             print(status_message, file=log_object)
 
@@ -2087,13 +2119,15 @@ for table in tables:  # The script can handle multiple tables
     # process each row of the table for references of existing claims
     log_text = 'Writing references of existing claims\n'
     log_text += '--------------------------\n'
-    if log_path != '':
-        print('\n' + log_text) # print something if output is going to a log file
+    if not terse:
+        if log_path != '':
+            print('\n' + log_text) # print something if output is going to a log file
     print(log_text, file=log_object)
     for rowNumber in range(0, len(tableData)):
         log_text = 'processing row ', rowNumber, 'id:', tableData[rowNumber][subjectWikidataIdColumnHeader]
-        if log_path != '':
-            print(log_text) # print something if output is going to a log file
+        if not terse:
+            if log_path != '':
+                print(log_text) # print something if output is going to a log file
         print(log_text, file=log_object)        
         for propertyNumber in range(0, len(propertiesColumnList)):
             propertyId = propertiesIdList[propertyNumber]
@@ -2158,4 +2192,5 @@ else:
 if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
     log_object.close() 
 print('done')
+print()
     

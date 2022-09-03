@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9.1
+Current version: v1.9.2
 
 Written by Steve Baskauf 2020-22.
 
@@ -64,6 +64,7 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 | --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | "suppress" |
 | --apisleep | -A | number of seconds to delay between edits (see notes on rate limits below) | 1.25 |
 | --endpoint | -E | a Wikibase SPARQL endpoint URL | "https://query.wikidata.org/sparql" |
+| --terse | -T | terse output: "true" suppresses most terminal output (log unaffected) | "false" |
 | --version | -V | no values; displays current version information |  |
 | --help | -H | no values; displays link to this page |  |
 
@@ -201,4 +202,4 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2022-01-15
+Revised 2022-09-18
