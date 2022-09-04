@@ -1,3 +1,37 @@
+# --------
+# Behavior
+# --------
+
+# The following settings control which parts of the upload process will be done by the script.
+# The first two control the major upload functions: 
+# whether to do a commons upload and whether to load into a IIIF server and create a manifest for the work.
+perform_commons_upload: true
+perform_iiif_upload: true
+
+# The next settings allow you to suppress particular parts of the major upload functions. This would 
+# typically only be done if part of an upload fails and needs to be redone, or if some parts need to
+# be redone (such as uploading a new file to the IIIF server, redo the manifest, etc.). They will be
+# ignored if the major functions are disabled by the settings above. These need to be used with caution,
+# particularly if they only need to be done on a single file. The script may fail if a later part 
+# requires the result of an earlier part that has never been completed.
+suppress_media_upload_to_commons: false
+suppress_uploading_structured_data_to_commons: false
+suppress_uploading_media_to_iiif_server: false
+suppress_create_upload_iiif_manifest: false
+suppress_outputing_updated_upload_records: false
+
+# Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
+# To remove the limit, use zero or a negative value.
+max_items_to_upload: 25
+
+# Controls whether the newly created Commons media page opens in a new browser window. 
+# Useful when testing on a few images, but may be annoying if uploading many media items.
+open_browser_tab_after_upload: true
+
+# Controls whether to show works that have been skipped over and the reason for skipping.
+# true shows the information and false suppresses display.
+verbose: false
+
 # --------------
 # File names and locations
 # --------------
@@ -29,41 +63,12 @@ existing_commons_images_file: commons_images.csv
 # If not, they may be absolute or relative to the current working directory.
 path_is_relative_to_home_directory: true
 local_image_directory_path: gallery_digital_image_archive/ # location of raw images to upload
-tiff_image_directory_path: gallery_pyramidal_tiffs/ # location of pyramidal tiled TIFF images
-
-# File locations in AWS S3
-s3_iiif_bucket_name: iiif-library-cantaloupe-storage
-s3_manifest_bucket_name: iiif-manifest.library.vanderbilt.edu
-# The s3_iiif_project_directory is a subdirectory of these buckets. No trailing slash.
-# The subdir value in the image data is a subdirectory of this one.
-s3_iiif_project_directory: gallery
-
-# Root URLs for IIIF-related files
-iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
-manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
-
-
-# --------
-# Behavior
-# --------
-
-# Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
-# To remove the limit, use zero or a negative value.
-max_items_to_upload: 1
-
-# Controls whether the newly created Commons media page opens in a new browser window. 
-# Useful when testing on a few images, but may be annoying if uploading many media items.
-open_browser_tab_after_upload: true
-
-# Controls whether to show works that have been skipped over and the reason for skipping.
-# true shows the information and false suppresses display.
-verbose: false
 
 # ---------------------------
 # Institutional customization
 # ---------------------------
 
-# Currently only affects language tag designation for the caption fir structured data on Commons
+# Currently only affects language tag designation for the caption for structured data on Commons
 default_language: en
 
 # This supposedly causes a GLAM institution's Institution: template to be transcluded as an infobox
@@ -161,6 +166,25 @@ size_filter: pixsquared
 minimum_filesize: 100 # minimum filesize in kilobytes, only used for filesize filter (originally used 1000)
 minimum_pixel_squared: 100000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter (originally used 1000000)
 requrired_filetype: tiff # required filetype, only used for filetype filter (not yet implemented)
+
+# -----------------------------------------------------------------
+# IIIF-specific files (can be ignored if only uploading to Commons)
+# -----------------------------------------------------------------
+
+# Also controlled by the path_is_relative_to_home_directory value
+# For large TIFF files, this format is important for the files to load quickly
+tiff_image_directory_path: gallery_pyramidal_tiffs/ # location of pyramidal tiled TIFF images
+
+# File locations in AWS S3
+s3_iiif_bucket_name: iiif-library-cantaloupe-storage
+s3_manifest_bucket_name: iiif-manifest.library.vanderbilt.edu
+# The s3_iiif_project_directory is a subdirectory of these buckets. No trailing slash.
+# The subdir value in the image data is a subdirectory of this one.
+s3_iiif_project_directory: gallery
+
+# Root URLs for IIIF-related files
+iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
+manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 
 # ----------------------------------------------------------------------
