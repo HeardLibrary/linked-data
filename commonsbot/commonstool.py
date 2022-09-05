@@ -47,7 +47,9 @@ user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbil
 # Version 0.5.4 change notes: 2022-09-04
 # - add settings to include or suppress parts of the script
 # - change first letter of Commons filenames to upper case if lower
-# - change slashes / to dashes - in Commons filenames
+# - change slash / to dash - in Commons filenames
+# - change hash # to dash - in Commons filenames
+# - double quotes in manifests cause an error, so for now replacing them with smart quotes
 # -----------------------------------------
 
 
@@ -211,6 +213,13 @@ def convert_dates(time_string):
             precision_number = ''
 
     return time_string, precision_number, error
+
+def convert_to_smart_quotes(string):
+    """Convert double quote characters into leading and trailing smart quotes."""
+    while '"' in string:
+        string = string.replace('"', '\u201c', 1) # will replace the first instance
+        string = string.replace('"', '\u201d', 1) # will replace the second instance
+    return string
 
 # ------------------------
 # SPARQL query class
@@ -503,6 +512,10 @@ def generate_commons_filename(label, local_filename, filename_institution):
         clean_label = clean_label.replace(':', '-')
     if '/' in clean_label:
         clean_label = clean_label.replace('/', '-')
+    if '#' in clean_label:
+        clean_label = clean_label.replace('#', '-')
+
+    
     # Get rid of double spaces. The API will automatically replace them with single spaces, preventing a match with
     # the recorded filename and the filename in the returned value from the Wikidata API. Loop should get rid of
     # triple spaces or more.
@@ -1162,46 +1175,56 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
 
     # NOTE: See https://iiif.io/api/presentation/3.0/#53-canvas which among other things says that canvases MUST have HTTP(S) URIs and
     # MUST NOT use fragment identifiers.
-    canvas_string = '''{
-                "@id": "''' + manifest_iri + '_' + index_string + '''",
-                "@type": "sc:Canvas",
-                "width": ''' + image_metadata['width'] + ''',
-                "height": ''' + image_metadata['height'] + ''',
-                "label": "''' + label + '''",
-                "images": [{
-                    "@type": "oa:Annotation",
-                    "motivation": "sc:painting",
-                    "resource": {
-                        "@id": "''' + manifest_iri + '''#resource",
+
+    # I'm having problems with labels that include double quotes. Despite having them be escaped during
+    # conversion to JSON using json.dumps(), they still come out in the JSON unescaped. 
+    # My solution for now is to replace them with smart quotes.
+    label = convert_to_smart_quotes(label)
+
+    service_dict = {
+                    "@context": "http://iiif.io/api/image/2/context.json",
+                    "@id": image_metadata['iiif_service_iri'],
+                    "profile": "http://iiif.io/api/image/2/level2.json"
+                    }
+    resource_dict = {
+                        "@id":  manifest_iri + "#resource",
                         "@type": "dctypes:Image",
                         "format": "image/jpeg",
-                        "width": ''' + image_metadata['width'] + ''',
-                        "height": ''' + image_metadata['height'] + ''',
-                        "service": {
-                            "@context": "http://iiif.io/api/image/2/context.json",
-                            "@id": "'''+ image_metadata['iiif_service_iri'] + '''",
-                            "profile": "http://iiif.io/api/image/2/level2.json"
-                            }
-                        },
-                    "on": "''' + manifest_iri + '_' + index_string + '''"
-                    }],
-                "thumbnail": {
-                    "@id": "'''+ image_metadata['iiif_service_iri'] + '''/full/!100,100/0/default.jpg",
+                        "width": image_metadata['width'],
+                        "height": image_metadata['height'],
+                        "service": service_dict
+                        }
+    images_list = [{
+                    "@type": "oa:Annotation",
+                    "motivation": "sc:painting",
+                    "resource": resource_dict,
+                    "on": manifest_iri + '_' + index_string
+                    }]
+    thumbnail_dict = {
+                    "@id": image_metadata['iiif_service_iri'] + "/full/!100,100/0/default.jpg",
                     "@type": "dctypes:Image",
                     "format": "image/jpeg",
                     "width": 100,
                     "height": 100
                     }
-                }'''
-    return canvas_string
+    canvas_dict = {
+                "@id": manifest_iri + '_' + index_string,
+                "@type": "sc:Canvas",
+                "width": image_metadata['width'],
+                "height": image_metadata['height'],
+                "label": label,
+                "images": images_list,
+                "thumbnail": thumbnail_dict
+                }
+    return canvas_dict
 
-def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
+def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
     """Generate and write IIIF manifest to S3 bucket using canvases for all images of an artwork.
     
     Parameters
     ----------
-    canvases_string : str
-        Multi-line string with the canvases for all images concatenated.
+    canvases_list : list
+        List whose items are dicts for each of the canvases for images.
     work_metadata : dict
         Metadata about the work whose media is described in the manifest.
     config_values : dict
@@ -1212,52 +1235,60 @@ def upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values):
     Used this manifest as a template: 
     https://www.nga.gov/api/v1/iiif/presentation/manifest.json?cultObj:id=151064
     """
-    manifest = '''{
-        "@context": "http://iiif.io/api/presentation/2/context.json",
-        "@id": "''' + work_metadata['iiif_manifest_iri'] + '''",
-        "@type": "sc:Manifest",
-        "label": "''' + work_metadata['label_en'] + '''",
-        "description": "''' + work_metadata['description_en'] + '''",
-    '''
 
-    if config_values['iiif_manifest_logo_url'] != '':
-        manifest += '''         "logo": "''' + config_values['iiif_manifest_logo_url'] + '''",
-    '''
+    # I'm having problems with labels that include double quotes. Despite having them be escaped during
+    # conversion to JSON using json.dumps(), they still come out in the JSON unescaped. 
+    # My solution for now is to replace them with smart quotes.
+    label = work_metadata['label_en']
+    label = convert_to_smart_quotes(label)
 
-    manifest += '''        "attribution": "''' + config_values['iiif_manifest_attribution'] + '''",
-        "metadata": [
+    metadata_list = [
             {
             "label": "Artist",
-            "value": "''' + work_metadata['creator_string'] + '''"
+            "value": work_metadata['creator_string']
             },
             {
             "label": "Accession Number",
-            "value": "''' + work_metadata['inventory_number'] + '''"
-            },
-    '''
+            "value": work_metadata['inventory_number']
+            }
+    ]
 
     if work_metadata['creation_year'] != '':
-        manifest += '''        {
+        metadata_list.append({
             "label": "Creation Year",
-            "value": "''' + work_metadata['creation_year'] + '''"
-            },
-    '''
+            "value": work_metadata['creation_year']
+            })
 
-    manifest += '''        {
+    metadata_list.append({
             "label": "Title",
-            "value": "''' + work_metadata['label_en'] + '''"
-            }
-        ],
-        "viewingDirection": "left-to-right",
-        "viewingHint": "individuals",
-        "sequences": [{
+            "value": label
+            })
+
+    sequences_list = [{
             "@type": "sc:Sequence",
-            "label": "''' + work_metadata['label_en'] + '''",
-            "canvases": [''' + canvases_string + ''']
+            "label": label,
+            "canvases": canvases_list
             }
         ]
+
+    manifest_dict = {
+        "@context": "http://iiif.io/api/presentation/2/context.json",
+        "@id": work_metadata['iiif_manifest_iri'],
+        "@type": "sc:Manifest",
+        "label": label,
+        "description": work_metadata['description_en']
     }
-    '''
+
+    if config_values['iiif_manifest_logo_url'] != '':
+        manifest_dict["logo"] = config_values['iiif_manifest_logo_url']
+
+    manifest_dict["attribution"] = config_values['iiif_manifest_attribution']
+    manifest_dict["metadata"] = metadata_list
+    manifest_dict["viewingDirection"] = "left-to-right"
+    manifest_dict["viewingHint"] = "individuals"
+    manifest_dict["sequences"] = sequences_list
+
+    manifest = json.dumps(manifest_dict, indent=4)
     #print(manifest)
 
     if config_values['s3_iiif_project_directory'] == '':
@@ -1539,7 +1570,7 @@ for index, work in works_metadata.iterrows():
 
     if config_values['perform_iiif_upload']:
         image_count = 0
-        canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
+        canvases_list = [] # This will be built up with each added image and then used in the overall work IIIF manifest
     
     for image_to_upload in images_to_upload:
 
@@ -1658,10 +1689,8 @@ for index, work in works_metadata.iterrows():
                         canvas_label = image_metadata['label']
 
                     # Generate IIIF canvas for image
-                    canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
-                    if image_count > 1:
-                        canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
-                    canvases_string += canvas_string
+                    canvas_dict = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
+                    canvases_list.append(canvas_dict)
 
         if not config_values['suppress_outputing_updated_upload_records']:
 
@@ -1712,7 +1741,7 @@ for index, work in works_metadata.iterrows():
         
     if config_values['perform_iiif_upload'] and not config_values['suppress_create_upload_iiif_manifest']:
         # Finalize IIIF manifest and upload to S3 bucket
-        upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values)
+        upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values)
 
     artwork_items_uploaded += 1
     
