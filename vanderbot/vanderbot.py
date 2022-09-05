@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.9.2'
-created = '2022-09-03'
+version = '1.9.3'
+created = '2022-09-04'
 
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -115,6 +115,9 @@ created = '2022-09-03'
 #   strings containing non-ASCII UTF-8 characters were not matching with existing identical labels and descriptions in Wikidata.
 # ----------------------------------------
 # Version 1.9.2 change notes (2022-09-03)
+# - add option for "terse" mode to suppress displaying progress. (Reporting of errors at end and logging not affected.)
+# ----------------------------------------
+# Version 1.9.3 change notes (2022-09-04)
 # - add option for "terse" mode to suppress displaying progress. (Reporting of errors at end and logging not affected.)
 
 import json

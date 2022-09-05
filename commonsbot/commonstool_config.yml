@@ -18,6 +18,7 @@ suppress_media_upload_to_commons: false
 suppress_uploading_structured_data_to_commons: false
 suppress_uploading_media_to_iiif_server: false
 suppress_create_upload_iiif_manifest: false
+# Still need to test this
 suppress_outputing_updated_upload_records: false
 
 # Places a limit on the number of Wikidata items whose images will be uploaded in a session. 

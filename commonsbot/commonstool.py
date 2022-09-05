@@ -7,8 +7,8 @@
 # Global variables
 # ----------------
 
-script_version = '0.5.3'
-version_modified = '2022-09-02'
+script_version = '0.5.4'
+version_modified = '2022-09-04'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # The user_agent string identifies this application to Wikimedia APIs.
@@ -43,6 +43,11 @@ user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbil
 # - get creator names via SPARQL query instead of requiring them to be in a separate file
 # - remove more hard-coded values, clean up source data files and simplify assembly of work and image metadata dictionaries
 # - add support for command line arguments
+# -----------------------------------------
+# Version 0.5.4 change notes: 2022-09-04
+# - add settings to include or suppress parts of the script
+# - change first letter of Commons filenames to upper case if lower
+# - change slashes / to dashes - in Commons filenames
 # -----------------------------------------
 
 
@@ -486,6 +491,47 @@ def get_commons_image_pageid(image_filename):
     # NOTE: appears to return '-1' when it can't find the page.
     return page_id
 
+def generate_commons_filename(label, local_filename, filename_institution):
+    # NOTE: square brackets [], slashes /, and colons : are not allowed in the filenames. So replace them if they exist
+    if '[' in label:
+        clean_label = label.replace('[', '(')
+    else:
+        clean_label = label
+    if ']' in clean_label:
+        clean_label = clean_label.replace(']', ')')
+    if ':' in clean_label:
+        clean_label = clean_label.replace(':', '-')
+    if '/' in clean_label:
+        clean_label = clean_label.replace('/', '-')
+    # Get rid of double spaces. The API will automatically replace them with single spaces, preventing a match with
+    # the recorded filename and the filename in the returned value from the Wikidata API. Loop should get rid of
+    # triple spaces or more.
+    while '  ' in clean_label:
+        clean_label = clean_label.replace('  ', ' ')
+    
+    # file_prefix is descriptive text to be prepended to the local_filename, to be used when the file is in Commons
+    # Commons filename length limit is 240 bytes. To be safe, limit to 230.
+    byte_limit = 230 - len((' - ' + filename_institution + ' - ' + local_filename).encode("utf8"))
+    if len(clean_label.encode("utf8")) < byte_limit:
+        file_prefix = clean_label
+    else:
+        file_prefix = clean_label.encode("utf8")[:byte_limit].decode('utf8')
+
+    # Set commons_filename (can include spaces). The API will substitute underscores as it likes.
+    # For file naming conventions, see: https://commons.wikimedia.org/wiki/Commons:File_naming
+
+    commons_filename = file_prefix + ' - ' + filename_institution + ' - ' + local_filename
+
+    # NOTE: I did not see anything about this in the documentation, but it appears based on empirical experience that filenames
+    # beginning with lowercase letters will be changed so that the first letter is in uppercase. This causes a problem when
+    # the putitive (original recorded) filename is used to try to find the file and it does not match with the actual file
+    # in Commons. For that reason, the first character of the filename will be converted to uppercase here.
+
+    if commons_filename[0].islower():
+        commons_filename = commons_filename[0].upper() + commons_filename[1:]
+
+    return commons_filename
+
 # ------------------------
 # Login in/authentication object
 # ------------------------
@@ -910,36 +956,8 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
         label = work_label
     else:
         label = work_label + ' - ' + image_metadata['label']
-    
-    # NOTE: square brackets [] and colons : are not allowed in the filenames. So replace them if they exist
-    if '[' in label:
-        clean_label = label.replace('[', '(')
-    else:
-        clean_label = label
-    if ']' in clean_label:
-        clean_label = clean_label.replace(']', ')')
-    if ':' in clean_label:
-        clean_label = clean_label.replace(':', '-')
-    # Get rid of double spaces. The API will automatically replace them with single spaces, preventing a match with
-    # the recorded filename and the filename in the returned value from the Wikidata API. Loop should get rid of
-    # triple spaces or more.
-    while '  ' in clean_label:
-        clean_label = clean_label.replace('  ', ' ')
-        
-    filename_institution = image_metadata['filename_institution']
-    
-    # file_prefix is descriptive text to be prepended to the local_filename, to be used when the file is in Commons
-    # Commons filename length limit is 240 bytes. To be safe, limit to 230.
-    byte_limit = 230 - len((' - ' + filename_institution + ' - ' + local_filename).encode("utf8"))
-    if len(clean_label.encode("utf8")) < byte_limit:
-        file_prefix = clean_label
-    else:
-        file_prefix = clean_label.encode("utf8")[:byte_limit].decode('utf8')
 
-    # Set commons_filename (can include spaces). The API will substitute underscores as it likes.
-    # For file naming conventions, see: https://commons.wikimedia.org/wiki/Commons:File_naming
-
-    commons_filename = file_prefix + ' - ' + filename_institution + ' - ' + local_filename
+    commons_filename = generate_commons_filename(label, local_filename, image_metadata['filename_institution'])
 
     # When I tried uploading the pyramidal TIFFs to Commons, I got a 
     # "The uploaded file contains errors: inconsistent page numbering in TIFF directory"
@@ -1306,38 +1324,39 @@ images_dataframe = pd.read_csv(config_values['image_metadata_file'], na_filter=F
 # File for record keeping of uploads to Commons
 existing_images = pd.read_csv(config_values['existing_commons_images_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
-# ---------------------------
-# Commons API Post Authentication (create session and generate CSRF token)
-# ---------------------------
+if config_values['perform_commons_upload']:
+    # ---------------------------
+    # Commons API Post Authentication (create session and generate CSRF token)
+    # ---------------------------
 
-print('Authenticating')
+    print('Authenticating')
 
-# This is the format of the credentials file. 
-# Username and password are for a bot that you've created.
-# The file must be plain text. It is recommended to place in your home directory so that you don't accidentally
-# include it when sharing this script and associated data files. This is the default unless changed when
-# instantiating a Wikimedia_api_login object.
-# NOTE: because this script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded. So the
-# endpointUrl value given in the credentials file is ignored. It is retained for consistency with other 
-# scripts that use credentials like this (e.g. VanderBot).
+    # This is the format of the credentials file. 
+    # Username and password are for a bot that you've created.
+    # The file must be plain text. It is recommended to place in your home directory so that you don't accidentally
+    # include it when sharing this script and associated data files. This is the default unless changed when
+    # instantiating a Wikimedia_api_login object.
+    # NOTE: because this script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded. So the
+    # endpointUrl value given in the credentials file is ignored. It is retained for consistency with other 
+    # scripts that use credentials like this (e.g. VanderBot).
 
-'''
-endpointUrl=https://test.wikidata.org
-username=User@bot
-password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
-'''
+    '''
+    endpointUrl=https://test.wikidata.org
+    username=User@bot
+    password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+    '''
 
-# If credentials file location is in a subfolder, include subfolders through file name 
-# with no leading slash and set as the path argument.
-# Example: myproj/credentials/commons_credentials.txt
-# [Need to give example for absolute path on Windows - use Unix forward slashes?]
-# If credentials file is in current working directory or home directory, only filename is necessary.
-# Omit to use "commons_credentials.txt" as the path argument.
+    # If credentials file location is in a subfolder, include subfolders through file name 
+    # with no leading slash and set as the path argument.
+    # Example: myproj/credentials/commons_credentials.txt
+    # [Need to give example for absolute path on Windows - use Unix forward slashes?]
+    # If credentials file is in current working directory or home directory, only filename is necessary.
+    # Omit to use "commons_credentials.txt" as the path argument.
 
-# If the credentials file location is relative to the working directory or an absolute path, 
-# set the relative_to_home argument to False. Set to True or omit if relative to the home directory.
+    # If the credentials file location is relative to the working directory or an absolute path, 
+    # set the relative_to_home argument to False. Set to True or omit if relative to the home directory.
 
-commons_login = Wikimedia_api_login(config_values)
+    commons_login = Wikimedia_api_login(config_values)
 
 
 print('Beginning uploads')
@@ -1448,16 +1467,18 @@ for index, work in works_metadata.iterrows():
     if not all_good:
         continue
         
-    # Get the artist name from Wikidata. Failure to find a name will cause this work to be skipped
-    query_error, response_string = query_artwork_creator_name(index)
-    if query_error:
-        if config_values['verbose']:
-            print('Failed find creator string in Wikidata with error:', response_string)
-        print('Failed find creator string in Wikidata for', work['inventory_number'], 'with error:', response_string, file=log_object)
-        errors = True
-        continue
-    else:
-        artist_name_string = response_string
+    # The name string is only used in the IIIF manifest, and can be skipped if no IIIF upload
+    if config_values['perform_iiif_upload']:
+        # Get the artist name from Wikidata. Failure to find a name will cause this work to be skipped
+        query_error, response_string = query_artwork_creator_name(index)
+        if query_error:
+            if config_values['verbose']:
+                print('Failed find creator string in Wikidata with error:', response_string)
+            print('Failed find creator string in Wikidata for', work['inventory_number'], 'with error:', response_string, file=log_object)
+            errors = True
+            continue
+        else:
+            artist_name_string = response_string
 
     # ----------------------
     # Set variables for artwork metadata
@@ -1467,51 +1488,58 @@ for index, work in works_metadata.iterrows():
     # Make this a dict so that items can easily be added to it.
     work_metadata = dict(work)
     work_metadata['work_qid'] = index
-    work_metadata['creator_string'] = artist_name_string
 
-    if work['inception_val'] == '':
-        work_metadata['creation_year'] = ''
-    else:
-        work_metadata['creation_year'] = work['inception_val'][:4]
+    # The following values are only used in the IIIF manifest and can be ignored if only a Commons upload is done.
+    if config_values['perform_iiif_upload']:
+        work_metadata['creator_string'] = artist_name_string
 
-    # -----------------
-    # Machinations for generating path-related strings
-    # -----------------
+        if work['inception_val'] == '':
+            work_metadata['creation_year'] = ''
+        else:
+            work_metadata['creation_year'] = work['inception_val'][:4]
 
-    # These various strings are used to construct IIIF IRIs and to designate AWS S3 bucket paths
+        # -----------------
+        # Machinations for generating path-related strings
+        # -----------------
 
-    # This defines the subdirectory into which the work is sorted (if any).
-    # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
-    # So resources associated with a particular inventory number are located in a directory whose name is that year string.
-    # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
-    work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
+        # These various strings are used to construct IIIF IRIs and to designate AWS S3 bucket paths
 
-    if config_values['s3_iiif_project_directory'] == '':
-        s3_iiif_project_directory = ''
-        s3_iiif_project_directory_escaped = ''
-    else:
-        s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
-        s3_iiif_project_directory_escaped = config_values['s3_iiif_project_directory'] + '%2F'
+        # This defines the subdirectory into which the work is sorted (if any).
+        # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
+        # So resources associated with a particular inventory number are located in a directory whose name is that year string.
+        # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
+        # NOTE: a subdirectory may also be used to indicate the location of the locally stored image within the path. However,
+        # that subdirectory structure does not have to be the same as is used in the organization of the works. It is saved on an 
+        # image-by-image basis in the image.csv image information table.
+        work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
 
-    if work_metadata['work_subdirectory'] == '':
-        subdirectory = ''
-        subdirectory_escaped = ''
-    else:
-        subdirectory = work_metadata['work_subdirectory'] + '/'
-        subdirectory_escaped = work_metadata['work_subdirectory'] + '%2F'
+        if config_values['s3_iiif_project_directory'] == '':
+            s3_iiif_project_directory = ''
+            s3_iiif_project_directory_escaped = ''
+        else:
+            s3_iiif_project_directory = config_values['s3_iiif_project_directory'] + '/'
+            s3_iiif_project_directory_escaped = config_values['s3_iiif_project_directory'] + '%2F'
 
-   # Must URL encode the inventory number because it might contain weird characters like ampersand  
-    # and who knows what other garbage that isn't safe for a URL. Also, spaces need to be replaced with underscores
-    # because the IIIF server will turn the URL encoded spaces back into spaces, then create an error.
-    work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'].replace(' ', '_'))
-    work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
+        if work_metadata['work_subdirectory'] == '':
+            subdirectory = ''
+            subdirectory_escaped = ''
+        else:
+            subdirectory = work_metadata['work_subdirectory'] + '/'
+            subdirectory_escaped = work_metadata['work_subdirectory'] + '%2F'
+
+        # Must URL encode the inventory number because it might contain weird characters like ampersand  
+        # and who knows what other garbage that isn't safe for a URL. Also, spaces need to be replaced with underscores
+        # because the IIIF server will turn the URL encoded spaces back into spaces, then create an error.
+        work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'].replace(' ', '_'))
+        work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
     
     # ======================
     # Loop through all images depicting a particular artwork
     # ======================
 
-    image_count = 0
-    canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
+    if config_values['perform_iiif_upload']:
+        image_count = 0
+        canvases_string = '' # This will be built up with each added image and then used in the overall work IIIF manifest
     
     for image_to_upload in images_to_upload:
 
@@ -1522,29 +1550,31 @@ for index, work in works_metadata.iterrows():
         # Create a dict from the image_to_upload object, which I think is a series (originating from the images.csv file).
         image_metadata = dict(image_to_upload)
         
-        # Create the base IRI to be used to make calls to the IIIF server (will be specified in the manifest).
-        image_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(image_metadata['local_filename'])
+        if config_values['perform_iiif_upload']:
+            # Create the base IRI to be used to make calls to the IIIF server (will be specified in the manifest).
+            image_metadata['iiif_service_iri'] = config_values['iiif_server_url_root'] + s3_iiif_project_directory_escaped + subdirectory_escaped + urllib.parse.quote(image_metadata['local_filename'])
 
         # ------------
         # Set fixed values for image metadata
         # These config values are used for all images, but they could at some point be varied image by image.
         # ------------
 
-        if works_supplemental_metadata.loc[index, 'dimension'] == '3D':
-            image_metadata['n_dimensions'] = '3D'
-            image_metadata['artwork_license_text'] = config_values['artwork_license_text_3d']
-            image_metadata['photo_license_text'] = config_values['photo_license_text_3d']
-        else: # appy to 2D but also prints, posters, etc.
-            image_metadata['n_dimensions'] = '2D'
-            image_metadata['artwork_license_text'] = config_values['artwork_license_text_2d']
-            image_metadata['photo_license_text'] = '' # Not used in 2D Wikitext since photo is considered to not involve creativity
+        if config_values['perform_commons_upload']:
+            if works_supplemental_metadata.loc[index, 'dimension'] == '3D':
+                image_metadata['n_dimensions'] = '3D'
+                image_metadata['artwork_license_text'] = config_values['artwork_license_text_3d']
+                image_metadata['photo_license_text'] = config_values['photo_license_text_3d']
+            else: # appy to 2D but also prints, posters, etc.
+                image_metadata['n_dimensions'] = '2D'
+                image_metadata['artwork_license_text'] = config_values['artwork_license_text_2d']
+                image_metadata['photo_license_text'] = '' # Not used in 2D Wikitext since photo is considered to not involve creativity
 
-        image_metadata['photo_copyright_qid'] = config_values['photo_copyright_qid']
-        image_metadata['photo_license_qid'] = config_values['photo_license_qid']
-        image_metadata['category_strings'] = config_values['category_strings'] # Commons categories to be added to the image.
-        image_metadata['filename_institution'] = config_values['filename_institution']
-        image_metadata['photographer_of_work'] = config_values['photographer_of_work']
-        image_metadata['source_qid'] = config_values['source_qid']
+            image_metadata['photo_copyright_qid'] = config_values['photo_copyright_qid']
+            image_metadata['photo_license_qid'] = config_values['photo_license_qid']
+            image_metadata['category_strings'] = config_values['category_strings'] # Commons categories to be added to the image.
+            image_metadata['filename_institution'] = config_values['filename_institution']
+            image_metadata['photographer_of_work'] = config_values['photographer_of_work']
+            image_metadata['source_qid'] = config_values['source_qid']
         
         print()
         if not config_values['verbose']: # already printed above if set to verbose
@@ -1555,93 +1585,134 @@ for index, work in works_metadata.iterrows():
         # Upload data
         # -----------
 
-        # Upload the media file to Commons
-        sleep(commons_upload_sleep_time) # Delay the next media item upload if less than commons_sleep time since the last upload.
-        upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label_en'], commons_login)
-        
-        # If the media file fails to upload, there is no point in continuing nor to add to the commons_images.csv
-        # file. Just log the error and go on.
-        if upload_error:
-            errors = True
-            print('Image upload to Commons failed for', work['inventory_number'], file=log_object)
-            continue
-        else:
-            image_metadata['commons_filename'] = commons_filename
+        if config_values['perform_commons_upload']:
+            if not config_values['suppress_media_upload_to_commons']:
+                # Upload the media file to Commons
+                sleep(commons_upload_sleep_time) # Delay the next media item upload if less than commons_sleep time since the last upload.
+                upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label_en'], commons_login)
             
-        # Begin timing to determine whether enough time has elapsed before doing the next Commons upload
-        start_time = datetime.now()
+                # If the media file fails to upload, there is no point in continuing nor to add to the commons_images.csv
+                # file. Just log the error and go on.
+                if upload_error:
+                    errors = True
+                    print('Image upload to Commons failed for', work['inventory_number'], file=log_object)
+                    continue
+                else:
+                    image_metadata['commons_filename'] = commons_filename
+            
+                # Begin timing to determine whether enough time has elapsed before doing the next Commons upload
+                start_time = datetime.now()
+            else:
+                # NOTE: if the upload to Commons is suppressed, the media item must have previously been uploaded.
+                # Otherwise, there will be no commons_filename to be used to look up the M ID and associate the 
+                # structured data with the media item. Here the script assumes that the uploaded media item name was
+                # constructed using the same rules as used in the commons_image_upload function, and makes that 
+                # name available to the structured_data_upload function.
+                # It also does NOT here screen the local filename for unallowed spaces.
 
-        # Upload structured data for Commons
-        upload_error, mid = structured_data_upload(image_metadata, work_metadata, config_values, commons_login)
-        image_metadata['mid'] = mid
-        
+                # As of 2022-09-01, single-image work images are generally described only by the work label.
+                # The specific image label is only appended to the work label if there are multiple images.
+                # For example, "Famous Sculpture - front view"
+                if image_metadata['label'] == '':
+                    label = work_metadata['label_en']
+                else:
+                    label = work_metadata['label_en'] + ' - ' + image_metadata['label']
+
+                image_metadata['commons_filename'] = generate_commons_filename(label, image_metadata['local_filename'], image_metadata['filename_institution'])
+
+            if not config_values['suppress_uploading_structured_data_to_commons']:
+                # Upload structured data for Commons
+                upload_error, mid = structured_data_upload(image_metadata, work_metadata, config_values, commons_login)
+                image_metadata['mid'] = mid
+            else:
+                # Assume that the upload was done previously regardless of whether Commons file upload is suppressed.
+                # If one hadn't done the upload and wanted to just do the IIIF manifest generation, one would set the
+                # value of perform_commons_upload to false and this wouldn't be executed. This basically lets the M ID be found
+                # and get added to the output table regardless. It would be skipped if commons upload were completely skipped.
+                upload_error = False
+                image_metadata['mid'] = "M" + get_commons_image_pageid(image_metadata['commons_filename'])
+            
         # If the structured data fails to upload, the data from the file upload still needs to be saved.
-        # So don't continue to the next iteration.
-        if upload_error:
+        # So don't continue to the next iteration. But do skip the IIIF upload if a Commons upload fails.
+        if config_values['perform_commons_upload'] and upload_error: # Note: due to "and short circuit", upload_error won't be evaluated if no commons upload
             errors = True
             print('Structured data for Commons upload failed for', work['inventory_number'], file=log_object)
         else:
-            # NOTE: the S3 bucket uploads don't seem to ever fail and there isn't an easy way to detect it,
-            # so the code doesn't really have any error trapping for it.
-            
-            # Upload image file to IIIF server S3 bucket
-            upload_image_to_iiif(image_metadata, config_values)
-            
-            image_count += 1
-            index_string = str(image_count)
+            if config_values['perform_iiif_upload']:
+                # NOTE: the S3 bucket uploads don't seem to ever fail and there isn't an easy way to detect it,
+                # so the code doesn't really have any error trapping for it.
+                
+                if not config_values['suppress_uploading_media_to_iiif_server']:
+                    # Upload image file to IIIF server S3 bucket
+                    upload_image_to_iiif(image_metadata, config_values)
 
-            # If no explicit label given for the individual image (e.g. single image works), 
-            # use the work label as the canvas label. 
+                if not config_values['suppress_create_upload_iiif_manifest']:
+                    image_count += 1
+                    index_string = str(image_count)
+
+                    # If no explicit label given for the individual image (e.g. single image works), 
+                    # use the work label as the canvas label. 
+                    if image_metadata['label'] == '':
+                        canvas_label = work_metadata['label_en']
+                    else:
+                        canvas_label = image_metadata['label']
+
+                    # Generate IIIF canvas for image
+                    canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
+                    if image_count > 1:
+                        canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
+                    canvases_string += canvas_string
+
+        if not config_values['suppress_outputing_updated_upload_records']:
+
+            # ----------------
+            # Add data to record of Commons images
+            # ----------------
+
+            # As of 2022-09-01, single-image work images are generally described only by the work label.
+            # The specific image label is only appended to the work label if there are multiple images.
+            # For example, "Famous Sculpture - front view"
             if image_metadata['label'] == '':
-                canvas_label = work_metadata['label_en']
+                output_label = work_metadata['label_en']
             else:
-                canvas_label = image_metadata['label_en']
+                output_label = work_metadata['label_en'] + ' - ' + image_metadata['label']
 
-            # Generate IIIF canvas for image
-            canvas_string = generate_iiif_canvas(index_string, work_metadata['iiif_manifest_iri'], image_metadata, canvas_label)
-            if image_count > 1:
-                canvases_string += ',\n                ' # if appending a second or later canvas, add comma to separate from earlier ones
-            canvases_string += canvas_string
+            if not config_values['perform_commons_upload']:
+                image_metadata['mid'] = ''
+                image_metadata['commons_filename'] = ''
 
-        # ----------------
-        # Add data to record of Commons images
-        # ----------------
+            if not config_values['perform_iiif_upload']:
+                work_metadata['iiif_manifest_iri'] = ''
 
-        # As of 2022-09-01, single-image work images are generally described only by the work label.
-        # The specific image label is only appended to the work label if there are multiple images.
-        # For example, "Famous Sculpture - front view"
-        if image_metadata['label'] == '':
-            output_label = work_metadata['label_en']
-        else:
-            output_label = work_metadata['label_en'] + ' - ' + image_metadata['label']
-
-        new_image_data = [{
-            'qid': work_metadata['work_qid'],
-            'commons_id': image_metadata['mid'],
-            'accession_number': work_metadata['inventory_number'],
-            'label_en': output_label,
-            'directory': image_metadata['subdir'],
-            'local_filename': image_metadata['local_filename'],
-            'rank': image_metadata['rank'],
-            'image_name': image_metadata['commons_filename'],
-            'iiif_manifest': work_metadata['iiif_manifest_iri'],
-            'notes': ''
-        }]
-        existing_images = existing_images.append(new_image_data, ignore_index=True, sort=False)
-        # This output file is used as input by the transfer_to_vanderbot.ipynb script, which adds data to a CSV
-        # file that can be used to create the statements in Wikidata linking the artwork item to the Commons file.
-        existing_images.to_csv('commons_images.csv', index = False) # Don't export the numeric index as a column 
+            new_image_data = [{
+                'qid': work_metadata['work_qid'],
+                'commons_id': image_metadata['mid'],
+                'accession_number': work_metadata['inventory_number'],
+                'label_en': output_label,
+                'directory': image_metadata['subdir'],
+                'local_filename': image_metadata['local_filename'],
+                'rank': image_metadata['rank'],
+                'image_name': image_metadata['commons_filename'],
+                'iiif_manifest': work_metadata['iiif_manifest_iri'],
+                'notes': ''
+            }]
+            existing_images = existing_images.append(new_image_data, ignore_index=True, sort=False)
+            # This output file is used as input by the transfer_to_vanderbot.ipynb script, which adds data to a CSV
+            # file that can be used to create the statements in Wikidata linking the artwork item to the Commons file.
+            existing_images.to_csv('commons_images.csv', index = False) # Don't export the numeric index as a column 
     
         print() # Put blank line between uploaded media items
 
-        # Calculate whether the other uploads took enough time that delaying the next Commons media upload is unnecessary.
-        elapsed_time = (datetime.now() - start_time).total_seconds()
-        commons_upload_sleep_time = config_values['commons_sleep'] - elapsed_time
-        if commons_upload_sleep_time < 0:
-            commons_upload_sleep_time = 0
+        if config_values['perform_commons_upload'] and not config_values['suppress_media_upload_to_commons']:
+            # Calculate whether the other uploads took enough time that delaying the next Commons media upload is unnecessary.
+            elapsed_time = (datetime.now() - start_time).total_seconds()
+            commons_upload_sleep_time = config_values['commons_sleep'] - elapsed_time
+            if commons_upload_sleep_time < 0:
+                commons_upload_sleep_time = 0
         
-    # Finalize IIIF manifest and upload to S3 bucket
-    upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values)
+    if config_values['perform_iiif_upload'] and not config_values['suppress_create_upload_iiif_manifest']:
+        # Finalize IIIF manifest and upload to S3 bucket
+        upload_iiif_manifest_to_s3(canvases_string, work_metadata, config_values)
 
     artwork_items_uploaded += 1
     
