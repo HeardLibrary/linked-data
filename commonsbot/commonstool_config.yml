@@ -96,12 +96,6 @@ requrired_filetype: tiff # required filetype, only used for filetype filter (not
 # Currently only affects language tag designation for the caption for structured data on Commons
 default_language: en
 
-# This supposedly causes a GLAM institution's Institution: template to be transcluded as an infobox
-# into Artwork and Art Photo file description pages. Leave blank to omit.
-# Example https://commons.wikimedia.org/wiki/Institution:Vanderbilt_University_Fine_Arts_Gallery
-# As of 2022-08-21, it doesn't seem to be working. 
-templated_institution: Vanderbilt University Fine Arts Gallery
-
 # Provides the text value to be used in the source field of the Artwork template.
 # As of 2022-09-01, leaving this out generates the warning 
 # "This file is lacking source information. Please edit this file's description and provide a source. "

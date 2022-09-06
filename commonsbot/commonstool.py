@@ -666,11 +666,6 @@ def create_commons_template(n_dimensions, artwork_license_text, photo_license_te
 =={{int:filedesc}}==
 {{Artwork
 '''
-        # Inserts GLAM institution's Institution: template if there is one. Supposed to cause the institution's
-        # infobox to be transcluded into the media item's page, but doesn't seem to work as of 2022-08-21.
-        if templated_institution != '':
-            page_wikitext += ''' |institution = {{Institution:''' + templated_institution + '''}}
-'''
         # As of 2022-09-01, leaving this out of the Artwork template generates the warning 
         # "This file is lacking source information. Please edit this file's description and provide a source. "
         # Including the image source in the structured data doesn't seem to be enough. Does not seem to be
