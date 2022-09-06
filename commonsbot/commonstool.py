@@ -630,7 +630,7 @@ class Wikimedia_api_login:
 # Data upload functions
 # ------------------------
 
-def create_commons_template(n_dimensions, artwork_license_text, photo_license_text, category_strings, templated_institution, source):
+def create_commons_template(n_dimensions, artwork_license_text, photo_license_text, category_strings, source):
     """Creates initial file Wikitext. Template metadata omitted since page tables will be populated using structured
     data from SDC or Wikidata.
     
@@ -683,9 +683,6 @@ def create_commons_template(n_dimensions, artwork_license_text, photo_license_te
         page_wikitext = '''
 =={{int:filedesc}}==
 {{Art Photo
-'''
-        if templated_institution != '':
-            page_wikitext += ''' |institution = {{Institution:''' + templated_institution + '''}}
 '''
         page_wikitext += ''' |artwork license  = {{''' + artwork_license_text + '''}}
  |photo license    = {{''' + photo_license_text + '''}}
@@ -938,7 +935,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     """
     global error_log
     # Generate the page wikitext based on licensing metadata appropriate for the kind of artwork.
-    page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['templated_institution'], config_values['source'])
+    page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['source'])
     #print(page_wikitext)
 
     # The local_filename is the name of the file as it exists locally.
