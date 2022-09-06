@@ -8,7 +8,7 @@ There is also information comparing the different templates that are available f
 
 CommonsTool is a command-line Python tool for uploading images to Wikimedia Commons whose metadata are already in Wikidata. By default, it is configured for uploading images of two- or three-dimensional artwork, although it can be modified for other purposes.
 
-There are two additional optional features of the tool. It can also be used to upload images to an AWS S3 bucket to feed a Cantaloupe IIIF image server and generate a manifest for displaying those images. The output of the script is saved in a table, which can be used to link the Commons image identifier and IIIF manifest URL to the item for the work using the [VanderBot](http://vanderbi.lt/vanderbot) tool. See the description of `tranfer_to_vanderbot.py` in the Other scripts section below.
+There are two additional optional features of the tool. It can also be used to upload images to an AWS S3 bucket to feed a Cantaloupe IIIF image server and generate a manifest for displaying those images. The output of the script is saved in a table, which can be used to link the Commons image identifier and IIIF manifest URL to the item for the work using the [VanderBot](http://vanderbi.lt/vanderbot) tool. See the description of `tranfer_to_vanderbot.py` in the `Other scripts` section below.
 
 ## How it works
 
@@ -35,7 +35,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 The API credentials MUST be stored in a plain text file using the following format:
 
 ```
-endpointUrl=https://www.wikidata.org
+endpointUrl=https://commons.wikimedia.org
 username=User@bot
 password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 ```
@@ -44,7 +44,7 @@ A trailing newline is OPTIONAL.
 
 Because the CommonsTool script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded in the script. Therefore, the `endpointUrl` value given in the credentials file will be ignored. It is retained for consistency with other scripts that use credentials like this (e.g. VanderBot).
 
-Username and password are created on the `Bot passwords` page, accessed from `Special pages`. Wikimedia credentials are shared across all platforms (Wikipedia, Wikidata, Commons, etc.). The credentials file name and location MAY be set using the options below, otherwise the defaults are used.
+Username and password are created on the `Bot passwords` page, accessed from `Special pages`. Wikimedia credentials are shared across all platforms (Wikipedia, Wikidata, Commons, etc.). The credentials file name (`commons_credentials.txt`) and location (the user dirtory) are hard-coded in the script.
 
 ## Command line options
 
@@ -59,21 +59,23 @@ Other options may be added in future versions.
 
 The configuration file [commonstool_config.yml](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool_config.yml) includes extensive comments about the configuration settings, so they will not be detailed here. However, the major settings will be discussed here. 
 
-The two main functions of the script, uploading files to Wikimedia Commons and uploading files with manifests to a IIIF server, can be performed independently, i.e. perform only a Commons upload, upload only to the IIIF server, or both. The values of `perform_commons_upload` and `perform_iiif_upload` control whether each function occurs. 
+The two main functions of the script, uploading files to Wikimedia Commons and uploading files with manifests to a IIIF server, MAY be performed independently, i.e. perform only a Commons upload, upload only to the IIIF server, or both. The values of `perform_commons_upload` and `perform_iiif_upload` control whether each function occurs. 
 
 Values in the `General Settings` section apply universally. Values in the `Settings required for Commons uploads` section apply only for Commons uploads and can be ignored if only IIIF uploads are performed. Values in the `Settings required for IIIF uploads` section apply only for IIIF uploads and can be ignored if only Commons uploads are performed.
 
 ## Required fields
 
-The fields that must be present in the source tables are listed below. Other fields may be present and will be ignored.
+The fields that MUST be present in the source tables are listed below. Other fields may be present and will be ignored.
 
 ### CSV table designated by artwork_items_metadata_file value
 
-`qid` The Wikidata Q ID for the work (include the "Q", not the whole IRI)
+`qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
 
-`inception_val` Inception date for the work. May be in the form YYYY, YYYY-MM, YYYY-MM-DD, or YYYY-MM-DDT00:00:00Z (used for screening and in IIIF manifest only)
+`inception_val` Inception date for the work. MAY be in the form YYYY, YYYY-MM, YYYY-MM-DD, or YYYY-MM-DDT00:00:00Z (used for screening and in IIIF manifest only)
 
 `inventory_number` Locally unique identifier for the work. Used as a primary key and as part of URLs
+
+**GET THIS USING SPARQL!**
 
 `label_en` Label used in Wikidata
 
@@ -89,13 +91,13 @@ The fields that must be present in the source tables are listed below. Other fie
 
 `accession` Locally unique identifier for the work (same as `inventory_number` above)
 
-`rank` String that indicates whether the image should be linked on the Wikidata page by a P18 claim. `primary` indicates that the image should be linked. `secondary` indicates that the image should be uploaded to Commons and linked to the Wikidata work using Structured Data on Commons, but not used as the P18 value. All other values (or empty cells) are ignored by the script. If an IIIF manifest is generated, the primary image will be the first one shown and the secondary images will follow in the order they appear in the CSV.
+`rank` String that indicates whether the image should be linked on the Wikidata page by a P18 claim. `primary` indicates that the image should be linked. `secondary` indicates that the image should be uploaded to Commons and linked to the Wikidata work using Structured Data on Commons, but not used as the P18 value. All other values (or empty cells) are ignored by the script. All works MUST have one image designated as `primary`. `secondary` images are OPTIONAL. If an IIIF manifest is generated, the primary image will be the first one shown and the secondary images will follow in the order they appear in the CSV.
 
-`height` Height of image in pixels. Can be used for screening (along with `width`) and is used when a IIIF manifest is generated. Otherwise not required for a Commons upload.
+`height` Height of image in pixels. MAY be used for screening (along with `width`) and is used when a IIIF manifest is generated. Otherwise not used in a Commons upload.
 
-`width` Width of image in pixels. Can be used for screening (along with `height`) and is used when a IIIF manifest is generated. Otherwise not required for a Commons upload.
+`width` Width of image in pixels. Can be used for screening (along with `height`) and is used when a IIIF manifest is generated. Otherwise not used in a Commons upload.
 
-`local_filename` The name of the file as it exists in the upload directory, including extension. NOTE: file names MUST NOT include spaces. It is best to avoid other "weird" characters and stick to letters, numbers, dash (`-`), and underscore (`_`). 
+`local_filename` The name of the file as it exists in the upload directory, including extension. NOTE: file names MUST NOT include spaces. It is best to avoid other "weird" characters and RECOMMENDED to use letters, numbers, dash (`-`), and underscore (`_`). 
 
 `kilobytes` The integer number of kilobytes of the file size. Used only as a screening option; otherwise MAY be omitted. NOTE: The Wikidata API (used by this script) can only be used to upload files up to 100 MB (102400 kb). Providing the `kilobytes` value can prevent an error cause by trying to upload a file that is too large.
 
@@ -103,7 +105,7 @@ The fields that must be present in the source tables are listed below. Other fie
 
 `label` The specific description of the image within the work (e.g. "page 1", "front"). MAY have an empty value if there is only a single image for the work.
 
-`photo_inception` The ISO 8601 date when the photo was created, i.e. YYYY-MM-DD. REQUIRED for 3D images, RECOMMENDED for 2D images.
+`photo_inception` The ISO 8601 date when the photo was created, i.e. in YYYY-MM-DD form. REQUIRED for 3D images, RECOMMENDED for 2D images.
 
 
 # Other scripts

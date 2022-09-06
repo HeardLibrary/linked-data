@@ -1515,7 +1515,7 @@ for index, work in works_metadata.iterrows():
             if config_values['verbose']:
                 print('Failed find creator string in Wikidata with error:', response_string)
             error_log += 'Failed find creator string in Wikidata for ' + work['inventory_number'] + ' with error:' + response_string + '\n'
-            print('Failed find creator string in Wikidata for', work['inventory_number'], ' with error:', response_string, file=log_object)
+            print('Failed find creator string in Wikidata for ', work['inventory_number'], ' with error:', response_string, file=log_object)
             errors = True
             continue
         else:
