@@ -1453,7 +1453,7 @@ for index, work in works_metadata.iterrows():
             pass # if there isn't an inception date, then Kali just determined that the work was really old
 
     # Skip over works that don't (yet) have a designated primary image
-    images_subframe = images_dataframe.loc[images_dataframe.accession == work['inventory_number']] # result is DataFrame
+    images_subframe = images_dataframe.loc[images_dataframe.inventory_number == work['inventory_number']] # result is DataFrame
     if len(images_subframe) == 0: # skip any works whose image can't be found in the images data
         if config_values['verbose']:
             print('no image data')
@@ -1727,7 +1727,7 @@ for index, work in works_metadata.iterrows():
             new_image_data = [{
                 'qid': work_metadata['work_qid'],
                 'commons_id': image_metadata['mid'],
-                'accession_number': work_metadata['inventory_number'],
+                'inventory_number': work_metadata['inventory_number'],
                 'label_en': output_label,
                 'directory': image_metadata['subdir'],
                 'local_filename': image_metadata['local_filename'],

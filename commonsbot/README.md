@@ -89,7 +89,7 @@ The fields that MUST be present in the source tables are listed below. Other fie
 
 ### CSV table designated by image_metadata_file value
 
-`accession` Locally unique identifier for the work (same as `inventory_number` above)
+`inventory_number` Locally unique identifier for the work (foreign key to `inventory_number` in artworks table above)
 
 `rank` String that indicates whether the image should be linked on the Wikidata page by a P18 claim. `primary` indicates that the image should be linked. `secondary` indicates that the image should be uploaded to Commons and linked to the Wikidata work using Structured Data on Commons, but not used as the P18 value. All other values (or empty cells) are ignored by the script. All works MUST have one image designated as `primary`. `secondary` images are OPTIONAL. If an IIIF manifest is generated, the primary image will be the first one shown and the secondary images will follow in the order they appear in the CSV.
 

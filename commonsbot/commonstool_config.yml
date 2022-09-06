@@ -25,7 +25,7 @@ suppress_outputing_updated_upload_records: false
 
 # Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
 # To remove the limit, use zero or a negative value.
-max_items_to_upload: 25
+max_items_to_upload: 1
 
 # Controls whether the newly created Commons media page opens in a new browser window. 
 # Useful when testing on a few images, but may be annoying if uploading many media items.
