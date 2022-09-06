@@ -1192,8 +1192,8 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
                         "@id":  manifest_iri + "#resource",
                         "@type": "dctypes:Image",
                         "format": "image/jpeg",
-                        "width": image_metadata['width'],
-                        "height": image_metadata['height'],
+                        "width": int(image_metadata['width']),
+                        "height": int(image_metadata['height']),
                         "service": service_dict
                         }
     images_list = [{
@@ -1212,8 +1212,8 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
     canvas_dict = {
                 "@id": manifest_iri + '_' + index_string,
                 "@type": "sc:Canvas",
-                "width": image_metadata['width'],
-                "height": image_metadata['height'],
+                "width": int(image_metadata['width']),
+                "height": int(image_metadata['height']),
                 "label": label,
                 "images": images_list,
                 "thumbnail": thumbnail_dict
