@@ -1,5 +1,8 @@
-# --------
-# Behavior
+# ----------------
+# General settings
+# ----------------
+
+# Behavoir
 # --------
 
 # The following settings control which parts of the upload process will be done by the script.
@@ -18,12 +21,11 @@ suppress_media_upload_to_commons: false
 suppress_uploading_structured_data_to_commons: false
 suppress_uploading_media_to_iiif_server: false
 suppress_create_upload_iiif_manifest: false
-# Still need to test this
 suppress_outputing_updated_upload_records: false
 
 # Places a limit on the number of Wikidata items whose images will be uploaded in a session. 
 # To remove the limit, use zero or a negative value.
-max_items_to_upload: 1
+max_items_to_upload: 25
 
 # Controls whether the newly created Commons media page opens in a new browser window. 
 # Useful when testing on a few images, but may be annoying if uploading many media items.
@@ -33,7 +35,7 @@ open_browser_tab_after_upload: true
 # true shows the information and false suppresses display.
 verbose: false
 
-# --------------
+
 # File names and locations
 # --------------
 
@@ -57,16 +59,35 @@ artwork_additional_metadata_file: artwork_metadata.csv
 # File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
 image_metadata_file: images.csv
 
-# File for record keeping of uploads to Commons
-existing_commons_images_file: commons_images.csv
+# File for record keeping of uploads
+existing_uploads_file: commons_images.csv
 
 # Controls whether paths for images to upload are relative to the home directory or not. 
 # If not, they may be absolute or relative to the current working directory.
 path_is_relative_to_home_directory: true
 local_image_directory_path: gallery_digital_image_archive/ # location of raw images to upload
 
+
+# Screening criteria
+# ----------------------------------------------------------------------
+
+public_domain_categories:
+  - artist died before copyright cutoff
+  - artist was born before 1800
+  - assessed to be out of copyright
+  - from style or period that ended prior to copyright cutoff
+  - inception prior to copyright cutoff
+copyright_cutoff_date: 1926
+
+# size_filter options are pixsquared or filesize (filetype not yet implemented)
+size_filter: pixsquared
+#size_filter:
+minimum_filesize: 100 # minimum filesize in kilobytes, only used for filesize filter (originally used 1000)
+minimum_pixel_squared: 100000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter (originally used 1000000)
+requrired_filetype: tiff # required filetype, only used for filetype filter (not yet implemented)
+
 # ---------------------------
-# Institutional customization
+# Settings required for Commons uploads
 # ---------------------------
 
 # Currently only affects language tag designation for the caption for structured data on Commons
@@ -101,13 +122,6 @@ filename_institution: Vanderbilt Fine Arts Gallery
 category_strings:
   - Vanderbilt University Fine Arts Gallery
 
-# Attribution for IIIF manifest
-iiif_manifest_attribution: Provided by Vanderbilt University Fine Arts Gallery
-
-# URL of logo to include in IIIF manifest. Leave blank to omit.
-iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/3/vanderbilt_logo.png/full/!100,100/0/default.jpg
-
-# -----------------------------------
 # Copyright and license configuration
 # -----------------------------------
 
@@ -149,28 +163,15 @@ photo_license_qid: Q6905323
 photographer_of_work: Q29052 # Vanderbilt University
 
 
-# ----------------------------------------------------------------------
-# Screening criteria
-# ----------------------------------------------------------------------
+# ----------------------------------
+# Settings required for IIIF uploads
+# ----------------------------------
 
-public_domain_categories:
-  - artist died before copyright cutoff
-  - artist was born before 1800
-  - assessed to be out of copyright
-  - from style or period that ended prior to copyright cutoff
-  - inception prior to copyright cutoff
-copyright_cutoff_date: 1926
+# Attribution for IIIF manifest
+iiif_manifest_attribution: Provided by Vanderbilt University Fine Arts Gallery
 
-# size_filter options are pixsquared or filesize (filetype not yet implemented)
-size_filter: pixsquared
-#size_filter:
-minimum_filesize: 100 # minimum filesize in kilobytes, only used for filesize filter (originally used 1000)
-minimum_pixel_squared: 100000 # minimum (pixelWidth x pixelHeight) value, only used for pixsquared filter (originally used 1000000)
-requrired_filetype: tiff # required filetype, only used for filetype filter (not yet implemented)
-
-# -----------------------------------------------------------------
-# IIIF-specific files (can be ignored if only uploading to Commons)
-# -----------------------------------------------------------------
+# URL of logo to include in IIIF manifest. Leave blank to omit.
+iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/3/vanderbilt_logo.png/full/!100,100/0/default.jpg
 
 # Also controlled by the path_is_relative_to_home_directory value
 # For large TIFF files, this format is important for the files to load quickly

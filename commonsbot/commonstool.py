@@ -14,6 +14,7 @@ commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # The user_agent string identifies this application to Wikimedia APIs.
 # If you modify this script, you need to change the user-agent string to something else!
 user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbilt.edu)'
+error_log = ''
 
 
 # -----------------------------------------
@@ -939,7 +940,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     commons_login : Wikimedia_api_login object
         Needed to supply the session and csrftoken attributes needed for authentication during upload.
     """
-
+    global error_log
     # Generate the page wikitext based on licensing metadata appropriate for the kind of artwork.
     page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['templated_institution'], config_values['source'])
     #print(page_wikitext)
@@ -989,6 +990,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     errors = False
     if data == {}: # Handle an error
         print('Failed to upload successfully.')
+        error_log += 'Commons file upload failed with non-JSON response for ' + local_filename + '\n'
         print('Commons file upload failed with non-JSON response for ' + local_filename, file=log_object)
         errors = True
     else:
@@ -998,6 +1000,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
             print('API response:', data['upload']['result'])
         except:
             print('API did not respond with "Success"')
+            error_log += 'Commons file upload failed with non-"Success" response for ' + local_filename + '\n'
             print('Commons file upload failed with non-"Success" response for ' + local_filename, file=log_object)
             exception_thrown = True
             errors = True
@@ -1005,6 +1008,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
         if exception_thrown:
             try:
                 print('Error info:', data['error']['info'])
+                error_log += 'Error info:' + data['error']['info'] + '\n'
                 print('Error info:', data['error']['info'], file=log_object)
             except:
                 pass
@@ -1025,6 +1029,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     commons_login : Wikimedia_api_login object
         Needed to supply the session and csrftoken attributes needed for authentication during upload.
     """
+    global error_log
     # Intro on structured data: https://commons.wikimedia.org/wiki/Commons:Structured_data
     # See also this on GLAM https://commons.wikimedia.org/wiki/Commons:Structured_data/GLAM
     
@@ -1072,6 +1077,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     if get_id_response == '-1': # returns an error
         mid = 'error'
         print('Could not find Commons page ID. Will not upload structured data!')
+        error_log += 'Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'] + '\n'
         print('Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'], file=log_object)
         errors = True
     else:
@@ -1088,10 +1094,12 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
                 print('API reports success')
             else:
                 print('API reports failure')
+                error_log += 'API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
                 print('API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
                 errors = True
         except:
             print('API did not respond with "Success"')
+            error_log += 'Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
             print('Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
             errors = True
             no_success = True
@@ -1100,6 +1108,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
             try:
                 error_message = response['error']['info']
                 print('Error message:', error_message)
+                error_log += 'Error message:', error_message + '\n'
                 print('Error message:', error_message, file=log_object)
             except:
                 print(response)
@@ -1353,7 +1362,7 @@ works_supplemental_metadata.set_index('qid', inplace=True)
 images_dataframe = pd.read_csv(config_values['image_metadata_file'], na_filter=False, dtype = str)
 
 # File for record keeping of uploads to Commons
-existing_images = pd.read_csv(config_values['existing_commons_images_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
+existing_images = pd.read_csv(config_values['existing_uploads_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
 if config_values['perform_commons_upload']:
     # ---------------------------
@@ -1505,7 +1514,8 @@ for index, work in works_metadata.iterrows():
         if query_error:
             if config_values['verbose']:
                 print('Failed find creator string in Wikidata with error:', response_string)
-            print('Failed find creator string in Wikidata for', work['inventory_number'], 'with error:', response_string, file=log_object)
+            error_log += 'Failed find creator string in Wikidata for ' + work['inventory_number'] + ' with error:' + response_string + '\n'
+            print('Failed find creator string in Wikidata for', work['inventory_number'], ' with error:', response_string, file=log_object)
             errors = True
             continue
         else:
@@ -1667,6 +1677,7 @@ for index, work in works_metadata.iterrows():
         # So don't continue to the next iteration. But do skip the IIIF upload if a Commons upload fails.
         if config_values['perform_commons_upload'] and upload_error: # Note: due to "and short circuit", upload_error won't be evaluated if no commons upload
             errors = True
+            error_log += 'Structured data for Commons upload failed for' + work['inventory_number'] + '\n'
             print('Structured data for Commons upload failed for', work['inventory_number'], file=log_object)
         else:
             if config_values['perform_iiif_upload']:
@@ -1751,6 +1762,11 @@ for index, work in works_metadata.iterrows():
 
 print(artwork_items_uploaded, 'items uploaded.')
 if not errors:
-    print('No errors occurred.', file=log_object)
+    print('All files uploaded.')
+    print('All files uploaded.', file=log_object)
+if error_log == '':
+    print('No errors logged.')
+else:
+    print(error_log)
 log_object.close()
 print('done')
