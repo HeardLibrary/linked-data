@@ -75,8 +75,6 @@ The fields that MUST be present in the source tables are listed below. Other fie
 
 `inventory_number` Locally unique identifier for the work. Used as a primary key and as part of URLs
 
-**GET THIS USING SPARQL!**
-
 `label_en` Label used in Wikidata
 
 `description_en` Description used in Wikidata
@@ -107,6 +105,10 @@ The fields that MUST be present in the source tables are listed below. Other fie
 
 `photo_inception` The ISO 8601 date when the photo was created, i.e. in YYYY-MM-DD form. REQUIRED for 3D images, RECOMMENDED for 2D images.
 
+
+## Future enhancements
+
+Currently the script uses `label_en` and `description_en` from the CSV table designated by artwork_items_metadata_file value to generate various captions, titles, Commons filenames, etc. Eventually this will be replaced by a SPARQL query to determine the labels and descriptions in preferred languages other than English.
 
 # Other scripts
 

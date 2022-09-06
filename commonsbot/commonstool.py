@@ -51,6 +51,7 @@ error_log = ''
 # - change slash / to dash - in Commons filenames
 # - change hash # to dash - in Commons filenames
 # - double quotes in manifests cause an error, so for now replacing them with smart quotes
+# - make screens optional
 # -----------------------------------------
 
 
@@ -1421,36 +1422,36 @@ for index, work in works_metadata.iterrows():
         if config_values['verbose']:
             print('already done')
         continue
+    if config_values['screen_by_copyright']:
+        ip_status = works_supplemental_metadata.loc[index, 'status']
 
-    ip_status = works_supplemental_metadata.loc[index, 'status']
-
-    # Skip unevaluated copyright (empty status cells).
-    if ip_status == '':
-        if config_values['verbose']:
-            print('copyright not evaluated')
-        continue
-
-    # Screen for public domain works. 
-    if not ip_status in config_values['public_domain_categories']:
-        if config_values['verbose']:
-            print('not public domain')
-        continue
-
-    # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
-    # inception date was given as after 1926
-    if ip_status == 'assessed to be out of copyright':
-        try:
-            # convert the year part to an integer; will fail if empty string
-            # If the date is BCE, it will be a negative integer and it will be processed
-            inception_date = int(work['inception_val'][:4])
-            if inception_date > config_values['copyright_cutoff_date']:
-                if config_values['verbose']:
-                    print('insufficient evidence out of copyright')
-                continue  # skip this work if it has an inception date and it's after 1926
-        except:
+        # Skip unevaluated copyright (empty status cells).
+        if ip_status == '':
             if config_values['verbose']:
-                print('Kali determined it was old.')
-            pass # if there isn't an inception date, then Kali just determined that the work was really old
+                print('copyright not evaluated')
+            continue
+
+        # Screen for public domain works. 
+        if not ip_status in config_values['public_domain_categories']:
+            if config_values['verbose']:
+                print('not public domain')
+            continue
+
+        # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
+        # inception date was given as after 1926
+        if ip_status == 'assessed to be out of copyright':
+            try:
+                # convert the year part to an integer; will fail if empty string
+                # If the date is BCE, it will be a negative integer and it will be processed
+                inception_date = int(work['inception_val'][:4])
+                if inception_date > config_values['copyright_cutoff_date']:
+                    if config_values['verbose']:
+                        print('insufficient evidence out of copyright')
+                    continue  # skip this work if it has an inception date and it's after 1926
+            except:
+                if config_values['verbose']:
+                    print('Kali determined it was old.')
+                pass # if there isn't an inception date, then Kali just determined that the work was really old
 
     # Skip over works that don't (yet) have a designated primary image
     images_subframe = images_dataframe.loc[images_dataframe.inventory_number == work['inventory_number']] # result is DataFrame
@@ -1475,37 +1476,38 @@ for index, work in works_metadata.iterrows():
     for dummy, image_series in secondary_images_frame.iterrows():
         images_to_upload.append(image_series.to_dict())
 
-    all_good = True
-    for image_to_upload in images_to_upload:
-        # Screen for acceptable resolution. Skip work if its image doesn't meet the minimum size requirement
-        if config_values['size_filter'] == 'pixsquared':
-            if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
-                if config_values['verbose']:
-                    print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work['label_en'])
-                print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
-                errors = True
-                all_good = False
-        elif config_values['size_filter'] == 'filesize':
-            if int(image_to_upload['kilobytes']) < config_values['minimum_filesize']:
-                if config_values['verbose']:
-                    print('Image too small.')
-                print('Inadequate file size', int(image_to_upload['kilobytes']), 'kb for', image_to_upload['local_filename'], file=log_object)
-                errors = True
-                all_good = False
-        else: # don't apply a size filter
-            pass
+    if config_values['screen_by_file_characterstic']:
+        all_good = True
+        for image_to_upload in images_to_upload:
+            # Screen for acceptable resolution. Skip work if its image doesn't meet the minimum size requirement
+            if config_values['size_filter'] == 'pixsquared':
+                if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
+                    if config_values['verbose']:
+                        print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work['label_en'])
+                    print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
+                    errors = True
+                    all_good = False
+            elif config_values['size_filter'] == 'filesize':
+                if int(image_to_upload['kilobytes']) < config_values['minimum_filesize']:
+                    if config_values['verbose']:
+                        print('Image too small.')
+                    print('Inadequate file size', int(image_to_upload['kilobytes']), 'kb for', image_to_upload['local_filename'], file=log_object)
+                    errors = True
+                    all_good = False
+            else: # don't apply a size filter
+                pass
 
-        # Flag possible oversize error. Commons upload interface says limit is 100 MB
-        if int(image_to_upload['kilobytes']) > 102400:
-            if config_values['verbose']:
-                print('Warning: image size exceeds 100 Mb!')
-            print('Image size exceeds 100 Mb for ' + image_to_upload['local_filename'], file=log_object)
-            errors = True
-            all_good = False
-    
-    # If any of the images fail any of the size criteria, skip doing this work.
-    if not all_good:
-        continue
+            # Flag possible oversize error. Commons upload interface says limit is 100 MB
+            if int(image_to_upload['kilobytes']) > 102400:
+                if config_values['verbose']:
+                    print('Warning: image size exceeds 100 Mb!')
+                print('Image size exceeds 100 Mb for ' + image_to_upload['local_filename'], file=log_object)
+                errors = True
+                all_good = False
+        
+        # If any of the images fail any of the size criteria, skip doing this work.
+        if not all_good:
+            continue
         
     # The name string is only used in the IIIF manifest, and can be skipped if no IIIF upload
     if config_values['perform_iiif_upload']:
@@ -1545,14 +1547,17 @@ for index, work in works_metadata.iterrows():
 
         # These various strings are used to construct IIIF IRIs and to designate AWS S3 bucket paths
 
-        # This defines the subdirectory into which the work is sorted (if any).
-        # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
-        # So resources associated with a particular inventory number are located in a directory whose name is that year string.
-        # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
-        # NOTE: a subdirectory may also be used to indicate the location of the locally stored image within the path. However,
-        # that subdirectory structure does not have to be the same as is used in the organization of the works. It is saved on an 
-        # image-by-image basis in the image.csv image information table.
-        work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
+        if config_values['organize_manifests_in_subdirectories']:
+            # This defines the subdirectory into which the manifest for the work is sorted (if any).
+            # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
+            # So resources associated with a particular inventory number are located in a directory whose name is that year string.
+            # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
+            # NOTE: a subdirectory may also be used to indicate the location of the locally stored image within the path. However,
+            # that subdirectory structure does not have to be the same as is used in the organization of the works. It is saved on an 
+            # image-by-image basis in the image.csv image information table.
+            work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
+        else:
+            work_metadata['work_subdirectory'] = ''
 
         if config_values['s3_iiif_project_directory'] == '':
             s3_iiif_project_directory = ''

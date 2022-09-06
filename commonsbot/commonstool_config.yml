@@ -71,6 +71,8 @@ local_image_directory_path: gallery_digital_image_archive/ # location of raw ima
 # Screening criteria
 # ----------------------------------------------------------------------
 
+# If a particular screening criterion is set to false, the subsequent values are irrelevant
+screen_by_copyright: true
 public_domain_categories:
   - artist died before copyright cutoff
   - artist was born before 1800
@@ -79,6 +81,7 @@ public_domain_categories:
   - inception prior to copyright cutoff
 copyright_cutoff_date: 1926
 
+screen_by_file_characterstic: true
 # size_filter options are pixsquared or filesize (filetype not yet implemented)
 size_filter: pixsquared
 #size_filter:
@@ -188,6 +191,10 @@ s3_iiif_project_directory: gallery
 iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
 manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
+# If this setting is enabled, IIIF manifests will be organized within subdirectories based
+# on the first part of the image file name (preceding the first dot . in the name). 
+# This is reflected in the manifest IRIs. If disabled, no subdirectory is used.
+organize_manifests_in_subdirectories: true
 
 # ----------------------------------------------------------------------
 # DO NOT MESS WITH VALUES BELOW THIS UNLESS YOU KNOW WHAT YOU ARE DOING!
