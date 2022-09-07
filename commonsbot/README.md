@@ -69,9 +69,11 @@ Values in the `General Settings` section apply universally. Values in the `Setti
 
 ## Required fields
 
-The fields that MUST be present in the source tables are listed below. Other fields may be present and will be ignored.
+The fields that MUST be present in the source tables are listed below. Other fields may be present and will be ignored. *Note: the Vanderbilt Fine Arts Gallery inventory numbers in the example CSV files must be loaded as strings when the table is opened in order to avoid corrupting their values.*
 
-### CSV table designated by artwork_items_metadata_file value
+### CSV table designated by artwork_items_metadata_file configuration value
+
+The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/works_multiprop.csv) is used to upload data to Wikidata using the [VanderBot script](http://vanderbi.lt/vanderbot). So it includes many other fields in addition to the ones listed below. The column mapping file required to do the upload is [here](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/csv-metadata.json).
 
 `qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
 
@@ -83,13 +85,19 @@ The fields that MUST be present in the source tables are listed below. Other fie
 
 `description_en` Description used in Wikidata
 
-### CSV table designated by artwork_additional_metadata_file value
+### CSV table designated by artwork_additional_metadata_file configuration value
+
+The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/artwork_metadata.csv) includes additional fields not used by the script (and they are ignored).
+
+`qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
 
 `status` A string used to describe the copyright status and used for screening whether to upload to Commons. Empty cell indicates not evaluated (skipped). Any of the sting values given in the configuration under `public_domain_categories` will be uploaded. If the value is `assessed to be out of copyright` but the date given in the `inception_val` field (above) is after the `copyright_cutoff_date` year given in the configuration file, uploading will be suppressed anyway. (Consisered insuffecient evidence that it's out of copyright.) 
 
 `dimension` A value of `3D` indicates a three-dimensional work and a value of `2D` indicates a two-dimensional work
 
-### CSV table designated by image_metadata_file value
+### CSV table designated by image_metadata_file configuration value
+
+The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/images.csv) includes a `notes` field that is ignored by the script. The image dimensionsions, file size, and photo_inception value were extracted from the image files using [this script](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.ipynb).
 
 `inventory_number` Locally unique identifier for the work (foreign key to `inventory_number` in artworks table above)
 
@@ -109,6 +117,17 @@ The fields that MUST be present in the source tables are listed below. Other fie
 
 `photo_inception` The ISO 8601 date when the photo was created, i.e. in YYYY-MM-DD form. REQUIRED for 3D images, RECOMMENDED for 2D images.
 
+### CSV table designated by the existing_uploads_file configuration value
+
+The script assumes that this table exists when it executes. Therefore, a copy of the [example table](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commons_images.csv) with all rows deleted should be present at the path specified in the configuration file. Each time the script uploads a new image to Commons, it adds a row to this table. Therefore it serves as a record of what's been uploaded and is used by the script to avoid attempting to re-upload an image a second time.
+
+`rank` The image with a value of `primary` in this column for a particular artwork is the one that should be used to create a P18 claim for the artwork. See the description of `rank` in the table above.
+
+`image_name` The value that should be provided when creating a P18 (image) claim on the artwork item page in Wikidata. 
+
+`iiif_manifest` The URL of the manifest to be used when creating a P6108 (IIIF manifest) claim on the artwork item page in Wikidata.
+
+The other columns provide an informational record of the images that have been uploaded to Commons.
 
 ## Future enhancements
 
