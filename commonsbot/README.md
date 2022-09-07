@@ -135,10 +135,15 @@ Currently the script uses `label_en` and `description_en` from the CSV table des
 
 # Other scripts
 
-`tranfer_to_vanderbot.py` Python script that takes the output of CommonsTool and inserts it into the CSV file needed by the [VanderBot](https://github.com/HeardLibrary/linked-data/tree/master/vanderbot) script to upload statements to Wikidata. This allows the created Commons artwork files to be linked to their corresponding Wikidata items.
+[tranfer_to_vanderbot.py](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/transfer_to_vanderbot.py) Python script that takes the output of CommonsTool and inserts it into the CSV file needed by the [VanderBot](https://github.com/HeardLibrary/linked-data/tree/master/vanderbot) script to upload statements to Wikidata. This allows the created Commons artwork files to be linked to their corresponding Wikidata items.
 
-`commons_data.ipynb` Python Jupyter notebook with code for scraping Commons file MediaWiki HTML tables. There is also some code for acquiring technical metadata and some metadata about the file from the Commons API, although for the non-technical metadata, the quality of data retrieved from scraping the page is better.
+[convert_to_pyramidal_tiled_tiff.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/convert_to_pyramidal_tiled_tiff.ipynb) Python Jupyter notebook for converting raw TIFF images to tiled pyramidal TIFFs.
 
+[extract_image_metadata.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.ipynb) Python Jupyter notebook for extracting image size, dimensions, and created date from the file.
+
+[commons_data.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commons_data.ipynb) Python Jupyter notebook with code for scraping Commons file MediaWiki HTML tables. There is also some code for acquiring technical metadata and some metadata about the file from the Commons API, although for the non-technical metadata, the quality of data retrieved from scraping the page is better.
+
+[upload_artwork.sh](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/upload_artwork.sh) Shell script to automate uploading to Commons and Wikidata using CommonsTool and VanderBot.
 
 # Informational files
 
@@ -153,4 +158,4 @@ NOTE: because the CommonsTool script links Commons media files with Wikidata rec
 `art_photo`, `artwork.json`, `information.json`, and `photograph.json` same as above, but with fields restricted to a particular template
 
 ----
-Last modified: 2022-09-05
+Last modified: 2022-09-07
