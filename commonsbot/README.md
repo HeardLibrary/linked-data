@@ -30,6 +30,10 @@ Copyright 2022 Vanderbilt University. This program is released under a [GNU Gene
 
 The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
+## Modules required
+
+The following Python modules not included in the standard library need to be installed before using the script: `requests` and `pandas`. To use the IIIF features the AWS SDK `boto3` is also required.
+
 ## Credentials text file format example
 
 The API credentials MUST be stored in a plain text file using the following format:

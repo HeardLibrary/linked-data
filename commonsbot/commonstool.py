@@ -45,13 +45,14 @@ error_log = ''
 # - remove more hard-coded values, clean up source data files and simplify assembly of work and image metadata dictionaries
 # - add support for command line arguments
 # -----------------------------------------
-# Version 0.5.4 change notes: 2022-09-04
+# Version 0.5.4 change notes: 2022-09-06
 # - add settings to include or suppress parts of the script
 # - change first letter of Commons filenames to upper case if lower
 # - change slash / to dash - in Commons filenames
 # - change hash # to dash - in Commons filenames
 # - double quotes in manifests cause an error, so for now replacing them with smart quotes
 # - make screens optional
+# - fixed issues caused by underscores in file names
 # -----------------------------------------
 
 
@@ -130,23 +131,6 @@ if '-L' in opts: # set output to specified log file or path including file name
 # Utility functions
 # ------------------------
 
-def read_dict(filename):
-    """Read from a CSV file into a list of dictionaries."""
-    with open(filename, 'r', newline='', encoding='utf-8') as file_object:
-        dict_object = csv.DictReader(file_object)
-        array = []
-        for row in dict_object:
-            array.append(row)
-    return array
-
-def write_dicts_to_csv(table, filename, fieldnames):
-    """Write a list of dictionaries to a CSV file."""
-    with open(filename, 'w', newline='', encoding='utf-8') as csv_file_object:
-        writer = csv.DictWriter(csv_file_object, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in table:
-            writer.writerow(row)
-            
 def validate_iso8601(str_val):
     """Check a string to determine if it is a valid ISO 8601 dateTime value.
     
@@ -517,7 +501,6 @@ def generate_commons_filename(label, local_filename, filename_institution):
     if '#' in clean_label:
         clean_label = clean_label.replace('#', '-')
 
-    
     # Get rid of double spaces. The API will automatically replace them with single spaces, preventing a match with
     # the recorded filename and the filename in the returned value from the Wikidata API. Loop should get rid of
     # triple spaces or more.
@@ -544,6 +527,14 @@ def generate_commons_filename(label, local_filename, filename_institution):
 
     if commons_filename[0].islower():
         commons_filename = commons_filename[0].upper() + commons_filename[1:]
+
+    # The last problem I discovered was that when files whose commons filenames contain underscores are uploaded, those underscores 
+    # are assumed to represent spaces. Therefore, when the API responds to say the file has been uploaded, the name it returns has 
+    # spaces only, which will not match with the commons filename generated here. Therefore, I replace all underscores here with
+    # spaces. This could potentially cause a problem if two local files depicting a media item differ only by presence of an
+    # underscore in one and a space in the other. However, the presence of spaces in local filenames causes other problems, so 
+    # local filenames should never have spaces anyway.
+    commons_filename = commons_filename.replace('_', ' ')
 
     return commons_filename
 
@@ -1358,38 +1349,39 @@ images_dataframe = pd.read_csv(config_values['image_metadata_file'], na_filter=F
 existing_images = pd.read_csv(config_values['existing_uploads_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
 if config_values['perform_commons_upload']:
-    # ---------------------------
-    # Commons API Post Authentication (create session and generate CSRF token)
-    # ---------------------------
+    if not(config_values['suppress_media_upload_to_commons'] and config_values['suppress_uploading_structured_data_to_commons']):
+        # ---------------------------
+        # Commons API Post Authentication (create session and generate CSRF token)
+        # ---------------------------
 
-    print('Authenticating')
+        print('Authenticating')
 
-    # This is the format of the credentials file. 
-    # Username and password are for a bot that you've created.
-    # The file must be plain text. It is recommended to place in your home directory so that you don't accidentally
-    # include it when sharing this script and associated data files. This is the default unless changed when
-    # instantiating a Wikimedia_api_login object.
-    # NOTE: because this script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded. So the
-    # endpointUrl value given in the credentials file is ignored. It is retained for consistency with other 
-    # scripts that use credentials like this (e.g. VanderBot).
+        # This is the format of the credentials file. 
+        # Username and password are for a bot that you've created.
+        # The file must be plain text. It is recommended to place in your home directory so that you don't accidentally
+        # include it when sharing this script and associated data files. This is the default unless changed when
+        # instantiating a Wikimedia_api_login object.
+        # NOTE: because this script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded. So the
+        # endpointUrl value given in the credentials file is ignored. It is retained for consistency with other 
+        # scripts that use credentials like this (e.g. VanderBot).
 
-    '''
-    endpointUrl=https://test.wikidata.org
-    username=User@bot
-    password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
-    '''
+        '''
+        endpointUrl=https://test.wikidata.org
+        username=User@bot
+        password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+        '''
 
-    # If credentials file location is in a subfolder, include subfolders through file name 
-    # with no leading slash and set as the path argument.
-    # Example: myproj/credentials/commons_credentials.txt
-    # [Need to give example for absolute path on Windows - use Unix forward slashes?]
-    # If credentials file is in current working directory or home directory, only filename is necessary.
-    # Omit to use "commons_credentials.txt" as the path argument.
+        # If credentials file location is in a subfolder, include subfolders through file name 
+        # with no leading slash and set as the path argument.
+        # Example: myproj/credentials/commons_credentials.txt
+        # [Need to give example for absolute path on Windows - use Unix forward slashes?]
+        # If credentials file is in current working directory or home directory, only filename is necessary.
+        # Omit to use "commons_credentials.txt" as the path argument.
 
-    # If the credentials file location is relative to the working directory or an absolute path, 
-    # set the relative_to_home argument to False. Set to True or omit if relative to the home directory.
+        # If the credentials file location is relative to the working directory or an absolute path, 
+        # set the relative_to_home argument to False. Set to True or omit if relative to the home directory.
 
-    commons_login = Wikimedia_api_login(config_values)
+        commons_login = Wikimedia_api_login(config_values)
 
 
 print('Beginning uploads')
