@@ -1,34 +1,37 @@
 # transfer_to_vanderbot.py, a Python script for linking Wikimedia Commons artwork images with Wikidata items for those images. 
-# It uses CSV output from commonsbot.ipynb (https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonsbot.ipynb) 
+# It uses CSV output from commonstool.py (https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool.py) 
 # and produces input for VanderBot (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot) by 
 # modifying an existing VanderBot-formatted CSV file.
 
-# (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
-version = '0.2'
-created = '2022-09-01'
+version = '0.3'
+created = '2022-09-13'
 
 # -----------------------------------------
 # Version 0.2 change notes: 
 # Screen images so that only those designated as "primary" are linked from Wikidata items.
 # -----------------------------------------
+# Version 0.3 change notes: 
+# Replace hard-coded values with values from the commonstool_config.yml file
+# -----------------------------------------
 
 import pandas as pd
 import datetime
+import yaml
+import os
+import json
 
-# Configuration
-public_domain_categories = [
-    {'reason': 'artist died before copyright cutoff', 'applies': 'Q60332278', 'method': 'Q29940705'}, #100 years or more after author's death
-    {'reason': 'artist was born before 1800', 'applies': 'Q60332278', 'method': 'Q29940705'}, # 100 years or more after author's death
-    {'reason': 'assessed to be out of copyright', 'applies': 'Q60332278', 'method': 'Q61848113'}, # determined by GLAM institution and stated at its website
-    {'reason': 'from style or period that ended prior to copyright cutoff', 'applies': 'Q30', 'method': 'Q47246828'}, # published more than 95 years ago
-    {'reason': 'inception prior to copyright cutoff', 'applies': 'Q30', 'method': 'Q47246828'} #published more than 95 years ago
-]
+# Load configuration values
+with open('commonstool_config.yml', 'r') as file:
+    config_values = yaml.safe_load(file)
 
-# Set these paths based on your local configuration
-image_data_directory = '/users/baskausj/github/vandycite/gallery_works/image_upload/'
-works_data_directory = '/users/baskausj/github/vandycite/gallery_works/'
+if config_values['working_directory_path'] != '':
+    # Change working directory to image upload directory
+    os.chdir(config_values['working_directory_path'])
+
+public_domain_categories = config_values['public_domain_categories']
 
 # Function definitions
 def generate_utc_date():
@@ -39,20 +42,18 @@ def generate_utc_date():
 # Load data
 today = generate_utc_date()
 
-# These files are somewhat idiosyncratic and the output of other scripts as detailed.
-
 # This file is the general Wikidata metadata storage file based on the Vanderbot CSV format.
 # For the column header setup, see the sample file and config.json used to generate csv-metadata.json files.
-# In the example, the image, copyright_status, and iiif_manifest related columns are blank, since they will be filled in by this script.
-# In reality this work already has values for those properties.
-works_metadata = pd.read_csv(works_data_directory + 'works_multiprop.csv', na_filter=False, dtype = str) # Don't make the Q IDs the index!
+# In the example, the image, copyright_status, and iiif_manifest related columns are blank, since they will be filled in by this script
+# if they don't already exist
+works_metadata = pd.read_csv(config_values['vanderbot_upload_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index!
 
-# This file is the output of commonsbot
-existing_images = pd.read_csv(image_data_directory + 'commons_images.csv', na_filter=False, dtype = str) # Don't make the Q IDs the index
+# This file is the output of commonsbot containing the Commons upload records
+existing_images = pd.read_csv(config_values['existing_uploads_file'], na_filter=False, dtype = str) # Don't make the Q IDs the index
 
-# This file was the result of an idiosynctratic script to determine copyright status of Vanderbilt gallery works.
-# See the example file for format.
-works_ip_status = pd.read_csv(works_data_directory + 'items_status_abbrev.csv', na_filter=False, dtype = str)
+# This file contains metadata about the artwork. The only data used by this script is a column that contains an evaluation of the 
+# copyright status, the result of an idiosynctratic script to determine copyright status of Vanderbilt gallery works.
+works_ip_status = pd.read_csv(config_values['artwork_items_metadata_file'], na_filter=False, dtype = str)
 works_ip_status.set_index('qid', inplace=True) # use the Q ID as the index
 
 # Transfer data to metadata file used by VanderBot for upload
@@ -69,15 +70,15 @@ for index, work in existing_images.iterrows():
     if work['rank'] != 'primary':
         continue
         
-    # Check to make sure that there is a single row that matches the Q ID of the work to be updated
+    # Check to make sure that there is a single row in the VanderBot data that matches the Q ID of the work to be updated
     qid = work['qid']
     # Search in the qid column of the works metadata to find rows that match the current item qid
     row_series = works_metadata[works_metadata['qid'].str.contains(qid)]
     if len(row_series) == 0:
-        print('uploaded image Wikidata record for', qid, 'not found in works metadata.')
+        print('uploaded image Wikidata record for', qid, 'not found in VanderBot works metadata.')
         continue # skip to next uploaded image
     elif len(row_series) >= 2:
-        print('more than Wikidata record found for', qid, 'in works metadata.')
+        print('more than Wikidata record found for', qid, 'in VanderBot works metadata.')
         continue # skip to next uploaded image
         
     # Series have only one dimension, so the value returned for the .index method has only one (0th) item.
@@ -120,6 +121,6 @@ for index, work in existing_images.iterrows():
                         works_metadata.at[row_index, 'copyright_status_ref1_retrieved_val'] = today
 
 # Write the updated dataframe to CSV
-works_metadata.to_csv(works_data_directory + 'works_multiprop.csv', index = False)
+works_metadata.to_csv('new_act_artworks.csv', index = False)
 print('done')
 print()

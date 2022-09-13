@@ -15,7 +15,7 @@ commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # If you modify this script, you need to change the user-agent string to something else!
 user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbilt.edu)'
 error_log = ''
-
+sparql_sleep = 0.1 # minimal delay between SPARQL queries
 
 # -----------------------------------------
 # Version 0.4 change notes: 
@@ -53,6 +53,11 @@ error_log = ''
 # - double quotes in manifests cause an error, so for now replacing them with smart quotes
 # - make screens optional
 # - fixed issues caused by underscores in file names
+# -----------------------------------------
+# Version 0.5.5 change notes: 2022-09-13
+# - enable preferred language other than English
+# - eliminate need for one work metadata file by getting labels and other data from Wikidata via SPARQL
+# - allow any local identifier to be used in the manifest IRI instead of requiring inventory number
 # -----------------------------------------
 
 
@@ -255,7 +260,7 @@ class Sparqler:
             self.requestheader['Content-Type'] = 'application/x-www-form-urlencoded'
 
     def query(self, query_string, form='select', verbose=False, **kwargs):
-        """Sends a SPARQL query to the endpoint.
+        """Send a SPARQL query to the endpoint.
         
         Parameters
         ----------
@@ -351,6 +356,19 @@ class Sparqler:
 # ------------------------
 
 def query_artwork_creator_name(qid):
+    """Retrieve author name string from Wikidata.
+    
+    Parameters
+    ----------
+    qid : str
+        The Wikidata Q ID of the artwork.
+
+    Notes
+    -----
+    Returns a tuple of (error, names) where error is True if there is a query error or no creator claim.
+    and otherwise it is False. names is a string; "artist unknown" for anonymous artists and otherwise
+    a string constructed from the labels of all of the artists.
+    """
     query_string = '''select distinct ?label ?role_label where {
     optional {
     wd:''' + qid + ''' p:P170 ?creator_node.
@@ -370,6 +388,8 @@ def query_artwork_creator_name(qid):
     error = False
     wdqs = Sparqler(useragent=user_agent)
     data = wdqs.query(query_string)
+    sleep(sparql_sleep)
+
     if data is None:
         error = True
         creator_names = 'Query error'
@@ -402,6 +422,181 @@ def query_artwork_creator_name(qid):
                         creator_names += ' ' + creator_name + ',' # stubbornly insist on Oxford comma
     return error, creator_names
 
+def query_item_description(qid, language):
+    """Retrieve the description in a specific language from Wikidata.
+    
+    Parameters
+    ----------
+    qid : str
+        The Wikidata Q ID of the item.
+    pref_lang : str
+        The language tag of the language.
+
+    Notes
+    -----
+    Returns the description in the target language as a string. If it doesn't exist, empty string is returned.
+    """
+    query_string = '''select distinct ?description where {
+    wd:''' + qid + ''' schema:description ?description.
+    filter(lang(?description)="''' + language + '''")
+      }
+    '''
+    #print(query_string)
+    
+    error = False
+    wdqs = Sparqler(useragent=user_agent)
+    data = wdqs.query(query_string)
+    sleep(sparql_sleep)
+    
+    # Check for errors or no results
+    # It is unlikely that either the query will have an error or the item will have no labels
+    if data is None:
+        return 'Query error'
+    elif len(data) == 0:
+        return ''
+    elif len(data) == 1 and data[0] == {}:
+        return ''
+    else:
+        # Note: there can only be one or zero descriptions in a language.
+        return data[0]['description']['value']
+
+def query_item_labels(qid, pref_lang):
+    """Retrieve the label and description in a preferred language from Wikidata.
+    
+    Parameters
+    ----------
+    qid : str
+        The Wikidata Q ID of the item.
+    pref_lang : str
+        The language tag of the preferred language.
+
+    Notes
+    -----
+    Returns a tuple of (label, description, language) where label is in the preferred language, if it exists. 
+    Otherwise the English label is returned.  If labels exist in neither the preferred language 
+    nor English, it returns the empty string. language is the language tag of the returned label and
+    it is the empty string if no label was found. description is the description (if any) in the same
+    language as the label. If no description in that language, empty string is returned.
+    """
+    query_string = '''select distinct ?label where {
+    wd:''' + qid + ''' rdfs:label ?label.
+      }
+    '''
+    #print(query_string)
+
+    error = False
+    wdqs = Sparqler(useragent=user_agent)
+    data = wdqs.query(query_string)
+    sleep(sparql_sleep)
+    
+    # Check for errors or no results
+    # It is unlikely that either the query will have an error or the item will have no labels
+    if data is None:
+        return 'Query error', ''
+    elif len(data) == 1 and data[0] == {}:
+        return '', ''
+    
+    # Try first to get the label in the preferred language
+    found = False
+    for value in data:
+        if value['label']['xml:lang'] == pref_lang:
+            found = True
+            label = value['label']['value']
+            lang = pref_lang
+            
+            # Now get the description in the same language
+            description = query_item_description(qid, lang)
+            
+    # If the label can't be found in the preferred language, try to get English
+    if not found:
+        found = False
+        for value in data:
+            if value['label']['xml:lang'] == 'en':
+                found = True
+                label = value['label']['value']
+                lang = 'en'
+                
+                # Now get the description in the same language
+                description = query_item_description(qid, lang)
+            
+    # If there isn't a label in either language, return empty string
+    if not found:
+        label = ''
+        lang = ''
+        description = ''
+    
+    return label, description, lang
+
+def query_inception_year(qid):
+    """Retrieve the inception year from Wikidata.
+    
+    Parameters
+    ----------
+    qid : str
+        The Wikidata Q ID of the item.
+
+    Notes
+    -----
+    Returns the year as a string followed by " CE" or " BCE". If no inception date, returns an empty string.
+    """
+    query_string = '''select distinct ?inception where {
+    wd:''' + qid + ''' wdt:P571 ?inception.
+      }
+    '''
+    #print(query_string)
+
+    error = False
+    wdqs = Sparqler(useragent=user_agent)
+    data = wdqs.query(query_string)
+    sleep(sparql_sleep)
+
+    if data is None:
+        return 'Query error'
+    elif len(data) == 0:
+        return ''
+    elif len(data) == 1 and data[0] == {}:
+        return ''
+    
+    # If there are more than one inception date, use the first one (there shouldn't be)
+    inception_pieces = data[0]['inception']['value'].split('-')
+    if len(inception_pieces) == 3:
+        inception = str(int(inception_pieces[0])) + ' CE' # CE, drop leading zeros
+    else:
+        inception = str(int(inception_pieces[1])) + ' BCE' # BCE, drop leading zeros and negative
+
+    return inception
+
+def query_inventory_number(qid, collection_qid):
+    """Retrieve the inventory number of a work for a particular institution from Wikidata.
+    
+    Parameters
+    ----------
+    qid : str
+        The Wikidata Q ID of the work.
+    collection_qid : str
+        The Wikidata Q ID of the institution issuing the inventory number (used as a qualifier).
+    """
+    query_string = '''select distinct ?inventory_number where {
+    wd:''' + qid + ''' p:P217 ?inventory_number_node.
+    ?inventory_number_node ps:P217 ?inventory_number.
+    ?inventory_number_node pq:P195 wd:''' + collection_qid + '''.
+      }
+    '''
+    #print(query_string)
+
+    error = False
+    wdqs = Sparqler(useragent=user_agent)
+    data = wdqs.query(query_string)
+    if data is None:
+        return 'Query error'
+    elif len(data) == 0:
+        return ''
+    elif len(data) == 1 and data[0] == {}:
+        return ''
+    else:
+        # There should only be one or zero inventory numbers per institution, but if 
+        # more than one, take the first one.
+        return data[0]['inventory_number']['value']
 
 # ------------------------
 # Commons identifier/URL conversion functions
@@ -855,8 +1050,8 @@ def wbeditentity_upload(commons_login, maxlag, mid, caption, caption_language, s
     #print(json.dumps(parameter_dictionary, indent = 2))
 
     response = attempt_post('https://commons.wikimedia.org/w/api.php', parameter_dictionary, commons_login.session)
-    # Old command that does not respect maxlag:
-    #response = commons_session.post('https://commons.wikimedia.org/w/api.php', data = parameter_dictionary)
+    #response  = {'success': 1} # use instead of the line above to test but not upload
+
     return response
 
 
@@ -1050,9 +1245,9 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     # The specific image label is only appended to the work label if there are multiple images.
     # For example, "Famous Sculpture - front view"
     if image_metadata['label'] == '':
-        caption = work_metadata['label_en'] + ', ' + work_metadata['description_en']
+        caption = work_metadata['work_label'] + ', ' + work_metadata['work_description']
     else:
-        caption = work_metadata['label_en'] + ' - ' + image_metadata['label'] + ', ' + work_metadata['description_en']
+        caption = work_metadata['work_label'] + ' - ' + image_metadata['label'] + ', ' + work_metadata['work_description']
     # The caption is a Wikibase label and an error will be thrown if it's longer than 250 characters.
     if len(caption) >= 250:
         caption = caption[:250]
@@ -1069,7 +1264,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
 
         print('Uploading structured data')
         # Note: the structured data upload respects and processes maxlag, so no hard-coded delay is included here
-        response = wbeditentity_upload(commons_login, config_values['maxlag'], mid, caption, config_values['default_language'], sdc_claims_list)
+        response = wbeditentity_upload(commons_login, config_values['maxlag'], mid, caption, work_metadata['label_language'], sdc_claims_list)
         #response = {'success': 1} # Uncomment this line to test without actually doing the upload
         #print(json.dumps(response, indent=2))
         no_success = False
@@ -1232,19 +1427,22 @@ def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
     # I'm having problems with labels that include double quotes. Despite having them be escaped during
     # conversion to JSON using json.dumps(), they still come out in the JSON unescaped. 
     # My solution for now is to replace them with smart quotes.
-    label = work_metadata['label_en']
+    label = work_metadata['work_label']
     label = convert_to_smart_quotes(label)
 
     metadata_list = [
             {
             "label": "Artist",
             "value": work_metadata['creator_string']
-            },
-            {
-            "label": "Accession Number",
-            "value": work_metadata['inventory_number']
             }
     ]
+
+    if config_values['supply_accession_number']:
+        inventory_number = query_inventory_number(work_metadata['work_qid'], config_values['collection_qid'])
+        metadata_list.append({
+            "label": "Accession Number",
+            "value": inventory_number
+            })
 
     if work_metadata['creation_year'] != '':
         metadata_list.append({
@@ -1269,7 +1467,7 @@ def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
         "@id": work_metadata['iiif_manifest_iri'],
         "@type": "sc:Manifest",
         "label": label,
-        "description": work_metadata['description_en']
+        "description": work_metadata['work_description']
     }
 
     if config_values['iiif_manifest_logo_url'] != '':
@@ -1294,8 +1492,8 @@ def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
     else:
         subdirectory = work_metadata['work_subdirectory'] + '/'
 
-    s3_manifest_key = s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
-    print('Uploading manifest to s3:', work_metadata['escaped_inventory_number'] + '.json')
+    s3_manifest_key = s3_iiif_project_directory + subdirectory + work_metadata['escaped_local_identifier'] + '.json'
+    print('Uploading manifest to s3:', work_metadata['escaped_local_identifier'] + '.json')
     s3_resource = boto3.resource('s3')
     s3_resource.Object(config_values['s3_manifest_bucket_name'], s3_manifest_key).put(Body = manifest, ContentType = 'application/json')
     print(work_metadata['iiif_manifest_iri'])
@@ -1320,6 +1518,10 @@ if config_values['working_directory_path'] != '':
     # Change working directory to image upload directory
     os.chdir(config_values['working_directory_path'])
     
+pd_categories = []
+for category in config_values['public_domain_categories']:
+    pd_categories.append(category['reason'])
+        
 # Error log should be saved in current working directory
 # The log_object is a global variable so that it can be accessed in all functions.
 log_path = 'error_log.txt'
@@ -1334,15 +1536,12 @@ errors = False
 # These files are all relative to the current working directory
 # Note: setting the index to be the Q ID requires that qid has a unique value for each row. This should be the case.
 
-# File with VanderBot upload data for artworks
+# File with supplemental data about dimensions and copyright status of artworks
 works_metadata = pd.read_csv(config_values['artwork_items_metadata_file'], na_filter=False, dtype = str)
 works_metadata.set_index('qid', inplace=True)
 
-# File with supplemental data about dimensions and copyright status of artworks
-works_supplemental_metadata = pd.read_csv(config_values['artwork_additional_metadata_file'], na_filter=False, dtype = str)
-works_supplemental_metadata.set_index('qid', inplace=True)
-
 # File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
+# Don't set the index to qid because multiple rows have the same qid
 images_dataframe = pd.read_csv(config_values['image_metadata_file'], na_filter=False, dtype = str)
 
 # File for record keeping of uploads to Commons
@@ -1393,9 +1592,12 @@ commons_upload_sleep_time = 0
 # The row index is the Q ID and is a string. The work object is the data in the row and is a Pandas series
 # The items in the row series can be referred to by their labels, which are the column headers, e.g. work['label_en']
 for index, work in works_metadata.iterrows():
+    work_label, work_description, label_language = query_item_labels(index, config_values['default_language'])
+    inception_date = query_inception_year(index)
+
     if config_values['verbose']:
         print()
-        print(artwork_items_uploaded, work['label_en'])
+        print(artwork_items_uploaded, work_label)
 
     # ---------------------------
     # Screen works for appropriate images to upload
@@ -1406,8 +1608,9 @@ for index, work in works_metadata.iterrows():
         if config_values['verbose']:
             print('already done')
         continue
+
     if config_values['screen_by_copyright']:
-        ip_status = works_supplemental_metadata.loc[index, 'status']
+        ip_status = works_metadata.loc[index, 'status']
 
         # Skip unevaluated copyright (empty status cells).
         if ip_status == '':
@@ -1416,7 +1619,7 @@ for index, work in works_metadata.iterrows():
             continue
 
         # Screen for public domain works. 
-        if not ip_status in config_values['public_domain_categories']:
+        if not ip_status in pd_categories:
             if config_values['verbose']:
                 print('not public domain')
             continue
@@ -1427,7 +1630,6 @@ for index, work in works_metadata.iterrows():
             try:
                 # convert the year part to an integer; will fail if empty string
                 # If the date is BCE, it will be a negative integer and it will be processed
-                inception_date = int(work['inception_val'][:4])
                 if inception_date > config_values['copyright_cutoff_date']:
                     if config_values['verbose']:
                         print('insufficient evidence out of copyright')
@@ -1438,7 +1640,7 @@ for index, work in works_metadata.iterrows():
                 pass # if there isn't an inception date, then Kali just determined that the work was really old
 
     # Skip over works that don't (yet) have a designated primary image
-    images_subframe = images_dataframe.loc[images_dataframe.inventory_number == work['inventory_number']] # result is DataFrame
+    images_subframe = images_dataframe.loc[images_dataframe['qid'] == index] # result is DataFrame
     if len(images_subframe) == 0: # skip any works whose image can't be found in the images data
         if config_values['verbose']:
             print('no image data')
@@ -1467,7 +1669,7 @@ for index, work in works_metadata.iterrows():
             if config_values['size_filter'] == 'pixsquared':
                 if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
                     if config_values['verbose']:
-                        print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work['label_en'])
+                        print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work_label)
                     print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
                     errors = True
                     all_good = False
@@ -1500,8 +1702,8 @@ for index, work in works_metadata.iterrows():
         if query_error:
             if config_values['verbose']:
                 print('Failed find creator string in Wikidata with error:', response_string)
-            #error_log += 'Failed find creator string in Wikidata for ' + work['inventory_number'] + ' with error:' + response_string + '\n'
-            print('Failed find creator string in Wikidata for ', work['inventory_number'], ' with error:', response_string, file=log_object)
+            #error_log += 'Failed find creator string in Wikidata for ' + index + ' with error:' + response_string + '\n'
+            print('Failed find creator string in Wikidata for ', index, ' with error:', response_string, file=log_object)
             errors = True
             continue
         else:
@@ -1513,17 +1715,18 @@ for index, work in works_metadata.iterrows():
     
     # Create a dict from the work object, which I think is a series (originating from the works_multiprop.csv file).
     # Make this a dict so that items can easily be added to it.
-    work_metadata = dict(work)
+    work_metadata = {}
     work_metadata['work_qid'] = index
+    work_metadata['label_language'] = label_language
+    work_metadata['work_label'] = work_label
+    work_metadata['work_description'] = work_description
 
     # The following values are only used in the IIIF manifest and can be ignored if only a Commons upload is done.
     if config_values['perform_iiif_upload']:
         work_metadata['creator_string'] = artist_name_string
-
-        if work['inception_val'] == '':
-            work_metadata['creation_year'] = ''
-        else:
-            work_metadata['creation_year'] = work['inception_val'][:4]
+        work_metadata['creation_year'] = inception_date
+        # The local identifier is taken from the column whose name is specified in the configuration data
+        work_metadata['local_identifier'] = works_metadata.loc[index, config_values['local_identifier_column_name']]
 
         # -----------------
         # Machinations for generating path-related strings
@@ -1535,11 +1738,13 @@ for index, work in works_metadata.iterrows():
             # This defines the subdirectory into which the manifest for the work is sorted (if any).
             # In the case of the Vanderbilt Fine Arts Gallery, the inventory numbers universally begin with a year string followed by a dot. 
             # So resources associated with a particular inventory number are located in a directory whose name is that year string.
+            # The user-defined subdirectory_split_character allows a similar organization without requiring the first part to be a date
+            # or for the local identifier to be separated by a dot.
             # In another system the work subdirectory would need to be stored with the work metadata, or be set to empty string.
             # NOTE: a subdirectory may also be used to indicate the location of the locally stored image within the path. However,
             # that subdirectory structure does not have to be the same as is used in the organization of the works. It is saved on an 
             # image-by-image basis in the image.csv image information table.
-            work_metadata['work_subdirectory'] = work['inventory_number'].split('.')[0]
+            work_metadata['work_subdirectory'] = work_metadata['local_identifier'].split(config_values['subdirectory_split_character'])[0]
         else:
             work_metadata['work_subdirectory'] = ''
 
@@ -1560,8 +1765,8 @@ for index, work in works_metadata.iterrows():
         # Must URL encode the inventory number because it might contain weird characters like ampersand  
         # and who knows what other garbage that isn't safe for a URL. Also, spaces need to be replaced with underscores
         # because the IIIF server will turn the URL encoded spaces back into spaces, then create an error.
-        work_metadata['escaped_inventory_number'] = urllib.parse.quote(work['inventory_number'].replace(' ', '_'))
-        work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_inventory_number'] + '.json'
+        work_metadata['escaped_local_identifier'] = urllib.parse.quote(work_metadata['local_identifier'].replace(' ', '_'))
+        work_metadata['iiif_manifest_iri'] = config_values['manifest_iri_root'] + s3_iiif_project_directory + subdirectory + work_metadata['escaped_local_identifier'] + '.json'
     
     # ======================
     # Loop through all images depicting a particular artwork
@@ -1590,7 +1795,7 @@ for index, work in works_metadata.iterrows():
         # ------------
 
         if config_values['perform_commons_upload']:
-            if works_supplemental_metadata.loc[index, 'dimension'] == '3D':
+            if works_metadata.loc[index, 'dimension'] == '3D':
                 image_metadata['n_dimensions'] = '3D'
                 image_metadata['artwork_license_text'] = config_values['artwork_license_text_3d']
                 image_metadata['photo_license_text'] = config_values['photo_license_text_3d']
@@ -1608,7 +1813,7 @@ for index, work in works_metadata.iterrows():
         
         print()
         if not config_values['verbose']: # already printed above if set to verbose
-            print(artwork_items_uploaded, work['label_en'])
+            print(artwork_items_uploaded, work_label)
         print(image_metadata['local_filename'], image_metadata['rank'])
 
         # -----------
@@ -1619,13 +1824,13 @@ for index, work in works_metadata.iterrows():
             if not config_values['suppress_media_upload_to_commons']:
                 # Upload the media file to Commons
                 sleep(commons_upload_sleep_time) # Delay the next media item upload if less than commons_sleep time since the last upload.
-                upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['label_en'], commons_login)
+                upload_error, commons_filename = commons_image_upload(image_metadata, config_values, work_metadata['work_label'], commons_login)
             
                 # If the media file fails to upload, there is no point in continuing nor to add to the commons_images.csv
                 # file. Just log the error and go on.
                 if upload_error:
                     errors = True
-                    print('Image upload to Commons failed for', work['inventory_number'], file=log_object)
+                    print('Image upload to Commons failed for', index, file=log_object)
                     continue
                 else:
                     image_metadata['commons_filename'] = commons_filename
@@ -1644,9 +1849,9 @@ for index, work in works_metadata.iterrows():
                 # The specific image label is only appended to the work label if there are multiple images.
                 # For example, "Famous Sculpture - front view"
                 if image_metadata['label'] == '':
-                    label = work_metadata['label_en']
+                    label = work_metadata['work_label']
                 else:
-                    label = work_metadata['label_en'] + ' - ' + image_metadata['label']
+                    label = work_metadata['work_label'] + ' - ' + image_metadata['label']
 
                 image_metadata['commons_filename'] = generate_commons_filename(label, image_metadata['local_filename'], image_metadata['filename_institution'])
 
@@ -1666,8 +1871,8 @@ for index, work in works_metadata.iterrows():
         # So don't continue to the next iteration. But do skip the IIIF upload if a Commons upload fails.
         if config_values['perform_commons_upload'] and upload_error: # Note: due to "and short circuit", upload_error won't be evaluated if no commons upload
             errors = True
-            error_log += 'Structured data for Commons upload failed for' + work['inventory_number'] + '\n'
-            print('Structured data for Commons upload failed for', work['inventory_number'], file=log_object)
+            error_log += 'Structured data for Commons upload failed for' + index + '\n'
+            print('Structured data for Commons upload failed for', index, file=log_object)
         else:
             if config_values['perform_iiif_upload']:
                 # NOTE: the S3 bucket uploads don't seem to ever fail and there isn't an easy way to detect it,
@@ -1684,7 +1889,7 @@ for index, work in works_metadata.iterrows():
                     # If no explicit label given for the individual image (e.g. single image works), 
                     # use the work label as the canvas label. 
                     if image_metadata['label'] == '':
-                        canvas_label = work_metadata['label_en']
+                        canvas_label = work_metadata['work_label']
                     else:
                         canvas_label = image_metadata['label']
 
@@ -1702,9 +1907,9 @@ for index, work in works_metadata.iterrows():
             # The specific image label is only appended to the work label if there are multiple images.
             # For example, "Famous Sculpture - front view"
             if image_metadata['label'] == '':
-                output_label = work_metadata['label_en']
+                output_label = work_metadata['work_label']
             else:
-                output_label = work_metadata['label_en'] + ' - ' + image_metadata['label']
+                output_label = work_metadata['work_label'] + ' - ' + image_metadata['label']
 
             if not config_values['perform_commons_upload']:
                 image_metadata['mid'] = ''
@@ -1716,7 +1921,7 @@ for index, work in works_metadata.iterrows():
             new_image_data = [{
                 'qid': work_metadata['work_qid'],
                 'commons_id': image_metadata['mid'],
-                'inventory_number': work_metadata['inventory_number'],
+                'local_identifier': work_metadata['local_identifier'],
                 'label_en': output_label,
                 'directory': image_metadata['subdir'],
                 'local_filename': image_metadata['local_filename'],
