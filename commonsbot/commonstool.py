@@ -1592,12 +1592,11 @@ commons_upload_sleep_time = 0
 # The row index is the Q ID and is a string. The work object is the data in the row and is a Pandas series
 # The items in the row series can be referred to by their labels, which are the column headers, e.g. work['label_en']
 for index, work in works_metadata.iterrows():
-    work_label, work_description, label_language = query_item_labels(index, config_values['default_language'])
-    inception_date = query_inception_year(index)
+    print(index)
 
     if config_values['verbose']:
         print()
-        print(artwork_items_uploaded, work_label)
+        print(artwork_items_uploaded, index)
 
     # ---------------------------
     # Screen works for appropriate images to upload
@@ -1608,36 +1607,6 @@ for index, work in works_metadata.iterrows():
         if config_values['verbose']:
             print('already done')
         continue
-
-    if config_values['screen_by_copyright']:
-        ip_status = works_metadata.loc[index, 'status']
-
-        # Skip unevaluated copyright (empty status cells).
-        if ip_status == '':
-            if config_values['verbose']:
-                print('copyright not evaluated')
-            continue
-
-        # Screen for public domain works. 
-        if not ip_status in pd_categories:
-            if config_values['verbose']:
-                print('not public domain')
-            continue
-
-        # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
-        # inception date was given as after 1926
-        if ip_status == 'assessed to be out of copyright':
-            try:
-                # convert the year part to an integer; will fail if empty string
-                # If the date is BCE, it will be a negative integer and it will be processed
-                if inception_date > config_values['copyright_cutoff_date']:
-                    if config_values['verbose']:
-                        print('insufficient evidence out of copyright')
-                    continue  # skip this work if it has an inception date and it's after 1926
-            except:
-                if config_values['verbose']:
-                    print('Kali determined it was old.')
-                pass # if there isn't an inception date, then Kali just determined that the work was really old
 
     # Skip over works that don't (yet) have a designated primary image
     images_subframe = images_dataframe.loc[images_dataframe['qid'] == index] # result is DataFrame
@@ -1669,7 +1638,7 @@ for index, work in works_metadata.iterrows():
             if config_values['size_filter'] == 'pixsquared':
                 if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
                     if config_values['verbose']:
-                        print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small.', work_label)
+                        print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small for', image_to_upload['local_filename'])
                     print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
                     errors = True
                     all_good = False
@@ -1695,6 +1664,39 @@ for index, work in works_metadata.iterrows():
         if not all_good:
             continue
         
+    if config_values['screen_by_copyright']:
+        ip_status = works_metadata.loc[index, 'status']
+
+        # Skip unevaluated copyright (empty status cells).
+        if ip_status == '':
+            if config_values['verbose']:
+                print('copyright not evaluated')
+            continue
+
+        # Screen for public domain works. 
+        if not ip_status in pd_categories:
+            if config_values['verbose']:
+                print('not public domain')
+            continue
+
+        # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
+        # inception date was given as after 1926
+        if ip_status == 'assessed to be out of copyright':
+            try:
+                # convert the year part to an integer; will fail if empty string
+                # If the date is BCE, it will be a negative integer and it will be processed
+                if query_inception_year(index) > config_values['copyright_cutoff_date']:
+                    if config_values['verbose']:
+                        print('insufficient evidence out of copyright')
+                    continue  # skip this work if it has an inception date and it's after 1926
+            except:
+                if config_values['verbose']:
+                    print('Kali determined it was old.')
+                pass # if there isn't an inception date, then Kali just determined that the work was really old
+
+    work_label, work_description, label_language = query_item_labels(index, config_values['default_language'])
+    inception_date = query_inception_year(index)
+
     # The name string is only used in the IIIF manifest, and can be skipped if no IIIF upload
     if config_values['perform_iiif_upload']:
         # Get the artist name from Wikidata. Failure to find a name will cause this work to be skipped

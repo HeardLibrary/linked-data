@@ -124,6 +124,6 @@ for index, work in existing_images.iterrows():
                             pass
 
 # Write the updated dataframe to CSV
-works_metadata.to_csv('new_act_artworks.csv', index = False)
+works_metadata.to_csv(config_values['vanderbot_upload_file'], index = False)
 print('done')
 print()
