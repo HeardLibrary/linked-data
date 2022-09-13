@@ -205,7 +205,7 @@ iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
 manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 # Column in the artwork metadata file to be used as the local identifier in the manifest IRI
-local_identifier_column_name: act_id
+local_identifier_column_name: inventory_number
 
 # If this setting is enabled, IIIF manifests will be organized within subdirectories based
 # on the first part of the work local identifier (preceding the first split character in the identifier). 

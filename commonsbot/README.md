@@ -20,7 +20,7 @@ The behavior of the script is primarily controlled by values in a YAML configura
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool.py>
 
-Current version: v0.5.4
+Current version: v0.5.5
 
 Written by Steve Baskauf 2022.
 
@@ -69,37 +69,27 @@ Values in the `General Settings` section apply universally. Values in the `Setti
 
 ## Required fields
 
-The fields that MUST be present in the source tables are listed below. Other fields may be present and will be ignored. *Note: the Vanderbilt Fine Arts Gallery inventory numbers in the example CSV files must be loaded as strings when the table is opened in order to avoid corrupting their values.*
+The fields that MUST be present in the source tables are listed below. Other fields may be present and will be ignored. *Note: the Vanderbilt Fine Arts Gallery local identifiers in the example CSV files must be loaded as strings when the table is opened in order to avoid corrupting their values.*
 
 ### CSV table designated by artwork_items_metadata_file configuration value
 
-The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/works_multiprop.csv) is used to upload data to Wikidata using the [VanderBot script](http://vanderbi.lt/vanderbot). So it includes many other fields in addition to the ones listed below. The column mapping file required to do the upload is [here](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/csv-metadata.json).
-
-`qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
-
-`inception_val` Inception date for the work. MAY be in the form YYYY, YYYY-MM, YYYY-MM-DD, or YYYY-MM-DDT00:00:00Z (used for screening and in IIIF manifest only)
-
-`inventory_number` Locally unique identifier for the work. Used as a primary key and as part of URLs
-
-`label_en` Label used in Wikidata
-
-`description_en` Description used in Wikidata
-
-### CSV table designated by artwork_additional_metadata_file configuration value
+This file controls which Wikidata artwork items will be uploaded. The number of items depends on the value set in the configuration file for `max_items_to_upload` and whether particular items are uploaded or not depends on whether screening criteria are enabled in the configuration. 
 
 The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/artwork_metadata.csv) includes additional fields not used by the script (and they are ignored).
 
 `qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
 
-`status` A string used to describe the copyright status and used for screening whether to upload to Commons. Empty cell indicates not evaluated (skipped). Any of the sting values given in the configuration under `public_domain_categories` will be uploaded. If the value is `assessed to be out of copyright` but the date given in the `inception_val` field (above) is after the `copyright_cutoff_date` year given in the configuration file, uploading will be suppressed anyway. (Consisered insuffecient evidence that it's out of copyright.) 
-
 `dimension` A value of `3D` indicates a three-dimensional work and a value of `2D` indicates a two-dimensional work
+
+`status` A string used to describe the copyright status and used for screening whether to upload to Commons. If screening by copyright status is disabled, this field will be ignored. Empty cell indicates not evaluated (skipped). Any of the string values given in the configuration under `public_domain_categories`, `reason` will be uploaded. If the value is `assessed to be out of copyright` but the date given in the `inception_val` field (above) is after the `copyright_cutoff_date` year given in the configuration file, uploading will be suppressed anyway. (Consisered insuffecient evidence that it's out of copyright.) 
+
+If writing IIIF data, an additional column for a locally unique identifier must be present. This identifier is used to form the last part of the IIIF manifest IRI. This column can have any name, but MUST be specified as the value of `local_identifier_column_name` in the configuration file. In the example file, the column is called `inventory_number`. 
 
 ### CSV table designated by image_metadata_file configuration value
 
 The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/images.csv) includes a `notes` field that is ignored by the script. The image dimensionsions, file size, and photo_inception value were extracted from the image files using [this script](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.ipynb).
 
-`inventory_number` Locally unique identifier for the work (foreign key to `inventory_number` in artworks table above)
+`qid` The Wikidata Q ID used as the foreign key to link the images to the work in the artworks table above.
 
 `rank` String that indicates whether the image should be linked on the Wikidata page by a P18 claim. `primary` indicates that the image should be linked. `secondary` indicates that the image should be uploaded to Commons and linked to the Wikidata work using Structured Data on Commons, but not used as the P18 value. All other values (or empty cells) are ignored by the script. All works MUST have one image designated as `primary`. `secondary` images are OPTIONAL. If an IIIF manifest is generated, the primary image will be the first one shown and the secondary images will follow in the order they appear in the CSV.
 
@@ -117,9 +107,15 @@ The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commo
 
 `photo_inception` The ISO 8601 date when the photo was created, i.e. in YYYY-MM-DD form. REQUIRED for 3D images, RECOMMENDED for 2D images.
 
+Other columns are OPTIONAL and ignored by the script.
+
 ### CSV table designated by the existing_uploads_file configuration value
 
-The script assumes that this table exists when it executes. Therefore, a copy of the [example table](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commons_images.csv) with all rows deleted should be present at the path specified in the configuration file. Each time the script uploads a new image to Commons, it adds a row to this table. Therefore it serves as a record of what's been uploaded and is used by the script to avoid attempting to re-upload an image a second time.
+The script assumes that this table exists when it executes. Therefore, a copy of the [example table](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commons_images.csv) with all rows deleted should be present at the path specified in the configuration file the first time the script is run. Each time the script uploads a new image to Commons, it adds a row to this table. Therefore it serves as a record of what's been uploaded and is used by the script to avoid attempting to re-upload an image a second time.
+
+`qid` The primary key of this table, used to link rows to the other tables.
+
+`local_identifier` This is the identifier provided in the `local_identifier_column_name` column of the table `artwork_items_metadata_file`.
 
 `rank` The image with a value of `primary` in this column for a particular artwork is the one that should be used to create a P18 claim for the artwork. See the description of `rank` in the table above.
 
@@ -129,9 +125,21 @@ The script assumes that this table exists when it executes. Therefore, a copy of
 
 The other columns provide an informational record of the images that have been uploaded to Commons.
 
-## Future enhancements
+### CSV table designated by artwork_items_metadata_file configuration value
 
-Currently the script uses `label_en` and `description_en` from the CSV table designated by artwork_items_metadata_file value to generate various captions, titles, Commons filenames, etc. Eventually this will be replaced by a SPARQL query to determine the labels and descriptions in preferred languages other than English.
+This file is modified by the `transfer_to_vanderbot.py` script using data from the previous table. This allows any newly created Commons file or IIIF manifest to be associated with the Wikidata item it depicts by using the VanderBot script to create the necessary claims.
+
+The [example file](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/works_multiprop.csv) was used to upload data to Wikidata using the [VanderBot script](http://vanderbi.lt/vanderbot). So it includes many other fields in addition to the ones listed below. The column mapping file required to do the upload is [here](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/csv-metadata.json).
+
+`qid` The Wikidata Q ID for the work (MUST include the "Q", not the whole IRI)
+
+If any of the following fields already have values the `transfer_to_vanderbot.py` script will not change them.
+
+`image` The unescaped Commons filename of the image. This value is transferred from the `image_name` column of the previous table. NOTE: once the data have been uploaded to Wikidata by VanderBot, this value will be converted to the URL-encoded Commons file IRI identifier.
+
+`iiif_manifest` The URL of the IIIF manifest for the work. This value is transferred from the `iiif_manifest` column of the previous table. 
+
+`copyright_status`, `copyright_status_applies_to_jurisdiction`, and `copyright_status_determination_method` `copyright_status` will always be Public Domain (Q19652) but the value of the other two fields will be filled in using the values in the `public_domain_categories` section of the configuration file by matching the `status` value in the `artwork_items_metadata_file` file with the `reason` values in the configuration. 
 
 # Other scripts
 
@@ -158,4 +166,4 @@ NOTE: because the CommonsTool script links Commons media files with Wikidata rec
 `art_photo`, `artwork.json`, `information.json`, and `photograph.json` same as above, but with fields restricted to a particular template
 
 ----
-Last modified: 2022-09-07
+Last modified: 2022-09-13
