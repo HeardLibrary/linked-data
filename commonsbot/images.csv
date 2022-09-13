@@ -1,5 +1,5 @@
-local_filename,inventory_number,rank,label,notes,kilobytes,height,width,photo_inception,subdir
-1970.040_verso_004.tif,1970.040,secondary,verso,,38205,4234,3080,2018-09-10,1970
-1970.040_recto_003.tif,1970.040,primary,recto,,38205,4234,3080,2018-09-10,1970
-1992.083.jpg,1992.083,suppress,,resolution too low,72,388,506,2001-11-27,1992
-1992.083.tif,1992.083,primary,,,18754,2215,2890,2012-07-30,1992
+qid,local_filename,local_identifier,rank,label,notes,kilobytes,height,width,photo_inception,subdir
+Q103304554,1970.040_verso_004.tif,1970.040,secondary,verso,,38205,4234,3080,2018-09-10,1970
+Q103304554,1970.040_recto_003.tif,1970.040,primary,recto,,38205,4234,3080,2018-09-10,1970
+Q102961245,1992.083.jpg,1992.083,suppress,,resolution too low,72,388,506,2001-11-27,1992
+Q102961245,1992.083.tif,1992.083,primary,,,18754,2215,2890,2012-07-30,1992

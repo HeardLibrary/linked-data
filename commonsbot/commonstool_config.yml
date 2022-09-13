@@ -50,17 +50,17 @@ working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upl
 
 # Paths of the following four files are relative to the working directory path above.
 
-# File with VanderBot upload data for artworks
-artwork_items_metadata_file: ../works_multiprop.csv
-
-# File with supplemental data about dimensions and copyright status of artworks
-artwork_additional_metadata_file: artwork_metadata.csv
+# File with data on Q ID, dimensions, local identifier, and copyright status of artworks
+artwork_items_metadata_file: artwork_metadata.csv
 
 # File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
 image_metadata_file: images.csv
 
 # File for record keeping of uploads
 existing_uploads_file: commons_images.csv
+
+# File used by VanderBot to add image and IIIF manifest claims (used only by transfer_to_vanderbot.py)
+vanderbot_upload_file: ../works_multiprop.csv
 
 # Controls whether paths for images to upload are relative to the home directory or not. 
 # If not, they may be absolute or relative to the current working directory.
@@ -74,11 +74,26 @@ local_image_directory_path: gallery_digital_image_archive/ # location of raw ima
 # If a particular screening criterion is set to false, the subsequent values are irrelevant
 screen_by_copyright: true
 public_domain_categories:
-  - artist died before copyright cutoff
-  - artist was born before 1800
-  - assessed to be out of copyright
-  - from style or period that ended prior to copyright cutoff
-  - inception prior to copyright cutoff
+  # 100 years or more after author's death
+  - reason: artist died before copyright cutoff
+    applies: Q60332278
+    method: Q29940705
+  # 100 years or more after author's death
+  - reason: artist was born before 1800
+    applies: Q60332278
+    method: Q29940705
+  # determined by GLAM institution and stated at its website
+  - reason: assessed to be out of copyright
+    applies: Q60332278
+    method: Q61848113
+  # published more than 95 years ago
+  - reason: from style or period that ended prior to copyright cutoff
+    applies: Q30
+    method: Q47246828
+  # published more than 95 years ago
+  - reason: inception prior to copyright cutoff
+    applies: Q30
+    method: Q47246828
 copyright_cutoff_date: 1926
 
 screen_by_file_characterstic: true
@@ -105,9 +120,13 @@ source: Vanderbilt University
 # Providing information about the image file source is strongly suggested for artworks. See 
 # https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks#Basic_structured_data_(SDC)
 # For suggested values see https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Source
+
+# Can use "file available on the internet" (Q74228490), but so far the script doesn't do qualifiers, 
+# so need to fix that.
+
 # Q66458942 (original creation by uploader) doesn't really seem to fit in our circumstance since Baskaufs 
 # is doing the uploading but the images are created by Vanderbilt as an institution. So as of
-# 2022-09-01 I'm using the Vanderbilt Q ID to match what's given in the license for 3D works.
+# 2022-09-01 I'm using the Vanderbilt Q ID (Q29052) to match what's given in the license for 3D works.
 source_qid: Q29052
 
 # The name of the institution to be inserted between the descriptive text and the local filename to form
@@ -153,7 +172,7 @@ artwork_license_text_2d: PD-Art|PD-old-100-expired
 photo_copyright_qid: Q50423863
 
 # License of copyrighted photo, value for P275
-# Typically a Creative Commons License, for example CC BY (Q6905323)
+# Typically a Creative Commons License, for example CC BY (Q6905323), CC BY-SA (Q18199165)
 photo_license_qid: Q6905323
 
 # For photographer structured data
@@ -185,10 +204,22 @@ s3_iiif_project_directory: gallery
 iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
 manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
+# Column in the artwork metadata file to be used as the local identifier in the manifest IRI
+local_identifier_column_name: inventory_number
+
 # If this setting is enabled, IIIF manifests will be organized within subdirectories based
-# on the first part of the image file name (preceding the first dot . in the name). 
+# on the first part of the work local identifier (preceding the first split character in the identifier). 
 # This is reflected in the manifest IRIs. If disabled, no subdirectory is used.
 organize_manifests_in_subdirectories: true
+# Character to be used to split the local identifier
+subdirectory_split_character: "."
+
+# If true, the inventory number will be retrieved from Wikidata and included as accession number in manifest.
+supply_accession_number: true
+# The collection Q ID is used to specify the institution whose inventory number will be used (in the case where
+# several institutions have assigned inventory numbers to the same work). Ignored if supply_accession_number is
+# false.
+collection_qid: Q18563658
 
 # ----------------------------------------------------------------------
 # DO NOT MESS WITH VALUES BELOW THIS UNLESS YOU KNOW WHAT YOU ARE DOING!
