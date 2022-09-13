@@ -1592,7 +1592,7 @@ commons_upload_sleep_time = 0
 # The row index is the Q ID and is a string. The work object is the data in the row and is a Pandas series
 # The items in the row series can be referred to by their labels, which are the column headers, e.g. work['label_en']
 for index, work in works_metadata.iterrows():
-    print(index)
+    #print(index)
 
     if config_values['verbose']:
         print()
