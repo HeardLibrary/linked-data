@@ -116,9 +116,12 @@ for index, work in existing_images.iterrows():
                         works_metadata.at[row_index, 'copyright_status'] = 'Q19652' # set status to Public Domain
                         works_metadata.at[row_index, 'copyright_status_applies_to_jurisdiction'] = category['applies']
                         works_metadata.at[row_index, 'copyright_status_determination_method'] = category['method']
-                        # all of the images being added will have inventory numbers, so safe to use this:
-                        works_metadata.at[row_index, 'copyright_status_ref1_referenceUrl'] = row_series['inventory_number_ref1_referenceUrl'].array[0]
-                        works_metadata.at[row_index, 'copyright_status_ref1_retrieved_val'] = today
+                        try:
+                            # Try to copy the reference from the inventory number field if it exists.
+                            works_metadata.at[row_index, 'copyright_status_ref1_referenceUrl'] = row_series['inventory_number_ref1_referenceUrl'].array[0]
+                            works_metadata.at[row_index, 'copyright_status_ref1_retrieved_val'] = today
+                        except:
+                            pass
 
 # Write the updated dataframe to CSV
 works_metadata.to_csv('new_act_artworks.csv', index = False)
