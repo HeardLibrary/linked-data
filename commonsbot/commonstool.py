@@ -1721,12 +1721,17 @@ for index, work in works_metadata.iterrows():
     work_metadata['work_label'] = work_label
     work_metadata['work_description'] = work_description
 
+    # The local identifier is taken from the column whose name is specified in the configuration data.
+    # This is only used in the IIIF upload, so if there isn't any value, set it to empty string.
+    try:
+        work_metadata['local_identifier'] = works_metadata.loc[index, config_values['local_identifier_column_name']]
+    except:
+        work_metadata['local_identifier'] = ''
+
     # The following values are only used in the IIIF manifest and can be ignored if only a Commons upload is done.
     if config_values['perform_iiif_upload']:
         work_metadata['creator_string'] = artist_name_string
         work_metadata['creation_year'] = inception_date
-        # The local identifier is taken from the column whose name is specified in the configuration data
-        work_metadata['local_identifier'] = works_metadata.loc[index, config_values['local_identifier_column_name']]
 
         # -----------------
         # Machinations for generating path-related strings
