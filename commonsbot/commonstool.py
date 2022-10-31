@@ -8,7 +8,7 @@
 # ----------------
 
 script_version = '0.5.6'
-version_modified = '2022-10-28'
+version_modified = '2022-10-31'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # The user_agent string identifies this application to Wikimedia APIs.
@@ -59,8 +59,9 @@ sparql_sleep = 0.1 # minimal delay between SPARQL queries
 # - eliminate need for one work metadata file by getting labels and other data from Wikidata via SPARQL
 # - allow any local identifier to be used in the manifest IRI instead of requiring inventory number
 # -----------------------------------------
-# Version 0.5.6 change notes: 2022-10-28
+# Version 0.5.6 change notes: 2022-10-31
 # - minor bug fix for test relevant only to Vanderbilt Fine Arts Gallery uploads
+# - move copyright test before size test to avoid flagging oversized images that can't be uploaded anyway
 # -----------------------------------------
 
 
@@ -1634,6 +1635,36 @@ for index, work in works_metadata.iterrows():
     for dummy, image_series in secondary_images_frame.iterrows():
         images_to_upload.append(image_series.to_dict())
 
+    if config_values['screen_by_copyright']:
+        ip_status = works_metadata.loc[index, 'status']
+
+        # Skip unevaluated copyright (empty status cells).
+        if ip_status == '':
+            if config_values['verbose']:
+                print('copyright not evaluated')
+            continue
+
+        # Screen for public domain works. 
+        if not ip_status in pd_categories:
+            if config_values['verbose']:
+                print('not public domain')
+            continue
+
+        # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
+        # inception date was given as after 1926
+        if ip_status == 'assessed to be out of copyright':
+            if query_inception_year(index) != '': # Test only works with inception years
+                test_inception_year = query_inception_year(index).split(' ')
+                if test_inception_year[1] == 'CE': # don't screen BCE years
+                    if int(test_inception_year[0]) > config_values['copyright_cutoff_date']:
+                        if config_values['verbose']:
+                            print('insufficient evidence out of copyright')
+                        continue  # skip this work if it has an inception date and it's after 1926
+            else:
+                if config_values['verbose']:
+                    print('Kali determined it was old.')
+                pass # if there isn't an inception date, then Kali just determined that the work was really old; go ahead and upload it
+
     if config_values['screen_by_file_characterstic']:
         all_good = True
         for image_to_upload in images_to_upload:
@@ -1667,36 +1698,6 @@ for index, work in works_metadata.iterrows():
         if not all_good:
             continue
         
-    if config_values['screen_by_copyright']:
-        ip_status = works_metadata.loc[index, 'status']
-
-        # Skip unevaluated copyright (empty status cells).
-        if ip_status == '':
-            if config_values['verbose']:
-                print('copyright not evaluated')
-            continue
-
-        # Screen for public domain works. 
-        if not ip_status in pd_categories:
-            if config_values['verbose']:
-                print('not public domain')
-            continue
-
-        # Handle the special case where the status was determined to be "assessed to be out of copyright" but the
-        # inception date was given as after 1926
-        if ip_status == 'assessed to be out of copyright':
-            if query_inception_year(index) != '': # Test only works with inception years
-                test_inception_year = query_inception_year(index).split(' ')
-                if test_inception_year[1] == 'CE': # don't screen BCE years
-                    if int(test_inception_year[0]) > config_values['copyright_cutoff_date']:
-                        if config_values['verbose']:
-                            print('insufficient evidence out of copyright')
-                        continue  # skip this work if it has an inception date and it's after 1926
-            else:
-                if config_values['verbose']:
-                    print('Kali determined it was old.')
-                pass # if there isn't an inception date, then Kali just determined that the work was really old; go ahead and upload it
-
     work_label, work_description, label_language = query_item_labels(index, config_values['default_language'])
     inception_date = query_inception_year(index)
 
