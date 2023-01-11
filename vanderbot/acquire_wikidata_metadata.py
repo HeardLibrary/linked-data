@@ -7,8 +7,8 @@
 # The input JSON is the same as that which is used for input by convert_json_to_metadata_schema.py and its format
 # is described at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
 
-version = '1.1.1'
-created = '2022-02-13'
+version = '1.2.0'
+created = '2023-01-11'
 
 # Note: if the single value of an existing property changes to another single value, the script will replace the data
 # to be the current value without any comment. If this is not the desired behavior, the data should be checked for changes
@@ -16,11 +16,20 @@ created = '2022-02-13'
 # -----------------------------------------
 # Version 1.1 change notes: 
 # - added support for somevalue snaks
+# -----------------------------------------
+# Version 1.2.0 change notes (2023-01-11)
+# - This script now accepts YAML configuration files in addition to JSON as input. Since JSON is 
+# also valid YAML, any files that could have been read by that script can also be 
+# read by this one. If no file is specified using --config, the old default, config.json,
+# will be tried if config.yaml fails.
+# - Outfiles can have an OPTIONAL "ignore" column list. Column names on that list will be included
+# in the output JSON as columns with "suppressOutput" value of true.
 
 from pathlib import Path
 import requests
 from time import sleep
 import json
+import yaml
 import csv
 import os
 import sys # Read CLI arguments
@@ -35,7 +44,7 @@ endpoint = 'https://query.wikidata.org/sparql'
 accept_media_type = 'application/json'
 
 # Set default values
-config_path = 'config.json'
+config_path = 'config.yaml'
 default_language = 'en'
 
 arg_vals = sys.argv[1:]
@@ -314,7 +323,7 @@ def check_for_duplicates(list, new_item):
 # Main function
 # ----------------
 
-def process_file(manage_descriptions, label_description_language_list, output_file_name, prop_list):
+def process_file(manage_descriptions, label_description_language_list, output_file_name, prop_list, ignore_column_list):
     
     # Determine if previous file and load if exists
     # In order to determine which redundant statements and references to keep, try to load a previous version of the file.
@@ -391,6 +400,10 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
     for result in results:
         row_dict = {}
         row_dict['qid'] = extract_qnumber(result['qid']['value'])
+
+        for ignore_column_name in ignore_column_list:
+            row_dict[ignore_column_name] = ''
+        
         for label_description_language in label_description_language_list:
             try:
                 row_dict['label_' + label_description_language.replace('-', '_')] = result['label_' + label_description_language.replace('-', '_')]['value']
@@ -400,7 +413,8 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
                 try:
                     row_dict['description_' + label_description_language.replace('-', '_')] = result['description_' + label_description_language.replace('-', '_')]['value']
                 except:
-                    row_dict['description_' + label_description_language.replace('-', '_')] = ''           
+                    row_dict['description_' + label_description_language.replace('-', '_')] = ''
+        
         for property in prop_list:
             try:
                 row_dict[property['variable'] + '_uuid'], trash = extract_statement_uuid(result[property['variable'] + '_uuid']['value'])
@@ -524,12 +538,14 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 
     # create the list of column headers
     fieldnames = ['qid']
+    for ignore_column_name in ignore_column_list:
+        fieldnames.append(ignore_column_name)
     # The schema generator puts all of the labels first, then the descriptions
     for label_description_language in label_description_language_list:
         fieldnames.append('label_' + label_description_language.replace('-', '_'))          
     if manage_descriptions:
         for label_description_language in label_description_language_list:
-            fieldnames.append('description_' + label_description_language.replace('-', '_'))          
+            fieldnames.append('description_' + label_description_language.replace('-', '_'))
     for prop in prop_list:
         fieldnames = csv_header_append(prop, fieldnames)
     # print(fieldnames)
@@ -661,8 +677,14 @@ def process_file(manage_descriptions, label_description_language_list, output_fi
 # Beginning of main script
 # ----------------
 
-file_text = read_plain_text(config_path)
-config = json.loads(file_text)
+# In the case where no --config option is specified, the default config.yaml will be opened.
+# If this fails, try opening the old default, config.json
+try:
+    with open(config_path, 'r') as file_object:
+        config = yaml.safe_load(file_object)
+except:
+    with open('config.json', 'r') as file_object:
+        config = yaml.safe_load(file_object)
 
 data_path = config['data_path']
 item_source_csv = config['item_source_csv'] 
@@ -716,9 +738,13 @@ print()
 
 #print(item_qids)
 for outfile in outfiles:
-    if outfile['manage_descriptions']:
-        process_file(True, outfile['label_description_language_list'], outfile['output_file_name'], outfile['prop_list'])
+    if 'ignore' in outfile:
+        ignore_columns_names = outfile['ignore']
     else:
-        process_file(False, [default_language], outfile['output_file_name'], outfile['prop_list'])
+        ignore_columns_names = []
+    if outfile['manage_descriptions']:
+        process_file(True, outfile['label_description_language_list'], outfile['output_file_name'], outfile['prop_list'], ignore_columns_names)
+    else:
+        process_file(False, [default_language], outfile['output_file_name'], outfile['prop_list'], ignore_columns_names)
     print()
 print('done')

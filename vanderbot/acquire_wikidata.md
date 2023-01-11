@@ -1,6 +1,6 @@
 # Script to acquire existing Wikidata data
 
-This page describes a Python script for downloading existing Wikidata data into a CSV spreadsheet. It is designed to work together with two other scripts. One of those scripts, [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py), (described [here](convert-config.md)) converts the input file used by this script into a CSV metadata description file based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation. Another script, VanderBot ([vanderbot.py](vanderbot.py), described [here](./README.md)) uploads CSV data to the Wikidata API. 
+This page describes a Python script for downloading existing Wikidata data into a CSV spreadsheet. It is designed to work together with two other scripts. One of those scripts, [convert_config_to_metadata_schema.py](convert_config_to_metadata_schema.py), (described [here](convert-config.md)) converts the input file used by this script into a CSV metadata description file based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation. Another script, VanderBot ([vanderbot.py](vanderbot.py), described [here](./README.md)) uploads CSV data to the Wikidata API. 
 
 **Note about other Wikibase instances:** Although the use of this configuration file is described for Wikidata, it can be used for any Wikibase instance. So when the term "Wikidata" is used here, one can generally substitute "Wikibase".
 
@@ -10,17 +10,17 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 ### Structure of input configuration JSON
 
-The structure of the input configuration JSON is described in detail [here](convert-config.md)
+Starting with version 1.2.0, this script works with either a YAML or JSON configuration file. The structure of the input configuration file is described in detail [here](convert-config.md)
 
 # Script details
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata_metadata.py>
 
-Current version: 1.0.1 and compable with VanderBot v1.7
+Current version: 1.2.0 and compable with VanderBot v1.9
 
-Written by Steve Baskauf 2020-21.
+Written by Steve Baskauf 2020-23.
 
-Copyright 2021 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
+Copyright 2023 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
 ## Running the script
 
@@ -44,7 +44,8 @@ python acquire_wikidata_metadata.py
 
 ## Input files
 
-The top level of the configuration file is a JSON object with four name/value pairs. 
+The top level of the configuration file is a object with four name/value pairs. 
+In JSON, it looks like this:
 
 ```
 {
@@ -56,6 +57,19 @@ file descriptions here
   ]
 }
 ```
+
+In YAML, it looks like this:
+
+```
+data_path: data/
+item_source_csv: sandbox_items.csv
+item_pattern_file: ""
+outfiles:
+- file descriptions here
+- and here
+```
+
+Note that in the YAML, unused values MUST be entered as an empty string `""` and not left blank.
 
 The `outfiles` value is described in detail on [this page](convert-config.md). 
 
@@ -107,4 +121,4 @@ It is important to understand this behavior, since the updating done by the scri
 **Note:** prior to attempting to match existing rows in the CSV against data retrieved from the Query Service, the script checks to make sure that the column names and order specified in the configuration file match those in the existing CSV. If they do not match, the script terminates with a warning. This means that if the CSV configuration is changed, the existing CSVs must be changed to match prior to running this script. The script [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) can be run with the new configuration file to generate a CSV header row that matches the new configuration. That header row can be compared with the existing CSV to add or remove columns as necessary to realign the existing CSV with the configuration file.
 
 ----
-Revised 2021-03-13
+Revised 2022-01-11

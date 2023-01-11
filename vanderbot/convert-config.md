@@ -1,8 +1,10 @@
-# Configuration JSON file format and conversion scripts
+# Configuration file format and conversion scripts
 
-This page describes the format of a JSON configuration file that can be used to generate metadata description files and the CSV headers they describe. The metadata description files are based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation and map CSV columns to [RDF format](https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format) of the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel) used by [Wikidata](https://www.wikidata.org/). The script that does the conversion is [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) and it is also described [here](http://baskauf.blogspot.com/2021/03/writing-your-own-data-to-wikidata-using_11.html). Another script, [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file whose headers are determined by the JSON configuration file. See [this page](acquire_wikidata.md) for details.
+This page describes the format of a configuration file that can be used to generate metadata description files and the CSV headers they describe. The metadata description files are based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation and map CSV columns to [RDF format](https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format) of the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel) used by [Wikidata](https://www.wikidata.org/). The script that does the conversion is [convert_config_to_metadata_schema.py](convert_config_to_metadata_schema.py) and it is also described [here](http://baskauf.blogspot.com/2021/03/writing-your-own-data-to-wikidata-using_11.html). Another script, [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file whose headers are determined by the configuration file. See [this page](acquire_wikidata.md) for details.
 
-Both scripts and the JSON configuration file format are designed to support the creation of data to be uploaded to the Wikidata API by the Python script VanderBot ([vanderbot.py](vanderbot.py)). For more information about VanderBot, see [this page](./README.md).
+Both scripts and the configuration file format are designed to support the creation of data to be uploaded to the Wikidata API by the Python script VanderBot ([vanderbot.py](vanderbot.py)). For more information about VanderBot, see [this page](./README.md).
+
+Starting with version 1.1.0, this script works with either a YAML or JSON configuration file. The two types of files are structured in the same way. The details below describe what is required to create the JSON flavor of the file. The YAML flavor of the file is structured analogously. To see an example of the YAML flavor, look at [this file](config.yaml).
 
 **Note about other Wikibase instances:** Although the use of this configuration file is described for Wikidata, it can be used for any Wikibase instance. So when the term "Wikidata" is used here, one can generally substitute "Wikibase".
 
@@ -26,6 +28,19 @@ file descriptions here
   ]
 }
 ```
+
+The analogous structure in YAML looks like this:
+
+```
+data_path: data/
+item_source_csv: sandbox_items.csv
+item_pattern_file: ""
+outfiles:
+- file descriptions here
+- and here
+```
+
+Note that in the YAML, unused values MUST be entered as an empty string `""` and not left blank.
 
 The `data_path` value defines the path to the directory in which a file whose name is either the value of `item_source_csv` or `item_pattern_file` is located. It also is the directory into which the output file(s) will be written. If the empty string, the current working directory will be used. If a relative or absolute path is provided, it MUST end in a forward slash (`/`).
 
@@ -51,7 +66,7 @@ The value of `outfiles` is a JSON array whose items represent CSV files to be de
 
 ### CSV file descriptions
 
-Each file description value is a JSON object with four name/value pairs.
+Each file description value is a JSON object with four REQUIRED name/value pairs and one OPTIONAL name/value pair.
 
 ```
     {
@@ -62,6 +77,9 @@ Each file description value is a JSON object with four name/value pairs.
         "zh-hans"
       ],
       "output_file_name": "works_multiprop.csv",
+      "ignore": [
+        "unique_identifier"
+      ],
       "prop_list": [
 statement property descriptions here
       ]
@@ -73,6 +91,8 @@ The `manage_descriptions` value MUST be a boolean. If its value is `true`, there
 The value of `label_description_language_list` is a JSON array containing a sequence of ISO 639-1 language code strings used when `manage_descriptions` is true. For each language in the sequence, a label and description column will be generated. If the language code includes an ISO-15924 script tag, the tag MUST be in all lower case (e.g. `zh-hans`, not `zh-Hans`).
 
 The `output_file_name` value is the path of the CSV file whose headers are being described. 
+
+The `ignore` name/value pair is OPTIONAL. If included, its value is a list of the names of columns that follow the first column `qid` and that are ignored. This provides a means to include reference information in the CSV file without affecting interactions with the API. For example, if some additional identifier is associated with the rows, it may be placed in one of these columns. If there are no columns to be ignored but the name is included, the value must be an empty list `[]`. This is true in either JSON or YAML. If the name/value pair is not included, the script assumes that there are no columns to ignore.
 
 The value of `prop_list` is a JSON array whose items represent properties used in statements about the item that is the subject of the CSV table row, described in the next section.
 
@@ -155,15 +175,15 @@ Note that although the Wikibase model allows multiple references per statement, 
 
 There are currently two scripts that use these JSON configuration files. One is used to download existing data from Wikidata and is described [here](acquire_wikidata.md). The other generates files needed by the VanderBot API uploading script and is described in the next section.
 
-## Details of script to convert JSON configuration data to metadata description and CSV files
+## Details of script to convert configuration data to metadata description and CSV files
 
-Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert_json_to_metadata_schema.py>
+Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert_config_to_metadata_schema.py>
 
-Current version: 1.0.1, compable with VanderBot v1.7
+Current version: 1.1.0, compable with VanderBot v1.9
 
-Written by Steve Baskauf 2021.
+Written by Steve Baskauf 2021-2023.
 
-Copyright 2021 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
+Copyright 2023 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
 ### Description
 
@@ -180,14 +200,14 @@ The values of `item_source_csv`, and `item_pattern_file` are not used by this sc
 The script REQUIRES that you have Python 3 installed on your computer. It is run at the command line by entering
 
 ```
-python convert_json_to_metadata_schema.py
+python convert_config_to_metadata_schema.py
 ```
 
 (or `python3` if your installation requires it). 
 
 The output CSV files will have file names similar to those specified within the configuration file. The only difference is that the file names will have an `h` prepended to avoid accidentally overwriting any existing files that might have the same name. Those files have only the column headers with no item data. So they need additional processing (in addition to the removal of the `h` prefix) before they can be used.
 
-The output CSV files and metadata description file will be written to the directory specified by the `data_path` key in the configuration files.
+The output CSV files and metadata description file will be written to the directory specified by the `data_path` name in the configuration files.
 
 ### Command line options
 
@@ -200,4 +220,4 @@ The output CSV files and metadata description file will be written to the direct
 | --version | -V | display version information (no values) |  |
 
 ----
-Revised 2021-03-13
+Revised 2023-01-11

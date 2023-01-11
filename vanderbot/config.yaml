@@ -1,0 +1,303 @@
+data_path: ''
+item_pattern_file: graph_pattern.txt
+item_source_csv: ''
+outfiles:
+- output_file_name: works.csv
+  label_description_language_list:
+  - en
+  manage_descriptions: true
+  # Note: if no columns to ignore, you must omit the "ignore" key or provide an empty list value: []
+  ignore:
+  - unique_identifier
+  prop_list:
+  - variable: instance_of
+    value_type: item
+    pid: P31
+    qual: []
+    ref: []
+  - variable: full_work_available
+    value_type: uri
+    pid: P953
+    qual: []
+    ref:
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: edition_version
+    value_type: monolingualtext
+    language: en
+    pid: P9767
+    qual: []
+    ref: []
+  - variable: language
+    value_type: item
+    pid: P407
+    qual: []
+    ref: []
+  - variable: number_pages
+    value_type: quantity
+    pid: P1104
+    qual: []
+    ref: []
+  - variable: doi
+    value_type: string
+    pid: P356
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: pmid
+    value_type: string
+    pid: P698
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: publication_date
+    value_type: date
+    pid: P577
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: title_en
+    value_type: monolingualtext
+    language: en
+    pid: P1476
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: published_in
+    value_type: item
+    pid: P1433
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: volume
+    value_type: string
+    pid: P478
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: page
+    value_type: string
+    pid: P304
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: issue
+    value_type: string
+    pid: P433
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: isbn10
+    value_type: string
+    pid: P957
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: isbn13
+    value_type: string
+    pid: P212
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: publisher
+    value_type: item
+    pid: P123
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+  - variable: place_of_publication
+    value_type: item
+    pid: P291
+    qual: []
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+- output_file_name: author.csv
+  label_description_language_list: []
+  manage_descriptions: false
+  prop_list:
+  - variable: author
+    value_type: item
+    pid: P50
+    qual:
+    - variable: stated_as
+      value_type: string
+      pid: P1932
+    - variable: series_ordinal
+      value_type: string
+      pid: P1545
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+- output_file_name: editor.csv
+  label_description_language_list: []
+  manage_descriptions: false
+  prop_list:
+  - variable: editor
+    value_type: item
+    pid: P98
+    qual:
+    - variable: stated_as
+      value_type: string
+      pid: P1932
+    - variable: series_ordinal
+      value_type: string
+      pid: P1545
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+- output_file_name: translator.csv
+  label_description_language_list: []
+  manage_descriptions: false
+  prop_list:
+  - variable: translator
+    value_type: item
+    pid: P655
+    qual:
+    - variable: stated_as
+      value_type: string
+      pid: P1932
+    - variable: series_ordinal
+      value_type: string
+      pid: P1545
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813
+- output_file_name: author_strings.csv
+  label_description_language_list: []
+  manage_descriptions: false
+  prop_list:
+  - variable: author_string
+    value_type: string
+    pid: P2093
+    qual:
+    - variable: series_ordinal
+      value_type: string
+      pid: P1545
+    ref:
+    - variable: referenceUrl
+      value_type: uri
+      pid: P854
+    - variable: stated_in
+      value_type: item
+      pid: P248
+    - variable: retrieved
+      value_type: date
+      pid: P813

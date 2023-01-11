@@ -6,7 +6,7 @@ This page is about general use of the VanderBot Wikidata API-writing script and 
 
 ## Summary
 
-VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see [our paper that is in press](http://www.semantic-web-journal.net/content/using-w3c-generating-rdf-tabular-data-web-recommendation-manage-small-wikidata-datasets) at the Semantic Web Journal.
+VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see our paper published in *Semantic Web Journal* 14:5-27 <https://doi.org/10.3233/SW-210443>.
 
 Since the project started, the generalized code for writing to the API has been used with modifications of other Python scripts from the original project to carry out several Wikidata projects at Vanderbilt. They include [creating records for items in the Vanderbilt Fine Arts Gallery](https://www.wikidata.org/wiki/Wikidata:WikiProject_Vanderbilt_Fine_Arts_Gallery), connecting and creating image items with the [Vanderbilt Divinity Library's Art in the Christian Tradition (ACT) database](https://www.wikidata.org/wiki/Wikidata:WikiProject_Art_in_the_Christian_Tradition_(ACT)), and managing journal data as part of the [VandyCite WikiProject](https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite). Through these explorations, we are learning how to generalize the process so that it can be used in many areas.
 
@@ -19,9 +19,9 @@ If you want to use the VanderBot script to upload your own data to Wikidata, you
 
 The source code that generates the web tool includes the files `wikidata-csv2rdf-metadata.html`, `wikidata-csv2rdf-metadata.js`, and `wikidata-csv2rdf-metadata.css` in [this directory](./).
 
-Another method for generating a metadata description file is to use a simplified JSON configuration file. The script [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) performs the conversion and generates CSV files with appropriate headers. For more information about that script and the format of the configuration file, visit [this information page](convert-config.md). Using the script is described with much hand-holding and many screenshots in [this blog post](http://baskauf.blogspot.com/2021/03/writing-your-own-data-to-wikidata-using_7.html).
+Another method for generating a metadata description file is to use a simplified configuration file. This file can be written in either JSON or YAML. The script [convert_config_to_metadata_schema.py](convert_config_to_metadata_schema.py) performs the conversion and generates CSV files with appropriate headers. For more information about that script and the format of the configuration file, visit [this information page](convert-config.md). Using the script with the JSON flavor of configuration file is described with much hand-holding and many screenshots in [this blog post](http://baskauf.blogspot.com/2021/03/writing-your-own-data-to-wikidata-using_7.html).
 
-The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. It requires the same JSON configuration file as the conversion script above -- the two scripts are designed to work together. See [this page](acquire_wikidata.md) for details.
+The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloads existing data from Wikidata into a CSV file that is compatible with the format required by VanderBot. It requires the same configuration file as the conversion script above -- the two scripts are designed to work together. See [this page](acquire_wikidata.md) for details.
 
 Another utility, [count_entities.py](../json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items. For more information about using this script, see the [script usage page](count_entities.md) for details.
 
@@ -202,4 +202,4 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2022-09-18
+Revised 2023-01-11
