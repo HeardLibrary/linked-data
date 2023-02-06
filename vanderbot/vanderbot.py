@@ -1,8 +1,8 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.9.3'
-created = '2022-09-04'
+version = '1.9.4'
+created = '2023-02-06'
 
-# (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 # For more information, see https://github.com/HeardLibrary/linked-data/tree/master/vanderbot
 
@@ -125,6 +125,7 @@ created = '2022-09-04'
 # - remove hard-coded references to the www.wikidata.org subdomain and make them configurable.
 # - allow suppression of duplicate label/description checking for situations where the wikibase SPARQL endpoint is slow
 # - enforce 1.25 s throttling for only wikidata.org and wikimedia.org domain names (shorter sleep times allowed for other wikibase instances)
+# - minor bug fixes
 
 import json
 import requests
