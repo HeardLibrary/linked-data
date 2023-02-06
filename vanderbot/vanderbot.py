@@ -58,7 +58,7 @@ created = '2022-09-04'
 # Version 1.4 change notes (2020-08-17):
 # - In csv-metadata.json, replace wdt: namespace properties with ps: properties, 
 #   e.g. https://github.com/HeardLibrary/linked-data/blob/v1-4/vanderbot/csv-metadata.json#L187
-# - Modify vb6_upload_wikidata.py (this script) to fine those ps: properties instead of the wdt: ones.
+# - Modify vb6_upload_wikidata.py (this script) to find those ps: properties instead of the wdt: ones.
 # -----------------------------------------
 # Version 1.5 change notes (2020-08-30):
 # - Correct two bugs involving downloading existing descriptions and aliases
@@ -119,6 +119,12 @@ created = '2022-09-04'
 # ----------------------------------------
 # Version 1.9.3 change notes (2022-09-04)
 # - add option for "terse" mode to suppress displaying progress. (Reporting of errors at end and logging not affected.)
+# ----------------------------------------
+# Version 1.9.4 change notes (2023-01-25)
+# - fix error in SPARQL query when labels or descriptions end in a double or single quote.
+# - remove hard-coded references to the www.wikidata.org subdomain and make them configurable.
+# - allow suppression of duplicate label/description checking for situations where the wikibase SPARQL endpoint is slow
+# - enforce 1.25 s throttling for only wikidata.org and wikimedia.org domain names (shorter sleep times allowed for other wikibase instances)
 
 import json
 import requests
@@ -144,6 +150,9 @@ credentials_path_string = 'home' # value is "home", "working", "gdrive", or a re
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/' # prepended to URL-encoded Commons media filenames
 terse_string = 'false' # True suppresses display of progress output. False dispays information about the current line being processed
+duplicate_check_string = 'true' # True allows checking for duplicate labels and descriptions when creating new items. False suppresses checking
+calendar_model = 'http://www.wikidata.org/entity/Q1985727' # Default to Wikidata gregorian calendar
+globe_value = 'http://www.wikidata.org/entity/Q2' # the Earth; globe to be used for globe-coordinate datatypes
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
 # (the example below is not real).  Save file in the directory specified by the credentials_path_string.
@@ -180,13 +189,6 @@ if '--help' in arg_vals or '-H' in arg_vals: # provide help information accordin
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
 opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
-
-if '--version' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
-    if args[opts.index('--version')] == 'allow':
-        allow_label_description_changes = True
-if '-V' in opts: # allow labels and descriptions that differ locally from existing Wikidata items to be updated 
-    if args[opts.index('-V')] == 'allow':
-        allow_label_description_changes = True
 
 if '--log' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('--log')]
@@ -229,14 +231,33 @@ if '--credentials' in opts: # specifies the name of the credentials file.
 if '-C' in opts: # specifies the name of the credentials file.
     credentials_filename = args[opts.index('-C')]
 
-if '--terse' in opts: # specifies the name of the credentials file.
+if '--terse' in opts: # terse output boolean.
     terse_string = args[opts.index('--terse')]
-if '-T' in opts: # specifies the name of the credentials file.
+if '-T' in opts: # terse output boolean.
     terse_string = args[opts.index('-T')]
 if terse_string == 'true':
     terse = True
 else:
     terse = False
+
+if '--dupcheck' in opts: # specifies the name of the credentials file.
+    duplicate_check_string = args[opts.index('--dupcheck')]
+if '-D' in opts: # specifies the name of the credentials file.
+    duplicate_check_string = args[opts.index('-D')]
+if duplicate_check_string == 'false':
+    duplicate_check = False
+else:
+    duplicate_check = True
+
+if '--calmodel' in opts: # specifies the calendar model to be used in time data types.
+    calendar_model = args[opts.index('--calmodel')]
+if '-M' in opts: # specifies the calendar model to be used in time data types.
+    calendar_model = args[opts.index('-M')]
+
+if '--globe' in opts: # specifies the globe to be used in globe-coordinate data types.
+    globe_value = args[opts.index('--globe')]
+if '-G' in opts: # specifies the globe to be used in globe-coordinate data types.
+    globe_value = args[opts.index('-G')]
 
 google_drive_root = '/content/drive/My Drive/'
 if credentials_path_string == 'home': # credential file is in home directory
@@ -257,16 +278,9 @@ else:  # credential file is in a directory whose path was specified by the crede
 # Therefore, newbies should set the API sleep value to 8 to avoid getting blocked.
 api_sleep = 1.25
 if '--apisleep' in opts: # delay between API POSTs. Used by newbies to slow writes to within limits. 
-    api_sleep = args[opts.index('--apisleep')] # Number of seconds between API calls. Numeric only, do not include "s"
+    api_sleep = int(args[opts.index('--apisleep')]) # Number of seconds between API calls. Numeric only, do not include "s"
 if '-A' in opts:
-    api_sleep = args[opts.index('-A')]
-
-# DO NOT decrease this limit unless you have obtained a bot flag! If you have a bot flag, then you have created your own
-# User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
-# your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
-# Wikimedia guidelines !!!
-if api_sleep < 1.25:
-    api_sleep = 1.25
+    api_sleep = int(args[opts.index('-A')])
 
 # See https://meta.wikimedia.org/wiki/User-Agent_policy
 user_agent_header = 'VanderBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
@@ -302,12 +316,11 @@ request_header = generate_header_dictionary(accept_media_type,user_agent_header)
 def retrieveCredentials(path):
     with open(path, 'rt') as fileObject:
         lineList = fileObject.read().split('\n')
-    endpointUrl = lineList[0].split('=')[1]
+    domain_name = lineList[0].split('=')[1]
     username = lineList[1].split('=')[1]
     password = lineList[2].split('=')[1]
     #userAgent = lineList[3].split('=')[1]
-    credentials = [endpointUrl, username, password]
-    return credentials
+    return domain_name, username, password
 
 def getLoginToken(apiUrl):    
     parameters = {
@@ -366,6 +379,23 @@ def extractFromIri(iri, numberPieces):
     pieces = iri.split('/')
     return pieces[numberPieces]
 
+def safe_quotes(label: str) -> str:
+    """Encloses a string in appropriate triple quotes to prevent malformed SPARQL query.
+    
+    Note
+    ----
+    If triple quotes (double or single) are used to enclose a string in a SPARQL query, the string can
+    include any combination of double or single quotes anywhere in the string except for the last position.
+    The last position cannot be the same type of quote that is used (in triplicate) to enclose the string.
+    When that happens, the first three of the quote are considered to close the string. The remaining quote
+    is then an unexpected character, which causes an error in the SPARQL processor.
+    """
+    if label[-1]=='"':
+        enclosed = "'''" + label + "'''"
+    else:
+        enclosed = '"""' + label + '"""'
+    return enclosed
+
 # convert a Commons URL to an unencoded filename string
 def commons_url_to_filename(url):
     # form of URL is: http://commons.wikimedia.org/wiki/Special:FilePath/Castle%20De%20Haar%20%281892-1913%29%20-%20360%C2%B0%20Panorama%20of%20Castle%20%26%20Castle%20Grounds.jpg
@@ -398,7 +428,7 @@ def ask_query(graph_pattern):
 # The following two functions use the ASK function above for cases where only a label or only a description is present
 def check_for_only_label(label_string, language):
     # Label must exist
-    graph_pattern = '''  ?entity rdfs:label """'''+ label_string + '"""@' + language + '.'
+    graph_pattern = '  ?entity rdfs:label ' + safe_quotes(label_string) + '@' + language + '.'
     #print('Checking ' + language + ' label: "' + label_string)
     #print(graph_pattern)
     label_exists = ask_query(graph_pattern)
@@ -407,7 +437,7 @@ def check_for_only_label(label_string, language):
     #print()
     
     # Also label must exist with NO description
-    graph_pattern = '''  ?entity rdfs:label """'''+ label_string + '"""@' + language + '''.
+    graph_pattern = '  ?entity rdfs:label ' + safe_quotes(label_string) + '@' + language + '''.
   ?entity schema:description ?desc.
   filter(lang(?desc)="''' + language + '")'
     #print('Checking ' + language + ' label: "' + label_string + '" with description')
@@ -421,7 +451,7 @@ def check_for_only_label(label_string, language):
 
 def check_for_only_description(description_string, language):
     # Description must exist
-    graph_pattern = '''  ?entity schema:description """'''+ description_string + '"""@' + language + '.'
+    graph_pattern = '  ?entity schema:description ' + safe_quotes(description_string) + '@' + language + '.'
     #print('Checking ' + language + ' description: "' + description_string + '"')
     #print(graph_pattern)
     description_exists = ask_query(graph_pattern)
@@ -430,7 +460,7 @@ def check_for_only_description(description_string, language):
     #print()
     
     # Also description must exist with NO label
-    graph_pattern = '''  ?entity schema:description """'''+ description_string + '"""@' + language + '''.
+    graph_pattern = '  ?entity schema:description ' + safe_quotes(description_string) + '@' + language + '''.
   ?entity rdfs:label ?label.
   filter(lang(?label)="''' + language + '")'
     #print('Checking ' + language + ' description: "' + description_string + '" with label')
@@ -459,7 +489,12 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
         predicate = 'rdfs:label'        
         
     # create a string for the query
-    query = 'select distinct ?id ?string '
+    query = ''
+    # SPARQL queries to wikibases other than Wikidata won't necessarily have wd: defined 
+    # automatically. In those cases, the prefix must be defined in a preamble to the query.
+    if DOMAIN_NAME != 'http://www.wikidata.org':
+        query += 'PREFIX wd: <' + DOMAIN_NAME + '/entity/>\n'
+    query += 'select distinct ?id ?string '
     query += '''where {
   VALUES ?id
 {
@@ -481,7 +516,7 @@ def searchLabelsDescriptionsAtWikidata(qIds, labelType, language):
         resultsDict = {'qId': qNumber, 'string': string}
         returnValue.append(resultsDict)
 
-    # delay a quarter second to avoid hitting the SPARQL endpoint too rapidly
+    # delay to avoid hitting the SPARQL endpoint too rapidly
     sleep(sparqlSleep)
     
     return returnValue
@@ -823,7 +858,7 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                             'before': 0,
                             'after': 0,
                             'precision': refValue['timePrecision'],
-                            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                            'calendarmodel': calendar_model
                             },
                         'type': 'time'
                         },
@@ -840,7 +875,7 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                     'datavalue':{
                         'value':{
                             'amount': refValue['amount'], # a string for a decimal number; must have leading + or -
-                            'unit': 'http://www.wikidata.org/entity/' + refValue['unit'] # IRI as a string
+                            'unit': DOMAIN_NAME + '/entity/' + refValue['unit'] # IRI as a string
                             },
                         'type': 'quantity',
                         },
@@ -857,7 +892,7 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                             'latitude': float(refValue['latitude']), # latitude; decimal number
                             'longitude': float(refValue['longitude']), # longitude; decimal number
                             'precision': float(refValue['precision']), # precision; decimal number
-                            'globe': 'http://www.wikidata.org/entity/Q2' # the earth
+                            'globe': globe_value # the earth
                             },
                         'type': 'globecoordinate'
                         },
@@ -1085,11 +1120,22 @@ if terse:
 # default API resource URL when a Wikibase/Wikidata instance is installed.
 resourceUrl = '/w/api.php'
 
-credentials = retrieveCredentials(credentials_path)
-endpointUrl = credentials[0] + resourceUrl
-user = credentials[1]
-pwd = credentials[2]
-#userAgentHeader = credentials[3]
+base_url, user, pwd = retrieveCredentials(credentials_path)
+endpointUrl = base_url + resourceUrl
+if base_url == 'https://www.wikidata.org':
+    DOMAIN_NAME = 'http://www.wikidata.org'
+elif base_url == 'https://commons.wikimedia.org':
+    DOMAIN_NAME = 'http://commons.wikimedia.org'
+else:
+    DOMAIN_NAME = base_url
+
+# DO NOT decrease this limit unless you have obtained a bot flag! If you have a bot flag, then you have created your own
+# User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
+# your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
+# Wikimedia guidelines !!!
+if 'wikidata.org' in DOMAIN_NAME or 'wikimedia.org' in DOMAIN_NAME:
+    if api_sleep < 1.25:
+        api_sleep = 1.25
 
 # Instantiate session outside of any function so that it's globally accessible.
 session = requests.Session()
@@ -1497,30 +1543,33 @@ for table in tables:  # The script can handle multiple tables
                     # The second screen is that both columns must have values for that row
                     if tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] != '':
                         has_some_value = True
-                        graph_pattern = '''  ?entity rdfs:label """'''+ tableData[rowNumber][language['label_column']] + '"""@' + language['language'] + '''.
-      ?entity schema:description """'''+ tableData[rowNumber][language['description_column']] + '"""@' + language['language'] + '.'
-                        #print('Checking ' + language['language'] + ' label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"')
-                        #print(graph_pattern)
-                        exists = ask_query(graph_pattern)
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label/description. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"\n'
+                        if duplicate_check:
+                            graph_pattern = '  ?entity rdfs:label ' + safe_quotes(tableData[rowNumber][language['label_column']]) + '@' + language['language'] + '''.
+        ?entity schema:description ''' + safe_quotes(tableData[rowNumber][language['description_column']]) + '@' + language['language'] + '.'
+                            #print('Checking ' + language['language'] + ' label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"')
+                            #print(graph_pattern)
+                            exists = ask_query(graph_pattern)
+                            if exists:
+                                combination_exists = True
+                                error_log += 'Duplicate label/description. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '", description: "' + tableData[rowNumber][language['description_column']] + '"\n'
 
                     # Case where the label has a value but description does not
                     elif tableData[rowNumber][language['label_column']] != '' and tableData[rowNumber][language['description_column']] == '':
                         has_some_value = True
-                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
+                        if duplicate_check:
+                            exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
+                            if exists:
+                                combination_exists = True
+                                error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
 
                     # Case where the description has a value but label does not
                     elif tableData[rowNumber][language['label_column']] == '' and tableData[rowNumber][language['description_column']] != '':
                         has_some_value = True
-                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
+                        if duplicate_check:
+                            exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
+                            if exists:
+                                combination_exists = True
+                                error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
 
                 # Need to check for the special cases where a label or a description column doesn't exist for the language.
 
@@ -1530,10 +1579,11 @@ for table in tables:  # The script can handle multiple tables
                     # The label column must have a value in order to check
                     if tableData[rowNumber][language['label_column']] != '':
                         has_some_value = True
-                        exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
+                        if duplicate_check:
+                            exists = check_for_only_label(tableData[rowNumber][language['label_column']], language['language'])
+                            if exists:
+                                combination_exists = True
+                                error_log += 'Duplicate label only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['label_column']] + '"\n'
 
                 # Case where there is no label column
                 elif language['label_column'] == '' and language['description_column'] != '':
@@ -1541,10 +1591,11 @@ for table in tables:  # The script can handle multiple tables
                     # The description column must have a value in order to check
                     if tableData[rowNumber][language['description_column']] != '':
                         has_some_value = True
-                        exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
-                        if exists:
-                            combination_exists = True
-                            error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
+                        if duplicate_check:
+                            exists = check_for_only_description(tableData[rowNumber][language['description_column']], language['language'])
+                            if exists:
+                                combination_exists = True
+                                error_log += 'Duplicate description only. Row: ' + str(rowNumber) + ', language: "' + language['language'] + '", label: "' + tableData[rowNumber][language['description_column']] + '"\n'
 
             if not has_some_value:
                 error_log += 'Row: ' + str(rowNumber) + ' does not have any labels or descriptions\n'
@@ -1748,7 +1799,7 @@ for table in tables:  # The script can handle multiple tables
                                             'before': 0,
                                             'after': 0,
                                             'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
-                                            'calendarmodel': "http://www.wikidata.org/entity/Q1985727"
+                                            'calendarmodel': calendar_model
                                             },
                                         'type': 'time'
                                         },
@@ -1771,7 +1822,7 @@ for table in tables:  # The script can handle multiple tables
                                     'datavalue':{
                                         'value':{
                                             'amount': valueString, # a string for a decimal number; must have leading + or -
-                                            'unit': 'http://www.wikidata.org/entity/' + tableData[rowNumber][propertiesColumnList[propertyNumber] + '_unit'] # IRI as a string
+                                            'unit': DOMAIN_NAME + '/entity/' + tableData[rowNumber][propertiesColumnList[propertyNumber] + '_unit'] # IRI as a string
                                             },
                                         'type': 'quantity',
                                         },
@@ -1790,7 +1841,7 @@ for table in tables:  # The script can handle multiple tables
                                             'latitude': float(valueString), # latitude; decimal number
                                             'longitude': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_long']), # longitude; decimal number
                                             'precision': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec']), # precision; decimal number
-                                            'globe': 'http://www.wikidata.org/entity/Q2' # the earth
+                                            'globe': globe_value # the earth
                                             },
                                         'type': 'globecoordinate'
                                         },
