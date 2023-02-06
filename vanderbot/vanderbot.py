@@ -151,8 +151,8 @@ credentials_filename = 'wikibase_credentials.txt' # name of the API credentials 
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/' # prepended to URL-encoded Commons media filenames
 terse_string = 'false' # True suppresses display of progress output. False dispays information about the current line being processed
 duplicate_check_string = 'true' # True allows checking for duplicate labels and descriptions when creating new items. False suppresses checking
-calendar_model = 'http://www.wikidata.org/entity/Q1985727' # Default to Wikidata gregorian calendar
-globe_value = 'http://www.wikidata.org/entity/Q2' # the Earth; globe to be used for globe-coordinate datatypes
+calendar_model = 'Q1985727' # Default to Wikidata gregorian calendar
+globe_value = 'Q2' # the Earth; globe to be used for globe-coordinate datatypes
 
 # This is the format of the API credentials file. Username and password are for a bot that you've created
 # (the example below is not real).  Save file in the directory specified by the credentials_path_string.
@@ -249,11 +249,17 @@ if duplicate_check_string == 'false':
 else:
     duplicate_check = True
 
+# NOTE: As of 2023-02-06 wikibase.cloud APIs will throw an error for any calendar model that is not in the Wikidata 
+# namespace, regardless of the namespace of the Wikibase instance. 
+# Thus, the option is not given to specify the full URL, just the Q ID.
+# The API does not check whether the Q ID is a valid calendar model.
 if '--calmodel' in opts: # specifies the calendar model to be used in time data types.
     calendar_model = args[opts.index('--calmodel')]
 if '-M' in opts: # specifies the calendar model to be used in time data types.
     calendar_model = args[opts.index('-M')]
 
+# NOTE: As with the calendar model, the API validator requires a value that is in the Wikidata namespace, 
+# regardless of the namespace of the Wikibase instance.
 if '--globe' in opts: # specifies the globe to be used in globe-coordinate data types.
     globe_value = args[opts.index('--globe')]
 if '-G' in opts: # specifies the globe to be used in globe-coordinate data types.
@@ -858,7 +864,7 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                             'before': 0,
                             'after': 0,
                             'precision': refValue['timePrecision'],
-                            'calendarmodel': calendar_model
+                            'calendarmodel': 'http://www.wikidata.org/entity/' + calendar_model
                             },
                         'type': 'time'
                         },
@@ -875,6 +881,8 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                     'datavalue':{
                         'value':{
                             'amount': refValue['amount'], # a string for a decimal number; must have leading + or -
+                            # NOTE: the wikibase.cloud API does not enforce the Wikidata namespace for units.
+                            # So any IRI can be used. We assume that the units are defined in the Wikibase instance.
                             'unit': DOMAIN_NAME + '/entity/' + refValue['unit'] # IRI as a string
                             },
                         'type': 'quantity',
@@ -892,7 +900,7 @@ def generateSnaks(snakDictionary, require_references, refValue, refPropNumber, r
                             'latitude': float(refValue['latitude']), # latitude; decimal number
                             'longitude': float(refValue['longitude']), # longitude; decimal number
                             'precision': float(refValue['precision']), # precision; decimal number
-                            'globe': globe_value # the earth
+                            'globe': 'http://www.wikidata.org/entity/' + globe_value # defaults to the earth
                             },
                         'type': 'globecoordinate'
                         },
@@ -1799,7 +1807,7 @@ for table in tables:  # The script can handle multiple tables
                                             'before': 0,
                                             'after': 0,
                                             'precision': tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec'],
-                                            'calendarmodel': calendar_model
+                                            'calendarmodel': 'http://www.wikidata.org/entity/' + calendar_model
                                             },
                                         'type': 'time'
                                         },
@@ -1841,7 +1849,7 @@ for table in tables:  # The script can handle multiple tables
                                             'latitude': float(valueString), # latitude; decimal number
                                             'longitude': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_long']), # longitude; decimal number
                                             'precision': float(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_prec']), # precision; decimal number
-                                            'globe': globe_value # the earth
+                                            'globe': 'http://www.wikidata.org/entity/' + globe_value # defaults to the earth
                                             },
                                         'type': 'globecoordinate'
                                         },
