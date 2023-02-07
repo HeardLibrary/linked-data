@@ -6,7 +6,7 @@ This page is about general use of the VanderBot Wikidata API-writing script and 
 
 ## Summary
 
-VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see our paper published in *Semantic Web Journal* 14:5-27 <https://doi.org/10.3233/SW-210443>.
+VanderBot is a Python script ([vanderbot.py](vanderbot.py)) used to create or update items in Wikidata or any other Wikibase instance using data from CSV spreadsheet data. The script uses a customizable schema based on the W3C [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/csv2rdf/) Recommendation, making it possible to write data about any kind of item using the Wikidata API. To learn more about this aspect of the project, see our paper published in *Semantic Web Journal* 14:5-27 <https://doi.org/10.3233/SW-210443>.
 
 Since the project started, the generalized code for writing to the API has been used with modifications of other Python scripts from the original project to carry out several Wikidata projects at Vanderbilt. They include [creating records for items in the Vanderbilt Fine Arts Gallery](https://www.wikidata.org/wiki/Wikidata:WikiProject_Vanderbilt_Fine_Arts_Gallery), connecting and creating image items with the [Vanderbilt Divinity Library's Art in the Christian Tradition (ACT) database](https://www.wikidata.org/wiki/Wikidata:WikiProject_Art_in_the_Christian_Tradition_(ACT)), and managing journal data as part of the [VandyCite WikiProject](https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite). Through these explorations, we are learning how to generalize the process so that it can be used in many areas.
 
@@ -29,11 +29,11 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9.2
+Current version: v1.9.4
 
-Written by Steve Baskauf 2020-22.
+Written by Steve Baskauf 2020-23.
 
-Copyright 2022 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
+Copyright 2023 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
 ### RFC 2119 key words
 
@@ -58,13 +58,17 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
 | --log | -L | log filename, or path and appended filename. Omit to log to console. | none |
-| --json | -J | JSON metadata description filename or path and appended filename | "csv-metadata.json" |
-| --credentials | -C | name of the credentials file | "wikibase_credentials.txt" |
-| --path | -P | credentials directory: "home", "working", or path with trailing "/" | "home" |
-| --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | "suppress" |
-| --apisleep | -A | number of seconds to delay between edits (see notes on rate limits below) | 1.25 |
-| --endpoint | -E | a Wikibase SPARQL endpoint URL | "https://query.wikidata.org/sparql" |
-| --terse | -T | terse output: "true" suppresses most terminal output (log unaffected) | "false" |
+| --json | -J | JSON metadata description filename or path and appended filename | `csv-metadata.json` |
+| --credentials | -C | name of the credentials file | `wikibase_credentials.txt` |
+| --path | -P | credentials directory: "home", "working", or path with trailing "/" | `home` |
+| --update | -U | "allow" or "suppress" automatic updates to labels and descriptions | `suppress` |
+| --apisleep | -A | number of seconds to delay between edits (see notes on rate limits below) | `1.25` |
+| --sleep | -S | number of seconds to delay between requests to the SPARQL endpoint | `0.1` |
+| --endpoint | -E | a Wikibase SPARQL endpoint URL | `https://query.wikidata.org/sparql` |
+| --terse | -T | terse output: "true" suppresses most terminal output (log unaffected) | `false` |
+| --dupcheck | -D | check the Query Service for duplicate label/description combinations | `true` |
+| --calmodel | -M | specifies the calendar model to be used for date types | `Q1985727` (Gregorian) |
+| --globe | -G | specifies the globe to be used for globe-coordinate data types | `Q2` (the earth) |
 | --version | -V | no values; displays current version information |  |
 | --help | -H | no values; displays link to this page |  |
 
@@ -116,7 +120,7 @@ Generally, CSV column names are flexible and can be whatever is specified in the
 
 Each value node also includes a column with a `_nodeId` suffix (e.g. `startDate_nodeId`) that contains an arbitrary unique identifier assigned by the script when the item line is processed.
 
-See the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel#Datatypes_and_their_Values) for more details. Note that VanderBot supports common attributes of these value nodes but assumes defaults for others (such as the Gregorian calendar model for time and earth globe system for globecooordinate). 
+See the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel#Datatypes_and_their_Values) for more details. Note that VanderBot allows supplying values for most attributes of these value nodes as part of the tabular data. For the calendar model for time and globe system for globecooordinate), the values are fixed for a particular run of the script, either at their defaults `Q1985727` (Gregorian calendar model) and `Q2` (the earth as the globe system) or at the values set by command line options.
 
 ## Abbreviated time values
 
@@ -195,11 +199,11 @@ Here is an example:
 
 # Rate limits
 
-Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. VanderBot has a [hard-coded limit](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py#L222:L238) to prevent it from writing faster than that rate. 
+Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. When writing to Wikimedia APIs (Wikidata, Commons), VanderBot enforces this limit to prevent it from writing faster than that rate. 
 
 If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edits per minute. A newbie is defined as a user whose account is less than four days old and who has done fewer than 50 edits. If you fall into the newbie category, you probably ought to do at least 50 manual edits to become familiar with the Wikidata data model and terminology anyway. However, if you don't want to wait, you SHOULD use an `--apisleep` or `-A` option with a value of `8` to set the delay to 8 seconds between writes. Once you are no longer a newbie, you MAY change it back to the higher rate by omitting this option.
 
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2023-01-11
+Revised 2023-02-06
