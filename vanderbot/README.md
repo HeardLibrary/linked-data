@@ -120,7 +120,7 @@ Generally, CSV column names are flexible and can be whatever is specified in the
 
 Each value node also includes a column with a `_nodeId` suffix (e.g. `startDate_nodeId`) that contains an arbitrary unique identifier assigned by the script when the item line is processed.
 
-See the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel#Datatypes_and_their_Values) for more details. Note that VanderBot allows supplying values for most attributes of these value nodes as part of the tabular data. For the calendar model for time and globe system for globecooordinate), the values are fixed for a particular run of the script, either at their defaults `Q1985727` (Gregorian calendar model) and `Q2` (the earth as the globe system) or at the values set by command line options.
+See the [Wikibase data model](https://www.mediawiki.org/wiki/Wikibase/DataModel#Datatypes_and_their_Values) for more details. Note that VanderBot allows supplying values for most attributes of these value nodes as part of the tabular data. For the calendar model for time and globe system for globecooordinate), the values are fixed for a particular run of the script, either at their defaults `Q1985727` (Gregorian calendar model) and `Q2` (the earth as the globe system) or at the values set by command line options. NOTE: the API validator REQUIRES that these two Q ID values be from the Wikidata namespace (e.g. `http://www.wikidata.org/entity/Q2`), which means that you can't define your own values in another Wikibase. However, that is NOT true for quantity units, which you MAY define in your Wikibase's own namespace.
 
 ## Abbreviated time values
 
