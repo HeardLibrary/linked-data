@@ -241,9 +241,9 @@ if terse_string == 'true':
 else:
     terse = False
 
-if '--dupcheck' in opts: # specifies the name of the credentials file.
+if '--dupcheck' in opts: # specifies whether to check the Query Service for duplicate label/description combinations.
     duplicate_check_string = args[opts.index('--dupcheck')]
-if '-D' in opts: # specifies the name of the credentials file.
+if '-D' in opts: # specifies whether to check the Query Service for duplicate label/description combinations
     duplicate_check_string = args[opts.index('-D')]
 if duplicate_check_string == 'false':
     duplicate_check = False
