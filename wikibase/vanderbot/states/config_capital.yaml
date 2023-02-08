@@ -1,0 +1,27 @@
+data_path: ""
+item_pattern_file: graph_pattern.txt
+item_source_csv: ""
+outfiles:
+- output_file_name: capitals.csv
+  label_description_language_list:
+  - en
+  manage_descriptions: true
+  # Note: if no columns to ignore, you must omit the "ignore" key or provide an empty list value: []
+  ignore: []
+  prop_list:
+  - variable: instance_of
+    value_type: item
+    pid: P1
+    qual: []
+    ref: []
+  - variable: website
+    value_type: uri
+    pid: P9
+    qual: []
+    ref: 
+    - variable: reference_url
+      value_type: uri
+      pid: P4
+    - variable: retrieved
+      value_type: date
+      pid: P8
