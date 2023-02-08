@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
 version = '1.9.5'
-created = '2023-02-07'
+created = '2023-02-08'
 
 # (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -127,19 +127,25 @@ created = '2023-02-07'
 # - enforce 1.25 s throttling for only wikidata.org and wikimedia.org domain names (shorter sleep times allowed for other wikibase instances)
 # - minor bug fixes
 # ----------------------------------------
-# Version 1.9.5 change notes (2023-02-07)
+# Version 1.9.5 change notes (2023-02-08)
 # Skip checking the SPARQL endpoint for labels and descriptions if allow_label_description_changes is false.
+# Add retry code for cases where the server doesn't give a response.
+# Strip leading and trailing whitespace from values of properties in the CSV file (causes API errors). 
+#       Warn if any values are changed but don't log an error. 
+# Print out elapsed time at end of script.
 
 import json
 import requests
 import csv
 from pathlib import Path
+import time
 from time import sleep
 import sys
 import uuid
 import re
 from datetime import datetime
 import urllib.parse
+from typing import List, Dict, Tuple, Optional, Any
 
 # Change the following lines to hard-code different defaults if not running from the command line.
 
@@ -388,6 +394,14 @@ def extractFromIri(iri, numberPieces):
     # with pattern like http://www.wikidata.org/entity/Q6386232 there are 5 pieces with qId as number 4
     pieces = iri.split('/')
     return pieces[numberPieces]
+
+def remove_leading_trailing_whitespace(string: str) -> Tuple[str, bool]:
+    """Removes leading and trailing whitespace from a string and prints a warning if the string is changed."""
+    error = False
+    if string != string.strip():
+        error = True
+        print('WARNING: leading or trailing whitespace removed from "' + string + '"')
+    return string.strip(), error
 
 def safe_quotes(label: str) -> str:
     """Encloses a string in appropriate triple quotes to prevent malformed SPARQL query.
@@ -1090,8 +1104,24 @@ def attemptPost(apiUrl, parameters):
     while retry <= maxRetries:
         if retry > 0:
             print('retry:', retry)
-        r = session.post(apiUrl, data = parameters)
-        data = r.json()
+        # This first try block is to check for cases where the server is not responding at all.
+        response = 0
+        while response < 5:
+            try:
+                r = session.post(apiUrl, data = parameters)
+                data = r.json()
+                response = 5
+            except:
+                print('Bad response from server.')
+                print('Response was:', r.text)
+                print('Waiting 1 second to retry. Retry', response + 1, 'of 5)')
+                print()
+                sleep(1)
+                response += 1
+        #r = session.post(apiUrl, data = parameters)
+        #data = r.json()
+
+        # This second try block is to check for cases where the server is responding, but is lagged.
         try:
             # check if response is a maxlag error
             # see https://www.mediawiki.org/wiki/Manual:Maxlag_parameter
@@ -1124,6 +1154,7 @@ def attemptPost(apiUrl, parameters):
     exit() # just abort the script
 
 # ----------------------------------------------------------------
+start_time = time.time()
 # authentication
 
 if terse:
@@ -1665,6 +1696,19 @@ for table in tables:  # The script can handle multiple tables
 
             if changed:
                 cells_converted = True
+
+        # Check the cell values for leading or trailing whitespace, which will cause an error from the API
+        for propertyNumber in range(len(propertiesColumnList)):
+            if propertiesEntityOrLiteral[propertyNumber] == 'value':
+                string_value, error = remove_leading_trailing_whitespace(tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val'])
+                if error:
+                    tableData[rowNumber][propertiesColumnList[propertyNumber] + '_val'] = string_value
+                    cells_converted = True
+            else:
+                string_value, error = remove_leading_trailing_whitespace(tableData[rowNumber][propertiesColumnList[propertyNumber]])
+                if error:
+                    tableData[rowNumber][propertiesColumnList[propertyNumber]] = string_value
+                    cells_converted = True
 
         # Write the file with the converted dates and commons URLs in case the script crashes
         if cells_converted:
@@ -2262,7 +2306,8 @@ else:
         print('\n\nNo errors occurred.', file=log_object)
 
 if log_path != '': # only close the log_object if it's a file (otherwise it's std.out)
-    log_object.close() 
+    log_object.close()
+print('elapsed time:', time.time() - start_time, 'seconds')
 print('done')
 print()
     

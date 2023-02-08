@@ -29,7 +29,7 @@ Another utility, [count_entities.py](../json_schema/count_entities.py), can be u
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9.4
+Current version: v1.9.5
 
 Written by Steve Baskauf 2020-23.
 
@@ -197,6 +197,13 @@ Here is an example:
 
 **Technical note:** If a CSV containing `somevalue` data of this form is used to generate RDF using the W3C Recommendation, columns where an item is expected will generate IRIs of the form `http://www.wikidata.org/entity/_:86c4ed0e862509f61bba3ad98a1d5840` rather than the expected form `http://www.wikidata.org/.well-known/genid/86c4ed0e862509f61bba3ad98a1d5840`. For some queries that simply require different values for IRIs in the object position of triples, this probably doesn't matter, but for federated queries comparing the state of the local graph against the Wikidata graph, there could be problems. 
 
+# Error checking
+
+The goal is to never have the script crash and to anticipate errors rather than to make them and receive error messages from the API. There are several things the script checks for:
+- Leading and trailing space on labels, descriptions, and values of properties. Including these in the data is allways an error, so an error message is printed, but no error is logged. Rather, the stripped string is just written back to the CSV.
+- A malformed date aborts writing a row and logs an error.
+- A label/description combination that duplicates one already published aborts writing a row (unless this check is turned off).
+
 # Rate limits
 
 Based on information acquired in 2020, bot password users who don't have a "[bot flag](https://www.wikidata.org/wiki/Wikidata:Bots)" are limited to 50 edits per minute. Editing at a faster rate will get you temporarily blocked from writing to the API. When writing to Wikimedia APIs (Wikidata, Commons), VanderBot enforces this limit to prevent it from writing faster than that rate. 
@@ -206,4 +213,4 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
 ----
-Revised 2023-02-06
+Revised 2023-02-08
