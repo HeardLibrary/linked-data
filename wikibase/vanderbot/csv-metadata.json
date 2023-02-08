@@ -1,0 +1,212 @@
+{
+  "@type": "TableGroup",
+  "@context": "http://www.w3.org/ns/csvw",
+  "tables": [
+    {
+      "url": "statues.csv",
+      "tableSchema": {
+        "columns": [
+          {
+            "titles": "qid",
+            "name": "qid",
+            "datatype": "string",
+            "suppressOutput": true
+          },
+          {
+            "titles": "label_en",
+            "name": "label_en",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "rdfs:label",
+            "lang": "en"
+          },
+          {
+            "titles": "label_fr",
+            "name": "label_fr",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "rdfs:label",
+            "lang": "fr"
+          },
+          {
+            "titles": "description_en",
+            "name": "description_en",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "schema:description",
+            "lang": "en"
+          },
+          {
+            "titles": "description_fr",
+            "name": "description_fr",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "schema:description",
+            "lang": "fr"
+          },
+          {
+            "titles": "instance_of_uuid",
+            "name": "instance_of_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "http://www.wikidata.org/prop/P1",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{instance_of_uuid}"
+          },
+          {
+            "titles": "instance_of",
+            "name": "instance_of",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{instance_of_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/statement/P1",
+            "valueUrl": "http://www.wikidata.org/entity/{instance_of}"
+          },
+          {
+            "titles": "artist_uuid",
+            "name": "artist_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "http://www.wikidata.org/prop/P2",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{artist_uuid}"
+          },
+          {
+            "titles": "artist",
+            "name": "artist",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{artist_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/statement/P2",
+            "valueUrl": "http://www.wikidata.org/entity/{artist}"
+          },
+          {
+            "titles": "artist_series_ordinal",
+            "name": "artist_series_ordinal",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{artist_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/qualifier/P3"
+          },
+          {
+            "titles": "artist_ref1_hash",
+            "name": "artist_ref1_hash",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{artist_uuid}",
+            "propertyUrl": "prov:wasDerivedFrom",
+            "valueUrl": "http://www.wikidata.org/reference/{artist_ref1_hash}"
+          },
+          {
+            "titles": "artist_ref1_reference_url",
+            "name": "artist_ref1_reference_url",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/reference/{artist_ref1_hash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/P4",
+            "valueUrl": "{+artist_ref1_reference_url}"
+          },
+          {
+            "titles": "artist_ref1_retrieved_nodeId",
+            "name": "artist_ref1_retrieved_nodeId",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/reference/{artist_ref1_hash}",
+            "propertyUrl": "http://www.wikidata.org/prop/reference/value/P8",
+            "valueUrl": "http://example.com/.well-known/genid/{artist_ref1_retrieved_nodeId}"
+          },
+          {
+            "titles": "artist_ref1_retrieved_val",
+            "name": "artist_ref1_retrieved_val",
+            "datatype": "dateTime",
+            "aboutUrl": "http://example.com/.well-known/genid/{artist_ref1_retrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timeValue"
+          },
+          {
+            "titles": "artist_ref1_retrieved_prec",
+            "name": "artist_ref1_retrieved_prec",
+            "datatype": "integer",
+            "aboutUrl": "http://example.com/.well-known/genid/{artist_ref1_retrieved_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#timePrecision"
+          },
+          {
+            "titles": "height_uuid",
+            "name": "height_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "http://www.wikidata.org/prop/P5",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{height_uuid}"
+          },
+          {
+            "titles": "height_nodeId",
+            "name": "height_nodeId",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{height_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/statement/value/P5",
+            "valueUrl": "http://example.com/.well-known/genid/{height_nodeId}"
+          },
+          {
+            "titles": "height_val",
+            "name": "height_val",
+            "datatype": "decimal",
+            "aboutUrl": "http://example.com/.well-known/genid/{height_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#quantityAmount"
+          },
+          {
+            "titles": "height_unit",
+            "name": "height_unit",
+            "datatype": "string",
+            "aboutUrl": "http://example.com/.well-known/genid/{height_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#quantityUnit",
+            "valueUrl": "http://www.wikidata.org/entity/{height_unit}"
+          },
+          {
+            "titles": "gps_uuid",
+            "name": "gps_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "http://www.wikidata.org/prop/P6",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{gps_uuid}"
+          },
+          {
+            "titles": "gps_nodeId",
+            "name": "gps_nodeId",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{gps_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/statement/value/P6",
+            "valueUrl": "http://example.com/.well-known/genid/{gps_nodeId}"
+          },
+          {
+            "titles": "gps_val",
+            "name": "gps_val",
+            "datatype": "float",
+            "aboutUrl": "http://example.com/.well-known/genid/{gps_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#geoLatitude"
+          },
+          {
+            "titles": "gps_long",
+            "name": "gps_long",
+            "datatype": "float",
+            "aboutUrl": "http://example.com/.well-known/genid/{gps_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#geoLongitude"
+          },
+          {
+            "titles": "gps_prec",
+            "name": "gps_prec",
+            "datatype": "float",
+            "aboutUrl": "http://example.com/.well-known/genid/{gps_nodeId}",
+            "propertyUrl": "http://wikiba.se/ontology#geoPrecision"
+          },
+          {
+            "titles": "title_en_uuid",
+            "name": "title_en_uuid",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/{qid}",
+            "propertyUrl": "http://www.wikidata.org/prop/P7",
+            "valueUrl": "http://www.wikidata.org/entity/statement/{qid}-{title_en_uuid}"
+          },
+          {
+            "titles": "title_en",
+            "name": "title_en",
+            "datatype": "string",
+            "aboutUrl": "http://www.wikidata.org/entity/statement/{qid}-{title_en_uuid}",
+            "propertyUrl": "http://www.wikidata.org/prop/statement/P7",
+            "lang": "en"
+          }
+        ]
+      }
+    }
+  ]
+}
