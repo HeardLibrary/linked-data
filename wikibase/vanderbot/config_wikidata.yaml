@@ -2,7 +2,7 @@ data_path: ""
 item_pattern_file: ""
 item_source_csv: qids.csv
 outfiles:
-- output_file_name: statues.csv
+- output_file_name: statues_downloaded.csv
   label_description_language_list:
   - en
   - fr
