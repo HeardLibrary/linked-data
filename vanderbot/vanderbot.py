@@ -1,6 +1,6 @@
 # VanderBot, a script for writing CSV data to a Wikibase API.  vanderbot.py
-version = '1.9.4'
-created = '2023-02-06'
+version = '1.9.5'
+created = '2023-02-07'
 
 # (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
@@ -120,12 +120,15 @@ created = '2023-02-06'
 # Version 1.9.3 change notes (2022-09-04)
 # - add option for "terse" mode to suppress displaying progress. (Reporting of errors at end and logging not affected.)
 # ----------------------------------------
-# Version 1.9.4 change notes (2023-01-25)
+# Version 1.9.4 change notes (2023-02-06)
 # - fix error in SPARQL query when labels or descriptions end in a double or single quote.
 # - remove hard-coded references to the www.wikidata.org subdomain and make them configurable.
 # - allow suppression of duplicate label/description checking for situations where the wikibase SPARQL endpoint is slow
 # - enforce 1.25 s throttling for only wikidata.org and wikimedia.org domain names (shorter sleep times allowed for other wikibase instances)
 # - minor bug fixes
+# ----------------------------------------
+# Version 1.9.5 change notes (2023-02-07)
+# Skip checking the SPARQL endpoint for labels and descriptions if allow_label_description_changes is false.
 
 import json
 import requests
@@ -1243,7 +1246,7 @@ for table in tables:  # The script can handle multiple tables
 
         # special handling for alias column
         # In order to allow for multiple aliases to be listed as a JSON string, the alias column is handled idiosyncratically and
-        # not as with the labels and description columns. It must me named exactly "alias" and have output suppressed.
+        # not as with the labels and description columns. It must be named exactly "alias" and have output suppressed.
         # This hack allows aliases to be processed by the script, but also to allow a csv2rdf to serialize the CSV data as valid RDF.
         # However, it limits aliases to a single language.
         if 'suppressOutput' in column:
@@ -1283,22 +1286,25 @@ for table in tables:  # The script can handle multiple tables
                 labelColumnList.append(labelColumnHeader)
                 labelLanguageList.append(labelLanguage)
 
-                # retrieve the labels in that language that already exist in Wikidata and match them with table rows
-                tempLabels = []
-                labelsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'label', labelLanguage)
-                for entityIndex in range(0, len(tableData)):
-                    found = False
-                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
-                        for wikiLabel in labelsAtWikidata:
-                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
-                                found = True
-                                tempLabels.append(wikiLabel['string'])
-                                break # stop looking if there is a match
-                    if not found:
-                        tempLabels.append('')
+                if allow_label_description_changes:
+                    # The retrieved labels are only used in the case where changes to labels is allowed.
+                    # If changes are not allowed don't take the time to run the query and leave the list empty.
+                    # retrieve the labels in that language that already exist in Wikidata and match them with table rows
+                    tempLabels = []
+                    labelsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'label', labelLanguage)
+                    for entityIndex in range(0, len(tableData)):
+                        found = False
+                        if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                            for wikiLabel in labelsAtWikidata:
+                                if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiLabel['qId']:
+                                    found = True
+                                    tempLabels.append(wikiLabel['string'])
+                                    break # stop looking if there is a match
+                        if not found:
+                            tempLabels.append('')
 
-                # add all of the found labels for that language to the list of labels in various languages
-                existingLabels.append(tempLabels)
+                    # add all of the found labels for that language to the list of labels in various languages
+                    existingLabels.append(tempLabels)
 
             # find columns that contain descriptions
             # Note: if descriptions exist for a language, they will be overwritten
@@ -1310,22 +1316,25 @@ for table in tables:  # The script can handle multiple tables
                 descriptionColumnList.append(descriptionColumnHeader)
                 descriptionLanguageList.append(descriptionLanguage)
 
-                # retrieve the descriptions in that language that already exist in Wikidata and match them with table rows
-                tempLabels = []
-                descriptionsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'description', descriptionLanguage)
-                for entityIndex in range(0, len(tableData)):
-                    found = False
-                    if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
-                        for wikiDescription in descriptionsAtWikidata:
-                            if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiDescription['qId']:
-                                found = True
-                                tempLabels.append(wikiDescription['string'])
-                                break # stop looking if there is a match
-                    if not found:
-                        tempLabels.append('')
+                if allow_label_description_changes:
+                    # The retrieved descriptions are only used in the case where changes to descriptions is allowed.
+                    # If changes are not allowed don't take the time to run the query and leave the list empty.
+                    # Retrieve the descriptions in that language that already exist in Wikidata and match them with table rows
+                    tempLabels = []
+                    descriptionsAtWikidata = searchLabelsDescriptionsAtWikidata(qIds, 'description', descriptionLanguage)
+                    for entityIndex in range(0, len(tableData)):
+                        found = False
+                        if tableData[entityIndex][subjectWikidataIdColumnHeader] != '':  # don't look for the label at Wikidata if the item doesn't yet exist
+                            for wikiDescription in descriptionsAtWikidata:
+                                if tableData[entityIndex][subjectWikidataIdColumnHeader] == wikiDescription['qId']:
+                                    found = True
+                                    tempLabels.append(wikiDescription['string'])
+                                    break # stop looking if there is a match
+                        if not found:
+                            tempLabels.append('')
 
-                # add all of the found labels for that language to the list of labels in various languages
-                existingDescriptions.append(tempLabels)
+                    # add all of the found labels for that language to the list of labels in various languages
+                    existingDescriptions.append(tempLabels)
 
             # find columns that contain properties with entity values, literal values that are URLs, or value node values
             elif 'valueUrl' in column:
