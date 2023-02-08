@@ -14,6 +14,16 @@ outfiles:
     pid: P1
     qual: []
     ref: []
+  - variable: atomic number
+    value_type: string
+    pid: P15
+    qual: []
+    ref: []
+  - variable: atomic mass
+    value_type: string
+    pid: P16
+    qual: []
+    ref: []
   - variable: abbreviation
     value_type: string
     pid: P10
