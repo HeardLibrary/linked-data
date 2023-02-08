@@ -1,0 +1,48 @@
+data_path: ""
+item_pattern_file: graph_pattern.txt
+item_source_csv: ""
+outfiles:
+- output_file_name: statues.csv
+  label_description_language_list:
+  - en
+  - fr
+  manage_descriptions: true
+  # Note: if no columns to ignore, you must omit the "ignore" key or provide an empty list value: []
+  ignore: []
+  prop_list:
+  - variable: instance_of
+    value_type: item
+    pid: P1
+    qual: []
+    ref: []
+  - variable: artist
+    value_type: item
+    pid: P2
+    qual: 
+      - variable: series_ordinal
+        value_type: string
+        pid: P3
+    ref: 
+    - variable: reference_url
+      value_type: uri
+      pid: P4
+    - variable: retrieved
+      value_type: date
+      pid: P8
+  - variable: height
+    value_type: quantity
+    pid: P5
+    qual: []
+    ref: []
+  - variable: gps
+    value_type: globecoordinate
+    pid: P6
+    qual: []
+    ref: []
+  - variable: title_en
+    value_type: monolingualtext
+    language: en
+    pid: P7
+    qual: []
+    ref: []
+    
