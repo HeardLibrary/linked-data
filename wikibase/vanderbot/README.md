@@ -11,8 +11,8 @@ In order to use the files in this directory, several scripts are required:
 | script/documentation link | filename/link | description |
 |--------|---------------|-------------|
 | [VanderBot](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/README.md) | [vanderbot.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py) |  |
-| [VanderDeleteBot]() | [vanderdeletebot.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderdeletebot.py) | uses a Wikimedia API to delete claims (statements) or references based on their unique IDs |
-| [VanderPropertyBot]() | [vanderpropertybot.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderpropertybot.py) | uses the API of a non-Wikimedia Foundation wikibase API to create new properties |
+| [VanderDeleteBot](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderdeletebot.md) | [vanderdeletebot.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderdeletebot.py) | uses a Wikimedia API to delete claims (statements) or references based on their unique IDs |
+| [VanderPropertyBot](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderpropertybot.md) | [vanderpropertybot.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderpropertybot.py) | uses the API of a non-Wikimedia Foundation wikibase API to create new properties |
 | [ConvertConfigToMetadataSchema](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md) | [convert_config_to_metadata_schema.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert_config_to_metadata_schema.py) | generates CSV column headers and W3C standard CSV description file used by VanderBot from a YAML mapping configuration file |
 | [AcquireWikidataMetadata](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata.md) | [acquire_wikidata_metadata.py](https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata_metadata.py) | uses SPARQL to download existing data from Wikidata or other wikibases |
 
