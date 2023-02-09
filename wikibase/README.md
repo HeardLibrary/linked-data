@@ -1,6 +1,8 @@
-# Wikibase and Wikidata
+# Wikibase
 
-This directory contains work related to setting up Wikibase and automating interactions with Wikidata and Wikibase.  
+This directory contains work related to setting up Wikibase and automating interactions with Wikidata and Wikibase. 
+
+Note on 2023-02-09: The files in this directory were from early experiments using pywikibot prior to 2019-05-02. Since that time, work has been focused on development of [VanderBot](http://vanderbi.lt/vanderbot) and related scripts for interacting with the Wikidata API and Wikibase APIs in general. This material has been left here for historical reference. For more current information, see [vanderbot subdirectory of this one](https://github.com/HeardLibrary/linked-data/tree/master/wikibase/vanderbot).
 
 | file | description |
 |------|-------------|
@@ -17,4 +19,4 @@ This directory contains work related to setting up Wikibase and automating inter
 [Building a bot to interact with Wikibase](https://heardlibrary.github.io/digital-scholarship/host/wikidata/bot/)
 
 ----
-Revised 2019-05-02
+Revised 2023-02-09
