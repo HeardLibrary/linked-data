@@ -112,7 +112,7 @@ if '-A' in opts:
     api_sleep = int(args[opts.index('-A')])
 
 # See https://meta.wikimedia.org/wiki/User-Agent_policy
-user_agent_header = 'VanderDeleteBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+user_agent_header = 'VanderDeleteBot/' + version + ' (https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderdeletebot.md; mailto:steve.baskauf@vanderbilt.edu)'
 
 # If you don't know what you are doing, leave this value alone. In any case, it is rude to use a value greater than 5.
 maxlag = 5
