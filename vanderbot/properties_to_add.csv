@@ -1,0 +1,9 @@
+pid,datatype,label_en,description_en,label_fr,description_fr,label_es,description_es
+,string,property 1 label,property 1 description,étiquette de propriété 1,description de propriété 1,,
+,monolingualtext,subtitle,the second part of a longer title,,,subtítulo,
+,quantity,mass,the amount of material in an object,,,,
+,time,date of destruction,the date on which an object no longer existed,,,,
+,bad,bad property,property with an invalid datatype,,,,
+,globe-coordinate,observation location,the place where an entity was detected,,,,
+,wikibase-item,in collection,the collection of which the subject item is a part,,,,
+,url,homepage,the URL of the landing page of a website,,,,

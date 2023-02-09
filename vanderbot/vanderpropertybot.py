@@ -1,22 +1,20 @@
-# VanderDeleteBot, a script for deleting Wikibase claims.  vanderdeletebot.py
-version = '0.2'
-created = '2023-02-08'
+# VanderPropertyBot, a script for creating Wikibase properties.  vanderpropertybot.py
+version = '0.1'
+created = '2023-02-09'
 
-# (c) 2022-2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
-# Designed as an add-on to VanderBot (http://vanderbi.lt/vanderbot) and most of the configuration and functions 
-# are copied from the vanderbot.py script there, so go there for more explanation.
+# Uses code from VanderDeleteBot, which is based on VanderBot (http://vanderbi.lt/vanderbot).
+#  and most of the configuration and functions are copied from the vanderbot.py script there, so go there for more explanation.
 
-# Requires knowing the Q ID of the item and the UUID for the claim. Both of these identifiers are routinely stored 
-# after a VanderBot upload.
+# Can only be used with Wikibase instances that are not Wikidata or Structured Data on Commons, since editing properties
+# on those sites is restricted to the Wikidata and Commons communities.
 
 # -----------------------------------------
-# Version 0.1 change notes (2022):
+# Version 0.1 change notes (2023-02-09):
 # - Initial version
-# -----------------------------------------
-# Version 0.2 change notes (2023-02-08):
-# - Moved from a Jupyter notebook to a stand-alone script
+
 
 import json
 import requests
@@ -28,12 +26,13 @@ import pandas as pd
 from typing import List, Dict, Tuple, Optional, Any
 
 # Set global variable values. Assign default values, then override if passed in as command line arguments.
-claims_to_delete_filename = 'deletions.csv'
-column_name = 'instance_of_uuid' # Note Q ID column is hard coded to "qid"
+property_data_filename = 'properties_to_add.csv'
 credentials_filename = 'wikibase_credentials.txt' # name of the API credentials file
 credentials_path_string = 'home' # value is "home", "working", "gdrive", or a relative or absolute path with trailing "/"
 log_path = '' # default path to log file
 log_object = sys.stdout # log output defaults to the console screen
+
+valid_datatypes = ['string', 'monolingualtext', 'quantity', 'time', 'globe-coordinate', 'wikibase-item', 'url', 'external-id', 'math', 'tabular-data', 'commonsMedia', 'geo-shape', 'musical-notation']
 
 arg_vals = sys.argv[1:]
 # see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
@@ -44,7 +43,7 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
         arg_vals.remove('--version')
     if '-V' in arg_vals:
         arg_vals.remove('-V')
-    print('VanderDeleteBot', version)
+    print('VanderPropertyBot', version)
     print('Copyright ©', created[:4], 'Vanderbilt University')
     print('License GNU GPL version 3.0 <http://www.gnu.org/licenses/gpl-3.0>')
     print('This is free software: you are free to change and redistribute it.')
@@ -67,9 +66,9 @@ if '-L' in opts: # set output to specified log file or path including file name
 
 # specifies the name of the file containing deletion identifiers.
 if '--file' in opts:
-    claims_to_delete_filename = args[opts.index('--file')]
+    property_data_filename = args[opts.index('--file')]
 if '-F' in opts:
-    claims_to_delete_filename = args[opts.index('-F')]
+    property_data_filename = args[opts.index('-F')]
     
 # specifies the location of the credentials file.
 if '--path' in opts:
@@ -77,11 +76,6 @@ if '--path' in opts:
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
-if '--header' in opts: # specifies the column containing the identifiers for the data to be deleted.
-    column_name = args[opts.index('--header')]
-if '-H' in opts:
-    column_name = args[opts.index('-H')]
-    
 # specifies the name of the credentials file.
 if '--credentials' in opts:
     credentials_filename = args[opts.index('--credentials')]
@@ -100,19 +94,15 @@ elif credentials_path_string == 'working': # credential file is in current worki
 else:  # credential file is in a directory whose path was specified by the credential_path_string
     credentials_path = credentials_path_string + credentials_filename
 
-# The limit for bots without a bot flag seems to be 50 writes per minute. That's 1.2 s between writes.
-# To be safe and avoid getting blocked, leave the api_sleep value at its default: 1.25 s.
-# The option to increase the delay is offered if the user is a "newbie", defined as having an
-# account less than four days old and with fewer than 50 edits. The newbie limit is 8 edits per minute.
-# Therefore, newbies should set the API sleep value to 8 to avoid getting blocked.
-api_sleep = 1.25
+# Since this script cannot be used on Wikidata or Structured Data on Commons, no delay is needed between API calls.
+api_sleep = 0 # default value
 if '--apisleep' in opts: # delay between API POSTs. Used by newbies to slow writes to within limits. 
     api_sleep = int(args[opts.index('--apisleep')]) # Number of seconds between API calls. Numeric only, do not include "s"
 if '-A' in opts:
     api_sleep = int(args[opts.index('-A')])
 
 # See https://meta.wikimedia.org/wiki/User-Agent_policy
-user_agent_header = 'VanderDeleteBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+user_agent_header = 'VanderPropertyBot/' + version + ' (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
 
 # If you don't know what you are doing, leave this value alone. In any case, it is rude to use a value greater than 5.
 maxlag = 5
@@ -175,23 +165,6 @@ def get_csrf_token(apiUrl):
     r = session.get(url=apiUrl, params=parameters)
     data = r.json()
     return data["query"]["tokens"]["csrftoken"]
-
-def parse_column_name(column_name: str) -> Tuple[str, str]:
-    """Parses the column name to determine the type of identifier and base name."""
-    if '_uuid' in column_name:
-        action = 'wbremoveclaims'
-    elif '_hash' in column_name:
-        action = 'wbremovereferences'
-    else:
-        action = 'error'
-    pieces = column_name.split('_')
-    if action == 'wbremoveclaims':
-        base_name = '_'.join(pieces[:-1])
-    elif action == 'wbremovereferences':
-        base_name = '_'.join(pieces[:-2])
-    else:
-        base_name = ''
-    return action, base_name
 
 # This function attempts to post and handles maxlag errors
 def attempt_post(apiUrl, parameters):
@@ -265,19 +238,13 @@ resource_url = '/w/api.php'
 base_url, user, pwd = retrieve_credentials(credentials_path)
 endpoint_url = base_url + resource_url
 if base_url == 'https://www.wikidata.org':
-    DOMAIN_NAME = 'http://www.wikidata.org'
+    print('Properties cannot be created on Wikidata without community consensus.')
+    quit()
 elif base_url == 'https://commons.wikimedia.org':
-    DOMAIN_NAME = 'http://commons.wikimedia.org'
+    print('Properties cannot be created on Commons without community consensus.')
+    quit()
 else:
     DOMAIN_NAME = base_url
-
-# DO NOT decrease this limit unless you have obtained a bot flag! If you have a bot flag, then you have created your own
-# User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
-# your own information. DO NOT get me in trouble by saying you are using my User-Agent if you are going to violate 
-# Wikimedia guidelines !!!
-if 'wikidata.org' in DOMAIN_NAME or 'wikimedia.org' in DOMAIN_NAME:
-    if api_sleep < 1.25:
-        api_sleep = 1.25
 
 # Instantiate session outside of any function so that it's globally accessible.
 session = requests.Session()
@@ -291,61 +258,43 @@ csrf_token = get_csrf_token(endpoint_url)
 # -------------------------------------------
 # Beginning of script to process the table
 
-# The input data is in a CSV file (name specified in the configuration section) with up to three required columns: 
-# - qid contanining the item identifier
-# - the UUID column containing the ID of the claim. Must end in `_uuid`.
-# - the hash column containing the hash of the reference (if references are to be removed). Must end in `_something_hash`.
-# Other columns may be present, but will be ignored. One can create this table by copying and pasting from a VanderBot 
-# upload table using the `property_name_uuid` column associated with `property_name`.
-
-# For information about the wbremoveclaims action, see
-# https://www.wikidata.org/w/api.php?action=help&modules=wbremoveclaims
-# https://www.wikidata.org/wiki/Special:ApiSandbox#action=wbremoveclaims&claim=Q4115189$D8404CDA-25E4-4334-AF13-A3290BCD9C0N&token=foobar&baserevid=7201010
+# For information about the wbeditentity action, see
+# https://wbwh-test.wikibase.cloud/w/api.php?action=help&modules=wbeditentity
+# hhttps://wbwh-test.wikibase.cloud/wiki/Special:ApiSandbox#action=wbeditentity&format=json&new=property&token=d14d42dc77c5e2de0d69ef7b1893a07963e45c11%2B%5C&data=%7B%22labels%22%3A%7B%22en%22%3A%7B%22language%22%3A%22en%22%2C%22value%22%3A%22test%20property%22%7D%7D%2C%22descriptions%22%3A%7B%22en%22%3A%7B%22language%22%3A%22en%22%2C%22value%22%3A%22property%20created%20via%20API%22%7D%7D%2C%22datatype%22%3A%22string%22%7D
 
 # Here's what the request JSON looks like.
 '''
 {
-	"action": "wbremoveclaims",
+	"action": "wbeditentity",
 	"format": "json",
-	"claim": "Q15397819$7C27786A-5FA6-4813-83B8-8ED8A81FB7D3",
-	"token": "5378abbde76544dfb260e49000bf828b6274226d+\\"
+	"new": "property",
+	"token": "d14d42dc77c5e2de0d69ef7b1893a07963e45c11+\\",
+	"data": "{\"labels\":{\"en\":{\"language\":\"en\",\"value\":\"test property\"}},\"descriptions\":{\"en\":{\"language\":\"en\",\"value\":\"property created via API\"}},\"datatype\":\"string\"}"
 }
 '''
 
 # Here's what the response JSON looks like.
 '''
 {
-    "pageinfo": {
-        "lastrevid": 1632748100
-    },
-    "success": 1,
-    "claims": [
-        "Q15397819$7C27786A-5FA6-4813-83B8-8ED8A81FB7D3"
-    ]
-}
-'''
-
-# For information about the wbremovereferences action, see
-# https://www.wikidata.org/w/api.php?action=help&modules=wbremovereferences
-# https://www.wikidata.org/wiki/Special:ApiSandbox#action=wbremovereferences&format=json&statement=Q15397819%24944f6f2c-4904-e6f1-3ec3-a0a6277ba007&references=0b98ce9b5bcbc1b947b13b04c39879747e6b0015&token=04770af3aeb6bf3e7a193162c67df7b563e44488%2B%5C&formatversion=2
-
-# Here's what the request JSON looks like.
-'''
-{
-	"action": "wbremovereferences",
-	"format": "json",
-	"statement": "Q15397819$944f6f2c-4904-e6f1-3ec3-a0a6277ba007",
-	"references": "0b98ce9b5bcbc1b947b13b04c39879747e6b0015",
-	"token": "04770af3aeb6bf3e7a193162c67df7b563e44488+\\"
-}
-''' 
-# Supposedly, you can provide multiple reference tokens by separating them with a pipe. I haven't tried it.
-
-# Here's what the response JSON looks like.
-'''
-{
-    "pageinfo": {
-        "lastrevid": 1829774853
+    "entity": {
+        "type": "property",
+        "datatype": "string",
+        "id": "P17",
+        "labels": {
+            "en": {
+                "language": "en",
+                "value": "test property"
+            }
+        },
+        "descriptions": {
+            "en": {
+                "language": "en",
+                "value": "property created via API"
+            }
+        },
+        "aliases": {},
+        "claims": {},
+        "lastrevid": 323
     },
     "success": 1
 }
@@ -353,41 +302,63 @@ csrf_token = get_csrf_token(endpoint_url)
 
 full_error_log = '' # start the full error log
 
-claims_to_delete_frame = pd.read_csv(claims_to_delete_filename, na_filter=False, dtype = str)
+property_data_frame = pd.read_csv(property_data_filename, na_filter=False, dtype = str)
 
-action, base_name = parse_column_name(column_name)
-#print(action, base_name)
+# Determine the column headers
+column_headers = list(property_data_frame.columns.values)
 
-for index, claim_row in claims_to_delete_frame.iterrows():
-    if claim_row[column_name] == '':
+language_codes = []
+for header in column_headers:
+    if header.startswith('label_'):
+        language_code = header[6:]
+        language_codes.append(language_code)
+print('detected language codes:', language_codes)
+
+# Loop through the rows in the table
+for index, property_row in property_data_frame.iterrows():
+    print('Processing row', index)
+    if property_row['pid'] != '':
+        print('Existing pid:', property_row['pid'])
+        continue # skip this row if it already has a pid
+
+    # Check that the datatype is valid
+    if property_row['datatype'] not in valid_datatypes:
+        error_log += 'Invalid datatype in row ' + str(index) + ': ' + property_row['datatype'] + '\n'
+        print('Invalid datatype:', property_row['datatype'], file=log_object)
+        print('', file=log_object)
         continue
-    qid = claim_row['qid']
-    uuid = claim_row[base_name + '_uuid']
-    if action == 'wbremovereferences':
-        ref_hash = claim_row[column_name]
-        print('deleting:', index, qid, uuid, ref_hash)
-    else:
-        print('deleting:', index, qid, uuid)
 
-    # build the parameter string to be posted to the API
+    # Build the data dictionary
+    data_dictionary = {}
+    data_dictionary['labels'] = {}
+    data_dictionary['descriptions'] = {}
+    data_dictionary['datatype'] = property_row['datatype']
+
+    for language_code in language_codes:
+        if property_row['label_' + language_code] != '':
+            data_dictionary['labels'][language_code] = {'language': language_code, 'value': property_row['label_' + language_code]}
+        if property_row['description_' + language_code] != '':
+            data_dictionary['descriptions'][language_code] = {'language': language_code, 'value': property_row['description_' + language_code]}
+
+    #print(data_dictionary)
+
+    # Build the parameter dictionary to be posted to the API
     parameter_dictionary = {
-        'action': action,
+        'action': 'wbeditentity',
         'format':'json',
-        'token': csrf_token
+        'new': 'property',
+        'token': csrf_token,
+        'data': json.dumps(data_dictionary)
         }
-
-    # Add the identifiers to the parameter dictionary
-    if action == 'wbremovereferences':
-        parameter_dictionary['statement'] = qid + '$' + uuid
-        parameter_dictionary['references'] = ref_hash
-    else:
-        parameter_dictionary['claim'] = qid + '$' + uuid
     if maxlag > 0:
         parameter_dictionary['maxlag'] = maxlag
+
     #print(parameter_dictionary)
 
+    # Make the API call
     response_data = attempt_post(endpoint_url, parameter_dictionary)
-    print('Delete confirmation: ', json.dumps(response_data), file=log_object)
+
+    print('Creation confirmation: ', json.dumps(response_data), file=log_object)
     print('', file=log_object)
 
     if 'error' in response_data:
@@ -396,6 +367,13 @@ for index, claim_row in claims_to_delete_frame.iterrows():
         print('failed write due to error from API', file=log_object)
         print('', file=log_object)
         continue # Do not try to extract data from the response JSON. Go on with the next row and leave CSV unchanged.
+
+    # Extract the entity ID from the response JSON and write it to the CSV
+    pid = response_data['entity']['id']
+    property_data_frame.loc[index, 'pid'] = pid
+
+    # Write the CSV in case the script is interrupted
+    property_data_frame.to_csv(property_data_filename, index=False)
 
     # Do not change this value, see top of script for an explanation
     sleep(api_sleep)
@@ -414,4 +392,3 @@ if log_path != '': # only close the log_object if it's a file (otherwise it's st
     log_object.close()
 
 print('done')
-   
