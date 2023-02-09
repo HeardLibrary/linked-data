@@ -1,5 +1,8 @@
 # convert_json_to_metadata_schema.py 
 
+# !!!! NOTE: this script is deprecated and is no longer being maintained. 
+# It is replaced by convert_config_to_metadata_schema.py but has been left here for historical purposes.
+
 # This is part of the VandyCite project https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite
 # (c) 2021 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf

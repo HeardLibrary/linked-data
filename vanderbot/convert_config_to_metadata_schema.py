@@ -1,4 +1,5 @@
-# convert_config_to_metadata_schema.py 
+# ConvertConfigToMetadataSchema, a script for generating CSV column headers and 
+# W3C metadata configuration files from a simple YAML file. convert_config_to_metadata_schema.py 
 # formerly known as convert_json_to_metadata_schema.py
 
 # This is part of the VandyCite project https://www.wikidata.org/wiki/Wikidata:WikiProject_VandyCite

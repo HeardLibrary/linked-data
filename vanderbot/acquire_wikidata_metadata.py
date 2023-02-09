@@ -1,4 +1,4 @@
-# acquire-wikidata-metadata.py 
+# AcquireWikidataMetadata, a script using SPARQL to download data from Wikidata into a CSV. acquire-wikidata-metadata.py 
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
@@ -85,7 +85,7 @@ if '-L' in opts:
 
 # Best to send a user-agent header because some Wikimedia servers don't like unidentified clients
 def generate_header_dictionary(accept_media_type):
-    user_agent_header = 'VanderBot/1.7.1 (https://github.com/HeardLibrary/linked-data/tree/master/vanderbot; mailto:steve.baskauf@vanderbilt.edu)'
+    user_agent_header = 'AcquireWikidataMetadata/1.2.0 (https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/acquire_wikidata.md; mailto:steve.baskauf@vanderbilt.edu)'
     requestHeaderDictionary = {
         'Accept' : accept_media_type,
         'Content-Type': 'application/sparql-query',
