@@ -70,7 +70,7 @@ if '-L' in opts: # set output to specified log file or path including file name
     log_path = args[opts.index('-L')]
     log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
 
-# specifies the name of the file containing deletion identifiers.
+# specifies the name of the file containing the property data.
 if '--file' in opts:
     property_data_filename = args[opts.index('--file')]
 if '-F' in opts:
@@ -318,6 +318,10 @@ for header in column_headers:
     if header.startswith('label_'):
         language_code = header[6:]
         language_codes.append(language_code)
+
+if len(language_codes) == 0:
+    print('No label columns found for any language.')
+    quit()
 print('detected language codes:', language_codes)
 
 # Loop through the rows in the table

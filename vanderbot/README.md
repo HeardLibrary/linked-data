@@ -212,5 +212,7 @@ If you are a "newbie" (new user), you are subject to a slower rate limit: 8 edit
 
 For more detail on rate limit settings, see [this page](https://www.mediawiki.org/wiki/Manual:$wgRateLimits) and the [configuration file](https://noc.wikimedia.org/conf/InitialiseSettings.php.txt) used by Wikidata.
 
+If you are deleting statements from a custom Wikibase instance, this script does not enforce any rate limit. Therefore, you can speed up the script by specifying a value of zero (`0`) for the `--apisleep` (or `-A`) option.
+
 ----
-Revised 2023-02-08
+Revised 2023-02-09

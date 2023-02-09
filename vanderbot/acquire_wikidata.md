@@ -37,8 +37,8 @@ python acquire_wikidata_metadata.py
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --config | -C | configuration file name, or path and appended filename. | "config.json" |
-| --lang | -L | language of labels whose output is suppressed | "en" |
+| --config | -C | configuration file name, or path and appended filename. | `config.json` |
+| --lang | -L | language of labels whose output is suppressed | `en` |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
@@ -121,4 +121,4 @@ It is important to understand this behavior, since the updating done by the scri
 **Note:** prior to attempting to match existing rows in the CSV against data retrieved from the Query Service, the script checks to make sure that the column names and order specified in the configuration file match those in the existing CSV. If they do not match, the script terminates with a warning. This means that if the CSV configuration is changed, the existing CSVs must be changed to match prior to running this script. The script [convert_json_to_metadata_schema.py](convert_json_to_metadata_schema.py) can be run with the new configuration file to generate a CSV header row that matches the new configuration. That header row can be compared with the existing CSV to add or remove columns as necessary to realign the existing CSV with the configuration file.
 
 ----
-Revised 2022-01-11
+Revised 2023-02-09

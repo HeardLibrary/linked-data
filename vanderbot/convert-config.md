@@ -213,11 +213,11 @@ The output CSV files and metadata description file will be written to the direct
 
 | long form | short form | values | default |
 | --------- | ---------- | ------ | ------- |
-| --config | -C | configuration file name, or path and appended filename. | "config.json" |
-| --meta | -M | JSON metadata description filename | "csv-metadata.json" |
-| --lang | -L | language of labels whose output is suppressed | "en" |
+| --config | -C | configuration file name, or path and appended filename. | `config.json` |
+| --meta | -M | JSON metadata description filename | `csv-metadata.json` |
+| --lang | -L | language of labels whose output is suppressed | `en` |
 | --help | -H | provide link to this page (no values) |  |
 | --version | -V | display version information (no values) |  |
 
 ----
-Revised 2023-01-11
+Revised 2023-02-09
