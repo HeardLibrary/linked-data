@@ -177,6 +177,8 @@ There are currently two scripts that use these JSON configuration files. One is 
 
 ## Details of script to convert configuration data to metadata description and CSV files
 
+Script name: ConvertConfigToMetadataSchema
+
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert_config_to_metadata_schema.py>
 
 Current version: 1.1.0, compable with VanderBot v1.9
