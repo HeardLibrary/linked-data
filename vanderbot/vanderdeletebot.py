@@ -53,6 +53,12 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
     print('Revision date:', created)
     sys.exit()
 
+if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
+    # needs to be expanded to include brief info on invoking the program
+    print('For help, see the VanderDeleteBot landing page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderdeletebot.md')
+    print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    sys.exit()
+
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
 opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
@@ -77,10 +83,10 @@ if '--path' in opts:
 if '-P' in opts: # specifies the location of the credentials file.
     credentials_path_string = args[opts.index('-P')] # include trailing slash if relative or absolute path
 
-if '--header' in opts: # specifies the column containing the identifiers for the data to be deleted.
-    column_name = args[opts.index('--header')]
-if '-H' in opts:
-    column_name = args[opts.index('-H')]
+if '--name' in opts: # specifies the name of the column containing the identifiers for the data to be deleted.
+    column_name = args[opts.index('--name')]
+if '-N' in opts:
+    column_name = args[opts.index('-N')]
     
 # specifies the name of the credentials file.
 if '--credentials' in opts:

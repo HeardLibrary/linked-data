@@ -52,6 +52,12 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
     print('Revision date:', created)
     sys.exit()
 
+if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
+    # needs to be expanded to include brief info on invoking the program
+    print('For help, see the VanderPropertyBot landing page at https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderpropertybot.md')
+    print('Report bugs to: steve.baskauf@vanderbilt.edu')
+    sys.exit()
+
 # Code from https://realpython.com/python-command-line-arguments/#a-few-methods-for-parsing-python-command-line-arguments
 opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
