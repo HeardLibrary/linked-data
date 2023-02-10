@@ -25,6 +25,8 @@ The script [acquire_wikidata_metadata.py](acquire_wikidata_metadata.py), downloa
 
 Another utility, [count_entities.py](../json_schema/count_entities.py), can be used to count the use of properties in statements made about a defined set of items, or to determine the most common values for particular properties used in statements about those items. For more information about using this script, see the [script usage page](count_entities.md) for details.
 
+The Python script [VanderDeleteBot](vanderdeletebot.py) can be used to perform mass deletions of statements and references that have been uploaded using VanderBot. For more information, see the [script usage page](vanderdeletebot.md).
+
 # Script details
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
