@@ -22,7 +22,7 @@ Copyright 2023 Vanderbilt University. This program is released under a [GNU Gene
 The script REQUIRES that you have Python 3 installed on your computer. It is run at the command line by entering
 
 ```
-python acquire_wikidata_metadata.py
+python vanderpropertybot.py
 ```
 
 (or `python3` if your installation requires it). 
