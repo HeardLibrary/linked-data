@@ -19,7 +19,9 @@ Copyright 2023 Vanderbilt University. This program is released under a [GNU Gene
 
 ## Running the script
 
-The script REQUIRES that you have Python 3 installed on your computer. It is run at the command line by entering
+The script REQUIRES that you have Python 3 installed on your computer. It REQUIRES the [requests](https://docs.python-requests.org/en/latest/) and [pandas](https://pandas.pydata.org/) modules, which are not part of the Python Standard Library, so you may have to use PIP to install them prior to running the script.
+
+The script is run at the command line by entering:
 
 ```
 python vanderpropertybot.py

@@ -24,7 +24,9 @@ Copyright 2023 Vanderbilt University. This program is released under a [GNU Gene
 
 ## Running the script
 
-The script requires that you have Python 3 installed on your computer. It is run at the command line by entering
+The script REQUIRES that you have Python 3 installed on your computer. It REQUIRES the [requests](https://docs.python-requests.org/en/latest/) module, which is not part of the Python Standard Library, so you may have to use PIP to install it prior to running the script.
+
+The script is run at the command line by entering:
 
 ```
 python acquire_wikidata_metadata.py
