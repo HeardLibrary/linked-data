@@ -1,0 +1,115 @@
+{
+    "entity": {
+        "type": "mediainfo",
+        "id": "M113161207",
+        "labels": {
+            "en": {
+                "language": "en",
+                "value": "Madonna and Child with St. Elizabeth and infant John the Baptist, painting by Artist Unknown"
+            }
+        },
+        "descriptions": {},
+        "statements": {
+            "P6243": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P6243",
+                        "hash": "160d9a920148662e36f2a22a0db743d5a4713f25",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 103304813,
+                                "id": "Q103304813"
+                            },
+                            "type": "wikibase-entityid"
+                        }
+                    },
+                    "type": "statement",
+                    "id": "M113161207$1FC9748B-7565-4492-BBB1-A5172E7D5EC3",
+                    "rank": "normal"
+                }
+            ],
+            "P180": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P180",
+                        "hash": "891b26b6a60e13ddf5258aff2d47d4fdf735b2b1",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 103304813,
+                                "id": "Q103304813"
+                            },
+                            "type": "wikibase-entityid"
+                        }
+                    },
+                    "type": "statement",
+                    "id": "M113161207$7F8FD1E0-AA7B-474A-833B-7F3C40AD3C73",
+                    "rank": "normal"
+                },
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P180",
+                        "hash": "4e1435eaa64f8fd679d3a85b4bb53cb3992285d1",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 40662,
+                                "id": "Q40662"
+                            },
+                            "type": "wikibase-entityid"
+                        }
+                    },
+                    "type": "statement",
+                    "id": "M113161207$2183B4D4-A898-4BF9-BCF0-1CFFAE2048EE",
+                    "rank": "normal"
+                }
+            ],
+            "P921": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P921",
+                        "hash": "5769fd567654260899c3d953a07b85fef5b8b471",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 103304813,
+                                "id": "Q103304813"
+                            },
+                            "type": "wikibase-entityid"
+                        }
+                    },
+                    "type": "statement",
+                    "id": "M113161207$55B9BC10-9D7F-4F4B-A664-9C3899D9B9FF",
+                    "rank": "normal"
+                }
+            ],
+            "P4082": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P4082",
+                        "hash": "455ed00299f85143acf9f452292140d8a21b696b",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 65663,
+                                "id": "Q65663"
+                            },
+                            "type": "wikibase-entityid"
+                        }
+                    },
+                    "type": "statement",
+                    "id": "M113161207$C3E0558E-72C2-48D5-86D7-949F6F54BF41",
+                    "rank": "normal"
+                }
+            ]
+        },
+        "lastrevid": 731959102
+    },
+    "success": 1
+}

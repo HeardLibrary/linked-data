@@ -1,0 +1,17 @@
+data_path: ""
+item_pattern_file: graph_pattern.txt
+item_source_csv: ""
+outfiles:
+- output_file_name: depicts.csv
+  label_description_language_list:
+  - en
+  manage_descriptions: false
+  ignore:
+  - depicts_label
+  prop_list:
+  - variable: depicts
+    value_type: item
+    pid: P180
+    qual: []
+    ref: []
+
