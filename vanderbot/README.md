@@ -31,15 +31,23 @@ The Python script [VanderDeleteBot](vanderdeletebot.py) can be used to perform m
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9.5
+Current version: v1.9.6
 
 Written by Steve Baskauf 2020-23.
 
 Copyright 2023 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
+
+
 ### RFC 2119 key words
 
 The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
+
+## Installation requirements
+
+The script REQUIRES that you have Python 3 installed on your computer. It REQUIRES the [requests](https://docs.python-requests.org/en/latest/) module, which is not part of the Python Standard Library, so you may have to use PIP to install it prior to running the script.
+
+The script is run at the command line by entering:
 
 ## Credentials text file format example
 

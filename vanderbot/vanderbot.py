@@ -133,6 +133,11 @@ created = '2023-02-08'
 # Strip leading and trailing whitespace from values of properties in the CSV file (causes API errors). 
 #       Warn if any values are changed but don't log an error. 
 # Print out elapsed time at end of script.
+# ----------------------------------------
+# Version 1.9.6 change notes (2023-02-11)
+# Add special little hack to handle responses from the Structured Data on Commons API (https://commons.wikimedia.org).
+#       Their response JSON uses the key "statements" instead of "claims" for no apparent reason.
+
 
 import json
 import requests
@@ -1167,10 +1172,14 @@ base_url, user, pwd = retrieveCredentials(credentials_path)
 endpointUrl = base_url + resourceUrl
 if base_url == 'https://www.wikidata.org':
     DOMAIN_NAME = 'http://www.wikidata.org'
+    CLAIM_KEY = 'claims'
 elif base_url == 'https://commons.wikimedia.org':
     DOMAIN_NAME = 'http://commons.wikimedia.org'
+    # For whatever reason, the Commons API uses a different key for the claims than other wikibases in the response JSON
+    CLAIM_KEY = 'statements'
 else:
     DOMAIN_NAME = base_url
+    CLAIM_KEY = 'claims'
 
 # DO NOT decrease this limit unless you have obtained a bot flag! If you have a bot flag, then you have created your own
 # User-Agent and are not using VanderBot any more. In that case, you must change the user_agent_header below to reflect
@@ -2053,7 +2062,7 @@ for table in tables:  # The script can handle multiple tables
                     count = 0
                     statementFound = False
                     # If there are multiple values for a property, this will loop through more than one statement
-                    for statement in responseData['entity']['claims'][propertiesIdList[statementIndex]]:
+                    for statement in responseData['entity'][CLAIM_KEY][propertiesIdList[statementIndex]]:
                         #print(statement)
 
                         # Before checking the value in the returned JSON, need to check first if the snaktype is novalue or somevalue.
