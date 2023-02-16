@@ -672,7 +672,7 @@ def get_commons_image_pageid(image_filename):
         'prop': 'info'
     }
 
-    response = requests.get('https://commons.wikimedia.org/w/api.php', params=params)
+    response = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers={'User-Agent': user_agent})
     data = response.json()
     #print(json.dumps(data, indent=2))
     page_dict = data['query']['pages'] # this value is a dict that has the page IDs as keys
