@@ -187,7 +187,7 @@ photographer_of_work: Q29052 # Vanderbilt University
 iiif_manifest_attribution: Provided by Vanderbilt University Fine Arts Gallery
 
 # URL of logo to include in IIIF manifest. Leave blank to omit.
-iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/3/vanderbilt_logo.png/full/!100,100/0/default.jpg
+iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/2/vu_gallery_logo.png/full/!100,100/0/default.jpg
 
 # Also controlled by the path_is_relative_to_home_directory value
 # For large TIFF files, this format is important for the files to load quickly
@@ -201,7 +201,7 @@ s3_manifest_bucket_name: iiif-manifest.library.vanderbilt.edu
 s3_iiif_project_directory: gallery
 
 # Root URLs for IIIF-related files
-iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/3/
+iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/2/
 manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 # Column in the artwork metadata file to be used as the local identifier in the manifest IRI

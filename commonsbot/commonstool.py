@@ -1379,7 +1379,7 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
                     "profile": "http://iiif.io/api/image/2/level2.json"
                     }
     resource_dict = {
-                        "@id":  manifest_iri + "#resource",
+                        "@id":  image_metadata['iiif_service_iri'] + "/full/full/0/default.jpg",
                         "@type": "dctypes:Image",
                         "format": "image/jpeg",
                         "width": int(image_metadata['width']),
@@ -1605,13 +1605,13 @@ for index, work in works_metadata.iterrows():
     # ---------------------------
     # Screen works for appropriate images to upload
     # ---------------------------
-
+    
     # Screen out works whose images are already in Commons
     if index in existing_images.qid.values:
         if config_values['verbose']:
             print('already done')
         continue
-
+    
     # Skip over works that don't (yet) have a designated primary image
     images_subframe = images_dataframe.loc[images_dataframe['qid'] == index] # result is DataFrame
     if len(images_subframe) == 0: # skip any works whose image can't be found in the images data
