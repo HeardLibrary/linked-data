@@ -54,7 +54,7 @@ working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upl
 artwork_items_metadata_file: artwork_metadata.csv
 
 # File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
-image_metadata_file: images.csv
+image_metadata_file: images_use_combined_images.csv
 
 # File for record keeping of uploads
 existing_uploads_file: commons_images.csv
