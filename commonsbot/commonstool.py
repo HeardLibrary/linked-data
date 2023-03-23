@@ -1434,12 +1434,15 @@ def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
     label = work_metadata['work_label']
     label = convert_to_smart_quotes(label)
 
-    metadata_list = [
-            {
-            "label": "Artist",
-            "value": work_metadata['creator_string']
-            }
-    ]
+    if work_metadata['creator_string']:
+        metadata_list = [
+                {
+                "label": "Artist",
+                "value": work_metadata['creator_string']
+                }
+        ]
+    else:
+        metadata_list = []
 
     if config_values['supply_accession_number']:
         inventory_number = query_inventory_number(work_metadata['work_qid'], config_values['collection_qid'])
@@ -1711,7 +1714,8 @@ for index, work in works_metadata.iterrows():
             #error_log += 'Failed find creator string in Wikidata for ' + index + ' with error:' + response_string + '\n'
             print('Failed find creator string in Wikidata for ', index, ' with error:', response_string, file=log_object)
             errors = True
-            continue
+            #continue
+            artist_name_string = ''
         else:
             artist_name_string = response_string
 
