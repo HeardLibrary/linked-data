@@ -4,9 +4,11 @@ Data as of 2023-03-29
 
 Total works in Wikidata with an author or editor affiliated with the Divinity School: 2889
 
-- Works created by Python script using data from CrossRef: 426
-- Works created by Python script using data from the Zotero database: 2681
-- Works added total: 3107 (this total includes books not edited by VU faculty that contained VU-authored chapters)
+- Work items created by Python script using data from CrossRef: 426
+- Work items created by Python script using data from the Zotero database: 2681
+- Total work items added: 3107 <sup>*</sup>
+
+ <sup>*</sup> This total is larger than the total number of works by Divinity School affiliates because it includes items created for books not edited by VU faculty that contained VU-authored chapters.
 
 ## Breakdown by type of work
 
