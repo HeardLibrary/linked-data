@@ -31,7 +31,7 @@ Total works in Wikidata with an author or editor affiliated with the Divinity Sc
 
 # Total Wikidata edits by people involved in the VandyCite project:
 
-These numbers include all Wikidata edits (not just edits related to VandyCite). They include both manual edits and edits made using tools such as OpenRefine and Quickstatements but exclude edits made using VanderBot.
+These numbers include all Wikidata edits (not just edits related to VandyCite). They include both manual edits and edits made using tools such as OpenRefine and Quickstatements, but exclude edits made using VanderBot.
 
 | participant | edits |
 | ----------- | ----- |
@@ -43,7 +43,7 @@ These numbers include all Wikidata edits (not just edits related to VandyCite). 
 | Marymae Jansson | 3080 |
 | Cliff Anderson | 1831 |
 
-There were also 53420 edits made by Baskauf using the VanderBot tool. This number is not directly comparable to the other edits, since a creating an item with Vanderbot was considered a single edit even though it may have involved generating 10 or more statements and references. If created manually, each of those statements would have counted as separate edits. If made seperately, the number of statements created by VanderBot would have been on the order of half a million. 
+There were also 53420 edits made by Baskauf using the VanderBot tool. This number is not directly comparable to the other edits, since a creating an item with VanderBot was considered a single edit even though it may have involved generating 10 or more statements and references. If created manually, each of those statements would have counted as separate edits. If made as seperate edits, the number made by VanderBot would have been on the order of half a million. 
 
 Total edits by VandCite participants (including VanderBot): 125380
 
