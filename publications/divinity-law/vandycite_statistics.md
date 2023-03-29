@@ -35,7 +35,7 @@ These numbers include all Wikidata edits (not just edits related to VandyCite). 
 
 | participant | edits |
 | ----------- | ----- |
-| Charlotte | Lew 25119 |
+| Charlotte Lew | 25119 |
 | Greg Weldy | 17084 |
 | Jeff Taylor | 9346 |
 | Chris Benda | 8565 |
