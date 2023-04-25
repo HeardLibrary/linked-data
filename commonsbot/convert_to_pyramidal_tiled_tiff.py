@@ -43,7 +43,7 @@ in_dir = '/Users/baskausj/raw_tiffs/'
 out_dir = '/Users/baskausj/pyramidal_tiffs/'
 
 # Set the path to the log file
-log_path = '/Users/baskausj/pyramidal_tiffs/log.txt'
+log_path = out_dir + 'log.txt'
 
 # Get a list of the files in the input directory
 in_files = os.listdir(in_dir)
