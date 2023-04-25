@@ -53,6 +53,7 @@ for in_file in in_files:
     # Check to see if the file is a TIFF file
     if in_file.lower().endswith('.tif') or in_file.lower().endswith('.tiff'):
         print(in_file)
+        
         # Set the path to the input file
         in_path = in_dir + in_file
 
@@ -62,7 +63,7 @@ for in_file in in_files:
         # Write the file name to the log file
         with open(log_path, 'a') as log_file:
             log_file.write(in_file + '\n')
-            
+
         # Convert the file
         image_magick_convert_tiff(in_path, out_path, log_path)
 
