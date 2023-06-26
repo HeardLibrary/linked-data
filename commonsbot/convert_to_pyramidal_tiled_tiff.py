@@ -35,7 +35,7 @@ def image_magick_convert_tiff(in_path: str, out_path: str, log_path: str):
 # -------------------
 
 # Set the path to the directory containing the TIFF files to be converted
-# NOTE: this script will convert all TIFF files in the directory, and will ignor other filetypes. 
+# NOTE: this script will convert all TIFF files in the directory, and will ignore other filetypes. 
 # The path should end with a slash.
 in_dir = '/Users/baskausj/raw_tiffs/'
 
