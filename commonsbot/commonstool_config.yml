@@ -50,13 +50,16 @@ working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upl
 
 # Paths of the following four files are relative to the working directory path above.
 
-# File with data on Q ID, dimensions, local identifier, and copyright status of artworks
+# Input file with data on qid, local identifier, dimension (2D or 3D), and status (copyright) of artworks.
+# Any other columns are unused.
 artwork_items_metadata_file: artwork_metadata.csv
 
-# File with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
+# Input file with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
+# Some of these data can be extracted automatically from the EXIF data of the file in a pre-prossing step.
 image_metadata_file: images_use_combined_images.csv
 
-# File for record keeping of uploads
+# Output file for record keeping of Commons uploads. It isn't necessarily needed as input to any other script.
+# It is also opened at the start and used to determine which images have already been uploaded.
 existing_uploads_file: commons_images.csv
 
 # File used by VanderBot to add image and IIIF manifest claims (used only by transfer_to_vanderbot.py)
