@@ -1,4 +1,4 @@
-# SPARQL GUI, a script for making SPARQL queries from a graphical interface.  sparql_gui.py
+# sparql_gui, a script for making SPARQL queries from a graphical interface.  sparql_gui.py
 SCRIPT_VERSION = '0.1.0'
 VERSION_MODIFIED = '2023-08-16'
 
@@ -37,6 +37,7 @@ DEFAULT_ENDPOINT = 'https://sparql.vanderbilt.edu/sparql' # arg: --endpoint or -
 DEFAULT_METHOD = 'get' # arg: --method or -M
 CSV_OUTPUT_PATH = 'sparql_results.csv' # arg: --results or -R
 PREFIXES_DOC_PATH = 'prefixes.txt' # arg: --prefixes or -P
+USER_AGENT = 'sparql_gui/' + SCRIPT_VERSION + ' (https://github.com/HeardLibrary/linked-data/tree/master/sparql/sparql_gui.py; mailto:steve.baskauf@vanderbilt.edu)'
 
 # ------------
 # Support command line arguments
@@ -64,9 +65,11 @@ if '--version' in arg_vals or '-V' in arg_vals: # provide version information ac
 if '--help' in arg_vals or '-H' in arg_vals: # provide help information according to GNU standards
     # needs to be expanded to include brief info on invoking the program
     print('''Command line arguments:
---endpoint or -E to specify a SPARQL endpoint URL (default: ''' + DEFAULT_ENDPOINT + ''')
---method or -M to specify the HTTP method (get or post) to send the query (default: ''' + DEFAULT_METHOD + ''')
---results or -R to specify the path (including filename) to save the CSV results (default: ''' + CSV_OUTPUT_PATH + ''')
+--endpoint or -E to specify a SPARQL endpoint URL, default: ''' + DEFAULT_ENDPOINT + '''
+--method or -M to specify the HTTP method (get or post) to send the query, default: ''' + DEFAULT_METHOD + '''
+--results or -R to specify the path (including filename) to save the CSV results, default: ''' + CSV_OUTPUT_PATH + '''
+--agent or -A to specify your own user agent string to be sent with the query, default: ''' + USER_AGENT + '''
+
 ''')
     print('Report bugs to: steve.baskauf@vanderbilt.edu')
     print()
@@ -77,9 +80,9 @@ opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
 
 if '--endpoint' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
-    ENDPOINT = args[opts.index('--endpoint')]
+    DEFAULT_ENDPOINT = args[opts.index('--endpoint')]
 if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
-    ENDPOINT = args[opts.index('-E')]
+    DEFAULT_ENDPOINT = args[opts.index('-E')]
 
 if '--results' in opts: # specifies path (including filename) where CSV will be saved
     CSV_OUTPUT_PATH = args[opts.index('--results')]
@@ -95,6 +98,11 @@ if '--prefixes' in opts: # specifies path (including filename) of text file cont
     PREFIXES_DOC_PATH = args[opts.index('--prefixes')]
 if '-P' in opts: # specifies path (including filename) of text file containing prefixes
     PREFIXES_DOC_PATH = args[opts.index('-P')]
+
+if '--agent' in opts: # to provide your own user agent string to be sent with the query
+    USER_AGENT = args[opts.index('--agent')]
+if '-A' in opts: # to provide your own user agent string to be sent with the query
+    USER_AGENT = args[opts.index('-A')]
 
 # Open the prefixes file and read it in as a string
 try:
@@ -113,7 +121,9 @@ def send_query_button_click():
     #print(query_string)
 
     # Create a Sparqler object
-    neptune = Sparqler(method='get')
+    # A User-Agent header is equried for Wikidata Query Service.
+    # For other endpoints, it's optional.
+    neptune = Sparqler(useragent=USER_AGENT)
 
     # Send the query to the endpoint
     data = neptune.query(query_string)
