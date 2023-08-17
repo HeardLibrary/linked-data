@@ -20,7 +20,6 @@ VERSION_MODIFIED = '2023-08-16'
 # import modules
 # ------------
 
-#import tkinter as tk
 from tkinter import *
 import sys
 import requests
@@ -36,7 +35,8 @@ import csv
 # These defaults can be changed by command line arguments
 DEFAULT_ENDPOINT = 'https://sparql.vanderbilt.edu/sparql' # arg: --endpoint or -E 
 DEFAULT_METHOD = 'get' # arg: --method or -M
-CSV_OUTPUT_PATH = 'sparql_results.csv' # arg: --path or -P, defaults to same directory as script
+CSV_OUTPUT_PATH = 'sparql_results.csv' # arg: --results or -R
+PREFIXES_DOC_PATH = 'prefixes.txt' # arg: --prefixes or -P
 
 # ------------
 # Support command line arguments
@@ -66,7 +66,7 @@ if '--help' in arg_vals or '-H' in arg_vals: # provide help information accordin
     print('''Command line arguments:
 --endpoint or -E to specify a SPARQL endpoint URL (default: ''' + DEFAULT_ENDPOINT + ''')
 --method or -M to specify the HTTP method (get or post) to send the query (default: ''' + DEFAULT_METHOD + ''')
---path or -P to specify the path (including filename) to save the CSV results (default: ''' + CSV_OUTPUT_PATH + ''')
+--results or -R to specify the path (including filename) to save the CSV results (default: ''' + CSV_OUTPUT_PATH + ''')
 ''')
     print('Report bugs to: steve.baskauf@vanderbilt.edu')
     print()
@@ -81,15 +81,27 @@ if '--endpoint' in opts: # specifies a Wikibase SPARQL endpoint different from t
 if '-E' in opts: # specifies a Wikibase SPARQL endpoint different from the Wikidata Query Service
     ENDPOINT = args[opts.index('-E')]
 
-if '--path' in opts: # specifies path (including filename) where CSV will be saved
-    CSV_OUTPUT_PATH = args[opts.index('--path')]
-if '-P' in opts: # specifies path (including filename) where CSV will be saved
-    CSV_OUTPUT_PATH = args[opts.index('-P')]
+if '--results' in opts: # specifies path (including filename) where CSV will be saved
+    CSV_OUTPUT_PATH = args[opts.index('--results')]
+if '-R' in opts: # specifies path (including filename) where CSV will be saved
+    CSV_OUTPUT_PATH = args[opts.index('-R')]
 
 if '--method' in opts: # specifies the HTTP method to be used with the query
-    CSV_OUTPUT_PATH = args[opts.index('--method')]
+    DEFAULT_METHOD = args[opts.index('--method')]
 if '-M' in opts: # specifies the HTTP method to be used with the query
-    CSV_OUTPUT_PATH = args[opts.index('-M')]
+    DEFAULT_METHOD = args[opts.index('-M')]
+
+if '--prefixes' in opts: # specifies path (including filename) of text file containing prefixes
+    PREFIXES_DOC_PATH = args[opts.index('--prefixes')]
+if '-P' in opts: # specifies path (including filename) of text file containing prefixes
+    PREFIXES_DOC_PATH = args[opts.index('-P')]
+
+# Open the prefixes file and read it in as a string
+try:
+    with open(PREFIXES_DOC_PATH, 'r') as prefixes_doc:
+        PREFIXES = prefixes_doc.read()
+except:
+    PREFIXES = ''
 
 # ------------
 # Functions
@@ -98,6 +110,7 @@ if '-M' in opts: # specifies the HTTP method to be used with the query
 def send_query_button_click():
     """Handle the click of the "Send Query" button"""
     query_string = query_text_box.get("1.0","end") # Gets all text from first character to last
+    #print(query_string)
 
     # Create a Sparqler object
     neptune = Sparqler(method='get')
@@ -116,6 +129,7 @@ def send_query_button_click():
                 for field in fieldnames:
                     row[field] = row[field]['value']
                 writer.writerow(row)
+            print('Results written to', CSV_OUTPUT_PATH)
         else:
             print('No results to write to file')
 
@@ -381,11 +395,11 @@ Label(mainframe, textvariable=instruction_text).grid(column=3, row=10, sticky=(W
 instruction_text.set('Enter SELECT query below and click the "Send Query" button')
 
 # Create a text box object for the SPARQL query, 100 characters wide and 25 lines high
-query_text_box = Text(mainframe, width=100, height=25)
+query_text_box = Text(mainframe, width=100, height=40)
 query_text_box.grid(column=3, row=11, sticky=(W, E))
 
 # Insert the generic query text
-query_text_box.insert(END, 'select * where {\n    ?s ?p ?o\n}\nlimit 10')
+query_text_box.insert(END, PREFIXES + 'select * where {\n    ?s ?p ?o\n}\nlimit 10')
 
 
 # Create a button object for sending the query
