@@ -1141,7 +1141,8 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     else:
         local_filename = image_metadata['local_filename']
 
-    # subdirectory is the directory that contains the local file. It's within the local_image_directory_path. 
+    # subdirectory is the directory that contains the local file. It's within the local_image_directory_path
+    # or pyramidal_image_directory_path . 
     # Don't include a trailing slash.
     # If images are directly in the directory_path, use empty string ('') as the value.
     subdirectory = image_metadata['subdir']
@@ -1639,7 +1640,8 @@ for index, work in works_metadata.iterrows():
         images_to_upload.append(image_series.to_dict())
 
     if config_values['screen_by_copyright']:
-        ip_status = works_metadata.loc[index, 'status']
+        #ip_status = works_metadata.loc[index, 'status']
+        ip_status = work['status']
 
         # Skip unevaluated copyright (empty status cells).
         if ip_status == '':
@@ -1725,7 +1727,7 @@ for index, work in works_metadata.iterrows():
     
     # Create a dict from the work object, which I think is a series (originating from the works_multiprop.csv file).
     # Make this a dict so that items can easily be added to it.
-    work_metadata = {}
+    work_metadata = {} # NOTE: singular so the dict is a new structure. The plural works_metadata is a DataFrame.
     work_metadata['work_qid'] = index
     work_metadata['label_language'] = label_language
     work_metadata['work_label'] = work_label
@@ -1734,7 +1736,8 @@ for index, work in works_metadata.iterrows():
     # The local identifier is taken from the column whose name is specified in the configuration data.
     # This is only used in the IIIF upload, so if there isn't any value, set it to empty string.
     try:
-        work_metadata['local_identifier'] = works_metadata.loc[index, config_values['local_identifier_column_name']]
+        #work_metadata['local_identifier'] = works_metadata.loc[index, config_values['local_identifier_column_name']]
+        work_metadata['local_identifier'] = work[config_values['local_identifier_column_name']]
     except:
         work_metadata['local_identifier'] = ''
 
@@ -1810,7 +1813,8 @@ for index, work in works_metadata.iterrows():
         # ------------
 
         if config_values['perform_commons_upload']:
-            if works_metadata.loc[index, 'dimension'] == '3D':
+            #if works_metadata.loc[index, 'dimension'] == '3D':
+            if work['dimension'] == '3D':
                 image_metadata['n_dimensions'] = '3D'
                 image_metadata['artwork_license_text'] = config_values['artwork_license_text_3d']
                 image_metadata['photo_license_text'] = config_values['photo_license_text_3d']
