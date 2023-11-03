@@ -20,11 +20,11 @@ The behavior of the script is primarily controlled by values in a YAML configura
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool.py>
 
-Current version: v0.5.6
+Current version: v0.5.7
 
-Written by Steve Baskauf 2022.
+Written by Steve Baskauf 2023.
 
-Copyright 2022 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
+Copyright 2023 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
 ### RFC 2119 key words
 
@@ -166,4 +166,4 @@ NOTE: because the CommonsTool script links Commons media files with Wikidata rec
 `art_photo`, `artwork.json`, `information.json`, and `photograph.json` same as above, but with fields restricted to a particular template
 
 ----
-Last modified: 2022-09-13
+Last modified: 2023-11-03

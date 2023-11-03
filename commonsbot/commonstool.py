@@ -1,14 +1,14 @@
 # commonstool.py, a Python script for uploading files and data to Wikimedia Commons using the API.
 
-# (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
+# (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
 # ----------------
 # Global variables
 # ----------------
 
-script_version = '0.5.6'
-version_modified = '2022-10-31'
+script_version = '0.5.7'
+version_modified = '2023-11-03'
 commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
 commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
 # The user_agent string identifies this application to Wikimedia APIs.
@@ -62,6 +62,10 @@ sparql_sleep = 0.1 # minimal delay between SPARQL queries
 # Version 0.5.6 change notes: 2022-10-31
 # - minor bug fix for test relevant only to Vanderbilt Fine Arts Gallery uploads
 # - move copyright test before size test to avoid flagging oversized images that can't be uploaded anyway
+# -----------------------------------------
+# Version 0.5.7 change notes: 2023-11-03
+# - allow support for multiple creator Q IDs for 3D artwork images
+# - add support for required qualifiers when image source is "file available on the internet" (Q74228490)
 # -----------------------------------------
 
 
@@ -1035,6 +1039,9 @@ def wbeditentity_upload(commons_login, maxlag, mid, caption, caption_language, s
                 'type': 'statement',
                 'rank': 'normal'
                 }
+        if 'qualifiers' in claim:
+            snak_dict['qualifiers'] = claim['qualifiers']
+
         json_claims_list.append(snak_dict)
 
     # Now add the array of claims to the data structure
@@ -1227,9 +1234,56 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     sdc_claims_list = [
         {'property': 'P180', 'value': work_metadata['work_qid']}, # depicts artwork in Wikidata
         {'property': 'P921', 'value': work_metadata['work_qid']}, # main subject is artwork in Wikidata
-        {'property': 'P170', 'value': image_metadata['photographer_of_work']}, # creator of image file
-        {'property': 'P7482', 'value': image_metadata['source_qid']} # source of the image file
     ]
+
+    # If the source if the image file is the Internet ("file available on the internet"), add the URL as a 
+    # P973 qualifier and the website's operator as a P137 qualifier.
+    if image_metadata['source_qid'] == 'Q74228490':
+        sdc_claims_list.append(
+{
+    'property': 'P7482', 
+    'value': 'Q74228490', 
+    'qualifiers': {
+        "P973": [
+            {
+                "snaktype": "value",
+                "property": "P973", # described at URL
+                "datatype": "url",
+                "datavalue": {
+                "value": config_values['described_at_url_root'] + work_metadata['local_identifier'],
+                "type": "string"
+                }
+            }
+        ],
+        "P137": [
+            {
+                "snaktype": "value",
+                "property": "P137", # operator
+                "datatype": "wikibase-item",
+                "datavalue": {
+                "value": {
+                    "id": config_values['operator_qid']
+                    },
+                    "type": "wikibase-entityid"
+                }
+            }
+        ]
+    }
+}
+)
+    else:
+        sdc_claims_list.append({'property': 'P7482', 'value': image_metadata['source_qid']}) # source of the image file
+
+    # Check whether there are multiple photographers or not
+    if type(image_metadata['photographer_of_work']) == list:
+        # There are multiple photographers. Add them all.
+        for photographer in image_metadata['photographer_of_work']:
+            sdc_claims_list.append({'property': 'P170', 'value': photographer})
+    else:
+        # There is only one photographer. Add it.
+        sdc_claims_list.append({'property': 'P170', 'value': image_metadata['photographer_of_work']})
+
+
     if image_metadata['n_dimensions'] == '2D':
         sdc_claims_list.append({'property': 'P6243', 'value': work_metadata['work_qid']}) # digital representaion of artwork in Wikidata
     else:

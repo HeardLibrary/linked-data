@@ -46,7 +46,7 @@ verbose: false
 # When value is present, sets path value as working directory. To leave working directory as is, leave blank.
 # Data files are relative to this directory. The error log is in this directory.
 # The commons_images.csv file that logs data about the uploaded images is also in this directory.
-working_directory_path: /users/baskausj/github/vandycite/gallery_works/image_upload/
+working_directory_path: /users/baskausj/github/vandycite/act/richardson_upload/
 
 # Paths of the following four files are relative to the working directory path above.
 
@@ -56,19 +56,19 @@ artwork_items_metadata_file: artwork_metadata.csv
 
 # Input file with image metadata (file size, creation date, pixel dimensions, foreign key to accession, etc.)
 # Some of these data can be extracted automatically from the EXIF data of the file in a pre-prossing step.
-image_metadata_file: images_use_combined_images.csv
+image_metadata_file: images.csv
 
 # Output file for record keeping of Commons uploads. It isn't necessarily needed as input to any other script.
 # It is also opened at the start and used to determine which images have already been uploaded.
 existing_uploads_file: commons_images.csv
 
 # File used by VanderBot to add image and IIIF manifest claims (used only by transfer_to_vanderbot.py)
-vanderbot_upload_file: ../works_multiprop.csv
+vanderbot_upload_file: act_artworks.csv
 
 # Controls whether paths for images to upload are relative to the home directory or not. 
 # If not, they may be absolute or relative to the current working directory.
 path_is_relative_to_home_directory: true
-local_image_directory_path: gallery_digital_image_archive/ # location of raw images to upload
+local_image_directory_path: act_upload/ # location of raw images to upload
 
 
 # Screening criteria
@@ -99,7 +99,7 @@ public_domain_categories:
     method: Q47246828
 copyright_cutoff_date: 1926
 
-screen_by_file_characterstic: true
+screen_by_file_characterstic: false
 # size_filter options are pixsquared or filesize (filetype not yet implemented)
 size_filter: pixsquared
 #size_filter:
@@ -118,28 +118,33 @@ default_language: en
 # As of 2022-09-01, leaving this out generates the warning 
 # "This file is lacking source information. Please edit this file's description and provide a source. "
 # Including the image source in the structured data doesn't seem to be enough.
-source: Vanderbilt University
+source: Vanderbilt Libraries Art in the Christian Traditions database
 
 # Providing information about the image file source is strongly suggested for artworks. See 
 # https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks#Basic_structured_data_(SDC)
 # For suggested values see https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Source
 
-# Can use "file available on the internet" (Q74228490), but so far the script doesn't do qualifiers, 
-# so need to fix that.
-
+# Can use "file available on the internet" (Q74228490), but then need to provide qualifiers P973 (described at URL) 
+# and P137 (operator).
 # Q66458942 (original creation by uploader) doesn't really seem to fit in our circumstance since Baskaufs 
 # is doing the uploading but the images are created by Vanderbilt as an institution. So as of
 # 2022-09-01 I'm using the Vanderbilt Q ID (Q29052) to match what's given in the license for 3D works.
-source_qid: Q29052
+source_qid: Q74228490
+
+# The following values are only necessary if source_qid has a value of "file available on the internet" (Q74228490).
+# Otherwise they are ignored. The unique ID (value in the column identified by local_identifier_column_name)
+# will be appended to the end of the URL root to form the value for P973.
+described_at_url_root: https://diglib.library.vanderbilt.edu/act-imagelink.pl?RC=  # root URL for the image page
+operator_qid: Q16849893 # Vanderbilt Heard Libraries
 
 # The name of the institution to be inserted between the descriptive text and the local filename to form
 # the Commons filename. Example: 
 # Four Studies of a Draped Torso - Vanderbilt Fine Arts Gallery - 1973.016.med.jpg
-filename_institution: Vanderbilt Fine Arts Gallery
+filename_institution: Vanderbilt ACT
 
 # Commons categories to be added to the images.
 category_strings:
-  - Vanderbilt University Fine Arts Gallery
+  - Art in the Christian Tradition
 
 # Copyright and license configuration
 # -----------------------------------
@@ -156,7 +161,7 @@ artwork_license_text_3d: PD-old-100-expired
 # Refer to https://commons.wikimedia.org/wiki/Commons:Licensing#License_information
 # https://commons.wikimedia.org/wiki/Commons:Credit_line#Creative_Commons
 # and https://commons.wikimedia.org/wiki/Template:Cc-by-4.0
-photo_license_text_3d: Cc-by-4.0 |1=photo © [https://www.vanderbilt.edu/ Vanderbilt University] / [https://www.library.vanderbilt.edu/gallery/ Fine Arts Gallery] / [https://creativecommons.org/licenses/by/4.0/ CC BY 4.0]
+photo_license_text_3d: Cc-by-sa-4.0 |1=photo © Jim Womack and Anne Richardson [https://creativecommons.org/licenses/by-sa/4.0/ CC BY-SA 4.0]
 
 # The PD-Art tag provides the justification for saying that the photo isn't covered by copyright.
 # See the note above about PD-old-100-expired.
@@ -176,10 +181,11 @@ photo_copyright_qid: Q50423863
 
 # License of copyrighted photo, value for P275
 # Typically a Creative Commons License, for example CC BY (Q6905323), CC BY-SA (Q18199165)
-photo_license_qid: Q6905323
+photo_license_qid: Q18199165
 
-# For photographer structured data
-photographer_of_work: Q29052 # Vanderbilt University
+# For photographer structured data. For a single photographer, provide a Q ID (no quotes required). For multiple authors,
+# provide a JSON array of Q IDs (quotes required, comma separated, enclosed in square brackets).
+photographer_of_work: ["Q113821490", "Q121435965"] # Anne C. Richardson, Jim Womack
 
 
 # ----------------------------------
@@ -187,38 +193,38 @@ photographer_of_work: Q29052 # Vanderbilt University
 # ----------------------------------
 
 # Attribution for IIIF manifest
-iiif_manifest_attribution: Provided by Vanderbilt University Fine Arts Gallery
+iiif_manifest_attribution: Provided by Vanderbilt Art in the Christian Tradition database
 
 # URL of logo to include in IIIF manifest. Leave blank to omit.
-iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/2/vu_gallery_logo.png/full/!100,100/0/default.jpg
+iiif_manifest_logo_url: https://iiif.library.vanderbilt.edu/iiif/2/vanderbilt_logo.png/full/!100,100/0/default.jpg
 
 # Also controlled by the path_is_relative_to_home_directory value
 # For large TIFF files, this format is important for the files to load quickly
-tiff_image_directory_path: gallery_pyramidal_tiffs/ # location of pyramidal tiled TIFF images
+tiff_image_directory_path: act_pyramidal_tiffs/ # location of pyramidal tiled TIFF images
 
 # File locations in AWS S3
 s3_iiif_bucket_name: iiif-library-cantaloupe-storage
 s3_manifest_bucket_name: iiif-manifest.library.vanderbilt.edu
 # The s3_iiif_project_directory is a subdirectory of these buckets. No trailing slash.
 # The subdir value in the image data is a subdirectory of this one.
-s3_iiif_project_directory: gallery
+s3_iiif_project_directory: act
 
 # Root URLs for IIIF-related files
 iiif_server_url_root: https://iiif.library.vanderbilt.edu/iiif/2/
 manifest_iri_root: https://iiif-manifest.library.vanderbilt.edu/
 
 # Column in the artwork metadata file to be used as the local identifier in the manifest IRI
-local_identifier_column_name: inventory_number
+local_identifier_column_name: act_id
 
 # If this setting is enabled, IIIF manifests will be organized within subdirectories based
 # on the first part of the work local identifier (preceding the first split character in the identifier). 
 # This is reflected in the manifest IRIs. If disabled, no subdirectory is used.
-organize_manifests_in_subdirectories: true
+organize_manifests_in_subdirectories: false
 # Character to be used to split the local identifier
 subdirectory_split_character: "."
 
 # If true, the inventory number will be retrieved from Wikidata and included as accession number in manifest.
-supply_accession_number: true
+supply_accession_number: false
 # The collection Q ID is used to specify the institution whose inventory number will be used (in the case where
 # several institutions have assigned inventory numbers to the same work). Ignored if supply_accession_number is
 # false.
