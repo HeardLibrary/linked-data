@@ -36,12 +36,36 @@ open_browser_tab_after_upload: true
 verbose: false
 
 
+# Wikimedia Commons API login credentials
+# -----------
+
+# The format of the credentials file is as follows (disregarding the initial "# " in each line):
+
+# endpointUrl=https://commons.wikimedia.org
+# username=User@bot
+# password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
+
+# Username and password are for a bot that you've created.
+# The file must be plain text. 
+
+# The credentials_path value (below) specifies location of the Wikimedia login credentials file. It may be a simple 
+# file name or may be an absolute or relative path. 
+# You must take care to isolate that file from the code and configuration files if they are publicly 
+# exposed (e.g. on GitHub). 
+# Setting the credentials_path_relative_to_home_directory to true appends the value of credentials_path to the path 
+# to the home directory as determined by the operating system. In that case, you should either provide a simple file 
+# name if that file is placed in the home directory, or provide a path relative to the home directory (no leading slash), 
+# ending in the file name. 
+# If you want to specify an absolute path, set credentials_path_relative_to_home_directory to false and provide the
+# full path to the file as the value of credentials_path. 
+# Warning: If you set credentials_path_relative_to_home_directory to false, it is dangerous to set a path relative to
+# the working directory since the working directory and its subdirectories may be exposed publicly if they are published.
+credentials_path: commons_credentials.txt
+credentials_path_relative_to_home_directory: true
+
+
 # File names and locations
 # --------------
-
-# Note: the location of the Wikimedia login credentials is hard-coded to be the file "commons_credentials.txt"
-# located in the user's home directory. This can be changed, but if so you must take care to isolate
-# that file from the code and configuration files if they are publicly exposed (e.g. on GitHub).
 
 # When value is present, sets path value as working directory. To leave working directory as is, leave blank.
 # Data files are relative to this directory. The error log is in this directory.
@@ -266,4 +290,4 @@ maxlag: 5
 
 # If you change these values or significantly modify the software, you need to use your own user-agent string.
 # %s will be replaced with the current script_version value from the script global variables.
-user_agent_string_template: BaskaufCommonsBot/%s (https://github.com/HeardLibrary/linked-data/tree/master/commonsbot; mailto:steve.baskauf@vanderbilt.edu)
+user_agent_string_template: CommonsTool/%s (https://github.com/HeardLibrary/linked-data/tree/master/commonsbot; mailto:steve.baskauf@vanderbilt.edu)

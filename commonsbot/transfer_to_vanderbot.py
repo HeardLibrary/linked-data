@@ -6,25 +6,37 @@
 # (c) 2022 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
-version = '0.3'
-created = '2022-09-13'
+version = '0.4'
+created = '2023-11-05'
 
 # -----------------------------------------
 # Version 0.2 change notes: 
-# Screen images so that only those designated as "primary" are linked from Wikidata items.
+# - Screen images so that only those designated as "primary" are linked from Wikidata items.
 # -----------------------------------------
 # Version 0.3 change notes: 
-# Replace hard-coded values with values from the commonstool_config.yml file
+# - Replace hard-coded values with values from the commonstool_config.yml file
+# -----------------------------------------
+# Version 0.4 change notes: 
+# - enable specifying the configuration file location as a command line option
 # -----------------------------------------
 
 import pandas as pd
 import datetime
 import yaml
 import os
-import json
+import sys
 
+arg_vals = sys.argv[1:]
+opts = [opt for opt in arg_vals if opt.startswith('-')]
+args = [arg for arg in arg_vals if not arg.startswith('-')]
+
+config_path = 'commonstool_config.yml' # Set default path to configuration file if not provided.
+if '--config' in opts: #  set path to configuration file
+    config_path = args[opts.index('--config')]
+if '-C' in opts: 
+    config_path = args[opts.index('-C')]
 # Load configuration values
-with open('commonstool_config.yml', 'r') as file:
+with open(config_path, 'r') as file:
     config_values = yaml.safe_load(file)
 
 if config_values['working_directory_path'] != '':

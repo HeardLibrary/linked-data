@@ -20,7 +20,7 @@ The behavior of the script is primarily controlled by values in a YAML configura
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool.py>
 
-Current version: v0.5.7
+Current version: v1.0.0
 
 Written by Steve Baskauf 2023.
 
@@ -46,9 +46,9 @@ password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
 
 A trailing newline is OPTIONAL.
 
-Because the CommonsTool script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded in the script. Therefore, the `endpointUrl` value given in the credentials file will be ignored. It is retained for consistency with other scripts that use credentials like this (e.g. VanderBot).
+The value of `endpointUrl` MUST be set to `https://commons.wikimedia.org`.
 
-Username and password are created on the `Bot passwords` page, accessed from `Special pages`. Wikimedia credentials are shared across all platforms (Wikipedia, Wikidata, Commons, etc.). The credentials file name (`commons_credentials.txt`) and location (the user dirtory) are hard-coded in the script.
+Username and password are created on the `Bot passwords` page, accessed from `Special pages`. Wikimedia credentials are shared across all platforms (Wikipedia, Wikidata, Commons, etc.). The credentials file name and location are set in the configuration file. NOTE: see the cautions in the configuration file about the security of the credentials file.
 
 ## Command line options
 
@@ -56,8 +56,7 @@ Username and password are created on the `Bot passwords` page, accessed from `Sp
 | --------- | ---------- | ------ | ------- |
 | --version | -V | no values; displays current version information |  |
 | --help | -H | no values; displays link to this page |  |
-
-Other options may be added in future versions.
+| --config | -C | path to configuration file | commonstool_config.yml |
 
 ## Major configuration options
 

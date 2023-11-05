@@ -3,19 +3,8 @@
 # (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
-# ----------------
-# Global variables
-# ----------------
-
-script_version = '0.5.7'
-version_modified = '2023-11-03'
-commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
-commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
-# The user_agent string identifies this application to Wikimedia APIs.
-# If you modify this script, you need to change the user-agent string to something else!
-user_agent = 'CommonsTool/' + script_version + ' (mailto:steve.baskauf@vanderbilt.edu)'
-error_log = ''
-sparql_sleep = 0.1 # minimal delay between SPARQL queries
+script_version = '1.0.0'
+version_modified = '2023-11-05'
 
 # -----------------------------------------
 # Version 0.4 change notes: 
@@ -67,6 +56,10 @@ sparql_sleep = 0.1 # minimal delay between SPARQL queries
 # - allow support for multiple creator Q IDs for 3D artwork images
 # - add support for required qualifiers when image source is "file available on the internet" (Q74228490)
 # -----------------------------------------
+# Version 1.0.0 change notes: 2023-11-05
+# - enable specifying the configuration file location as a command line option
+# - specify the credentials path in the configuration file instead of hard-coding it
+# - cosmetic cleanup of code
 
 
 # Generic Commons API reference: https://commons.wikimedia.org/w/api.php
@@ -84,7 +77,6 @@ sparql_sleep = 0.1 # minimal delay between SPARQL queries
 import json
 import yaml
 import requests
-import csv
 import sys
 from pathlib import Path
 from time import sleep
@@ -95,10 +87,15 @@ import pandas as pd
 import urllib.parse
 import webbrowser
 import boto3 # AWS Python SDK
+from typing import List, Dict, Tuple, Optional, Any
 
-# ------------
+# ----------------
+# Global variables
+# ----------------
+
+ERROR_LOG = ''
+
 # Support command line arguments
-# ------------
 
 arg_vals = sys.argv[1:]
 # see https://www.gnu.org/prep/standards/html_node/_002d_002dversion.html
@@ -130,21 +127,24 @@ if '--help' in arg_vals or '-H' in arg_vals: # provide help information accordin
 opts = [opt for opt in arg_vals if opt.startswith('-')]
 args = [arg for arg in arg_vals if not arg.startswith('-')]
 
-'''
-if '--log' in opts: # set output to specified log file or path including file name
-    log_path = args[opts.index('--log')]
-    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
-if '-L' in opts: # set output to specified log file or path including file name
-    log_path = args[opts.index('-L')]
-    log_object = open(log_path, 'wt', encoding='utf-8') # direct output sent to log_object to log file instead of sys.stdout
-'''
+config_path = 'commonstool_config.yml' # Set default path to configuration file if not provided.
+if '--config' in opts: #  set path to configuration file
+    config_path = args[opts.index('--config')]
+if '-C' in opts: 
+    config_path = args[opts.index('-C')]
+# Load configuration values
+with open(config_path, 'r') as file:
+    config_values = yaml.safe_load(file)
 
+# The USER_AGENT string identifies this application to Wikimedia APIs. If you modify this script, 
+# you need to change the user-agent string in the configuration file to something else!
+USER_AGENT = config_values['user_agent_string_template'].replace('%s', script_version)
 
 # ------------------------
 # Utility functions
 # ------------------------
 
-def validate_iso8601(str_val):
+def validate_iso8601(str_val: str) -> bool:
     """Check a string to determine if it is a valid ISO 8601 dateTime value.
     
     Note
@@ -161,7 +161,7 @@ def validate_iso8601(str_val):
         pass
     return False
 
-def validate_time(date_text):
+def validate_time(date_text: str) -> str:
     """Check for valid abbreviated dates."""
     try:
         if date_text != datetime.strptime(date_text, "%Y-%m-%d").strftime("%Y-%m-%d"):
@@ -181,7 +181,7 @@ def validate_time(date_text):
                 form ='none'
     return form
 
-def convert_dates(time_string):
+def convert_dates(time_string: str) -> Tuple[str, int, bool]:
     """Convert times to the format required by Wikidata. Does not include the non-standard leading + ."""
     error = False
 
@@ -209,11 +209,12 @@ def convert_dates(time_string):
         else:
             print('Warning: date', time_string, 'does not conform to any standard format! Check manually.')
             error = True
-            precision_number = ''
+            time_string = value
+            precision_number = 0
 
     return time_string, precision_number, error
 
-def convert_to_smart_quotes(string):
+def convert_to_smart_quotes(string: str) -> str:
     """Convert double quote characters into leading and trailing smart quotes."""
     while '"' in string:
         string = string.replace('"', '\u201c', 1) # will replace the first instance
@@ -249,7 +250,7 @@ class Sparqler:
     -------------
     requests, datetime, time
     """
-    def __init__(self, method='post', endpoint='https://query.wikidata.org/sparql', useragent=None, sleep=0.1):
+    def __init__(self, method: str = 'post', endpoint: str ='https://query.wikidata.org/sparql', useragent: Optional[str] = None, sleep: float = 0.1):
         # attributes for all methods
         self.http_method = method
         self.endpoint = endpoint
@@ -267,7 +268,7 @@ class Sparqler:
         if self.http_method == 'post':
             self.requestheader['Content-Type'] = 'application/x-www-form-urlencoded'
 
-    def query(self, query_string, form='select', verbose=False, **kwargs):
+    def query(self, query_string: str, form: str = 'select', verbose: bool = False, **kwargs):
         """Send a SPARQL query to the endpoint.
         
         Parameters
@@ -363,7 +364,7 @@ class Sparqler:
 # SPARQL query-based functions
 # ------------------------
 
-def query_artwork_creator_name(qid):
+def query_artwork_creator_name(qid: str) -> Tuple[bool, str]:
     """Retrieve author name string from Wikidata.
     
     Parameters
@@ -394,9 +395,8 @@ def query_artwork_creator_name(qid):
     #print(query_string)
 
     error = False
-    wdqs = Sparqler(useragent=user_agent)
+    wdqs = Sparqler(useragent=USER_AGENT)
     data = wdqs.query(query_string)
-    sleep(sparql_sleep)
 
     if data is None:
         error = True
@@ -430,7 +430,7 @@ def query_artwork_creator_name(qid):
                         creator_names += ' ' + creator_name + ',' # stubbornly insist on Oxford comma
     return error, creator_names
 
-def query_item_description(qid, language):
+def query_item_description(qid: str, language: str) -> str:
     """Retrieve the description in a specific language from Wikidata.
     
     Parameters
@@ -452,9 +452,8 @@ def query_item_description(qid, language):
     #print(query_string)
     
     error = False
-    wdqs = Sparqler(useragent=user_agent)
+    wdqs = Sparqler(useragent=USER_AGENT)
     data = wdqs.query(query_string)
-    sleep(sparql_sleep)
     
     # Check for errors or no results
     # It is unlikely that either the query will have an error or the item will have no labels
@@ -468,7 +467,7 @@ def query_item_description(qid, language):
         # Note: there can only be one or zero descriptions in a language.
         return data[0]['description']['value']
 
-def query_item_labels(qid, pref_lang):
+def query_item_labels(qid: str, pref_lang: str) -> Tuple[str, str, str]:
     """Retrieve the label and description in a preferred language from Wikidata.
     
     Parameters
@@ -492,10 +491,8 @@ def query_item_labels(qid, pref_lang):
     '''
     #print(query_string)
 
-    error = False
-    wdqs = Sparqler(useragent=user_agent)
+    wdqs = Sparqler(useragent=USER_AGENT)
     data = wdqs.query(query_string)
-    sleep(sparql_sleep)
     
     # Check for errors or no results
     # It is unlikely that either the query will have an error or the item will have no labels
@@ -535,7 +532,7 @@ def query_item_labels(qid, pref_lang):
     
     return label, description, lang
 
-def query_inception_year(qid):
+def query_inception_year(qid: str) -> str:
     """Retrieve the inception year from Wikidata.
     
     Parameters
@@ -553,10 +550,8 @@ def query_inception_year(qid):
     '''
     #print(query_string)
 
-    error = False
-    wdqs = Sparqler(useragent=user_agent)
+    wdqs = Sparqler(useragent=USER_AGENT)
     data = wdqs.query(query_string)
-    sleep(sparql_sleep)
 
     if data is None:
         return 'Query error'
@@ -574,7 +569,7 @@ def query_inception_year(qid):
 
     return inception
 
-def query_inventory_number(qid, collection_qid):
+def query_inventory_number(qid: str, collection_qid: str) -> str:
     """Retrieve the inventory number of a work for a particular institution from Wikidata.
     
     Parameters
@@ -593,7 +588,7 @@ def query_inventory_number(qid, collection_qid):
     #print(query_string)
 
     error = False
-    wdqs = Sparqler(useragent=user_agent)
+    wdqs = Sparqler(useragent=USER_AGENT)
     data = wdqs.query(query_string)
     if data is None:
         return 'Query error'
@@ -623,44 +618,46 @@ def query_inventory_number(qid, collection_qid):
 # Each media page is also identified by an M ID, which is the Commons equivalent of a Q ID. Since structured
 # data on Commons is based on a Wikibase instance, the M ID is used when writing structured data to the API.
 
-def commons_url_to_filename(url):
+def commons_url_to_filename(url: str) -> str:
     """Convert a Wikidata IRI identifier to an unencoded file name.
     
     Note
     ----
     The form of the URL is: http://commons.wikimedia.org/wiki/Special:FilePath/Castle%20De%20Haar%20%281892-1913%29%20-%20360%C2%B0%20Panorama%20of%20Castle%20%26%20Castle%20Grounds.jpg
     """
+    commons_prefix = 'http://commons.wikimedia.org/wiki/Special:FilePath/'
     string = url.split(commons_prefix)[1] # get local name file part of URL
     filename = urllib.parse.unquote(string) # reverse URL-encode the string
     return filename
 
-def filename_to_commons_url(filename):
+def filename_to_commons_url(filename: str) -> str:
     """Convert a raw file name to a Wikidata IRI identifier."""
     encoded_filename = urllib.parse.quote(filename)
-    url = commons_prefix + encoded_filename
+    url = 'http://commons.wikimedia.org/wiki/Special:FilePath/' + encoded_filename
     return url
 
-def commons_page_url_to_filename(url):
+def commons_page_url_to_filename(url: str) -> str:
     """Convert a Commons web page URL to a raw file name.
     
     Note
     ----
     The form of the URL is: https://commons.wikimedia.org/wiki/File:Castle_De_Haar_(1892-1913)_-_360%C2%B0_Panorama_of_Castle_%26_Castle_Grounds.jpg
     """
+    commons_page_prefix = 'https://commons.wikimedia.org/wiki/File:'
     string = url.split(commons_page_prefix)[1] # get local name file part of URL
     string = string.replace('_', ' ')
     filename = urllib.parse.unquote(string) # reverse URL-encode the string
     return filename
 
-def filename_to_commons_page_url(filename):
+def filename_to_commons_page_url(filename: str) -> str:
     """Convert a raw file name to a Commons web page URL."""
     filename = filename.replace(' ', '_')
     encoded_filename = urllib.parse.quote(filename)
-    url = commons_page_prefix + encoded_filename
+    url = 'https://commons.wikimedia.org/wiki/File:' + encoded_filename
     url = url.replace('%28', '(').replace('%29', ')').replace('%2C', ',')
     return url
 
-def get_commons_image_pageid(image_filename):
+def get_commons_image_pageid(image_filename: str) -> str:
     """Look up the Commons image page ID ("M ID") using the image file name.
     
     Note
@@ -676,7 +673,7 @@ def get_commons_image_pageid(image_filename):
         'prop': 'info'
     }
 
-    response = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers={'User-Agent': user_agent})
+    response = requests.get('https://commons.wikimedia.org/w/api.php', params=params, headers={'User-Agent': USER_AGENT})
     data = response.json()
     #print(json.dumps(data, indent=2))
     page_dict = data['query']['pages'] # this value is a dict that has the page IDs as keys
@@ -689,8 +686,15 @@ def get_commons_image_pageid(image_filename):
     # NOTE: appears to return '-1' when it can't find the page.
     return page_id
 
-def generate_commons_filename(label, local_filename, filename_institution):
-    # NOTE: square brackets [], slashes /, and colons : are not allowed in the filenames. So replace them if they exist
+def generate_commons_filename(label: str, local_filename: str, filename_institution: str) -> str:
+    """Create a filename by concatenating the work label, institution name, and local filename.
+    
+    Note
+    ----
+    Square brackets [], slashes /, and colons : are not allowed in the filenames. So replace them if they exist. 
+    Other issues described in code comments.
+    """
+    # NOTE: 
     if '[' in label:
         clean_label = label.replace('[', '(')
     else:
@@ -742,31 +746,27 @@ def generate_commons_filename(label, local_filename, filename_institution):
     return commons_filename
 
 # ------------------------
-# Login in/authentication object
+# Wikimedia login in/authentication object
 # ------------------------
 
 class Wikimedia_api_login:
     """Log in to a Wikimedia API to instantiate a Requests session and generate a CSRF token.
-    
+
     Parameters
     ----------
-    path : str
-        Path to credentials file (including filename) relative to either working or home directory.
-        Defaults to "commons_credentials.txt".
-    relative_to_home : bool
-        True if path is relative to the home directory, False if relative to working directory.
-        Defaults to True.
-    
+    config_values : dict
+        Dictionary of configuration values from the configuration YAML file.
+
     Required modules
     ----------------
     requests, Path object from pathlib
     """
-    def __init__(self, config_values, path='commons_credentials.txt', relative_to_home=True):
-        if relative_to_home:
+    def __init__(self, config_values: dict):
+        if config_values['credentials_path_relative_to_home_directory']:
             home = str(Path.home()) # gets path to home directory; supposed to work for both Win and Mac
-            full_credentials_path = home + '/' + path
+            full_credentials_path = home + '/' + config_values['credentials_path']
         else:
-            full_credentials_path = path
+            full_credentials_path = config_values['credentials_path']
         
         # Retrieve credentials from local file.
         with open(full_credentials_path, 'rt') as file_object:
@@ -782,9 +782,7 @@ class Wikimedia_api_login:
         # Instantiate a Requests session
         session = requests.Session()
         # Set default User-Agent header so you don't have to send it with every request
-        user_agent_string = config_values['user_agent_string_template'].replace('%s', script_version)
-        #print(user_agent_string)
-        session.headers.update({'User-Agent': user_agent_string})
+        session.headers.update({'User-Agent': USER_AGENT})
         self.session = session
 
         # Go through the sequence of steps needed to get get the CSRF token
@@ -824,7 +822,7 @@ class Wikimedia_api_login:
 # Data upload functions
 # ------------------------
 
-def create_commons_template(n_dimensions, artwork_license_text, photo_license_text, category_strings, source):
+def create_commons_template(n_dimensions: str, artwork_license_text: str, photo_license_text: str, category_strings: List[str], source: str) -> str:
     """Creates initial file Wikitext. Template metadata omitted since page tables will be populated using structured
     data from SDC or Wikidata.
     
@@ -890,7 +888,7 @@ def create_commons_template(n_dimensions, artwork_license_text, photo_license_te
     
     return page_wikitext
 
-def upload_file_to_commons(image_filename, commons_filename, directory_path, relative_to_home, commons_login, wikitext):
+def upload_file_to_commons(image_filename: str, commons_filename: str, directory_path: str, relative_to_home: bool, commons_login, wikitext: str) -> dict:
     """Upload local image file and page wikitext to Commons via API.
     
     Parameters
@@ -952,17 +950,15 @@ def upload_file_to_commons(image_filename, commons_filename, directory_path, rel
 
     return(data)
 
-def wbeditentity_upload(commons_login, maxlag, mid, caption, caption_language, sdc_claims_list):
+def wbeditentity_upload(commons_login, maxlag: int, mid: str, caption: str, caption_language: str, sdc_claims_list: List[Dict]) -> Dict:
     """Wikibase edit entity function. Uploads both caption and all Structured Data statements at once.
     
     Parameters
     ----------
-    commons_session : requests.Session object
-        Requests session created in the login() function
-    commons_csrf_token : 
-        CSRF authorization token generated for the session and passed to the API to authenticate
+    commons_login : Wikimedia_api_login object
+        Needed to supply the session and csrftoken attributes needed for authentication.
     maxlag : integer
-        number of seconds value used to prevent writing to quickly to the API
+        Number of seconds value used to prevent writing to quickly to the API
     mid : string
         M ID identifier used to denote media files in Commons
     caption : string
@@ -1068,8 +1064,18 @@ def wbeditentity_upload(commons_login, maxlag, mid, caption, caption_language, s
 
 # This function attempts to post and handles maxlag errors
 # Code reused from VanderBot https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py
-def attempt_post(api_url, parameters, session):
-    """Post to a Wikimedia API while respecting maxlag errors."""
+def attempt_post(api_url: str, parameters: Dict, session: requests.Session) -> Dict:
+    """Post to a Wikimedia API while respecting maxlag errors.
+    
+    Parameters
+    ----------
+    api_url : str
+        Wikimedia API endpoint URL.
+    parameters : Dict
+        Parameters to be passed to the API.
+    session : requests.Session object
+        Session of the commons_login object.
+    """
     starting_delay = 5
     max_retries = 10
     delay_limit = 300
@@ -1116,7 +1122,7 @@ def attempt_post(api_url, parameters, session):
 # Major processes functions
 # ---------------------------
 
-def commons_image_upload(image_metadata, config_values, work_label, commons_login):
+def commons_image_upload(image_metadata: Dict, config_values: Dict, work_label: str, commons_login) -> Tuple[bool, str]:
     """Construct labels, templates, and paths necessary to upload a media file to Commons, then upload.
     
     Parameters
@@ -1130,7 +1136,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     commons_login : Wikimedia_api_login object
         Needed to supply the session and csrftoken attributes needed for authentication during upload.
     """
-    global error_log
+    global ERROR_LOG
     # Generate the page wikitext based on licensing metadata appropriate for the kind of artwork.
     page_wikitext = create_commons_template(image_metadata['n_dimensions'], image_metadata['artwork_license_text'], image_metadata['photo_license_text'], image_metadata['category_strings'], config_values['source'])
     #print(page_wikitext)
@@ -1142,7 +1148,7 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     # (potentially causing a naming collision).
     if ' ' in image_metadata['local_filename']:
         print('Raw filename "' + image_metadata['local_filename'] + '" contains spaces that need to be removed manually.')
-        print('Unallowed spaces in raw filename "' + image_metadata['local_filename'] + '"', file=log_object)
+        print('Unallowed spaces in raw filename "' + image_metadata['local_filename'] + '"', file=LOG_OBJECT)
         errors = True
         return errors, ''
     else:
@@ -1181,8 +1187,8 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
     errors = False
     if data == {}: # Handle an error
         print('Failed to upload successfully.')
-        error_log += 'Commons file upload failed with non-JSON response for ' + local_filename + '\n'
-        print('Commons file upload failed with non-JSON response for ' + local_filename, file=log_object)
+        ERROR_LOG += 'Commons file upload failed with non-JSON response for ' + local_filename + '\n'
+        print('Commons file upload failed with non-JSON response for ' + local_filename, file=LOG_OBJECT)
         errors = True
     else:
         #print(json.dumps(data, indent=2))
@@ -1191,22 +1197,22 @@ def commons_image_upload(image_metadata, config_values, work_label, commons_logi
             print('API response:', data['upload']['result'])
         except:
             print('API did not respond with "Success"')
-            error_log += 'Commons file upload failed with non-"Success" response for ' + local_filename + '\n'
-            print('Commons file upload failed with non-"Success" response for ' + local_filename, file=log_object)
+            ERROR_LOG += 'Commons file upload failed with non-"Success" response for ' + local_filename + '\n'
+            print('Commons file upload failed with non-"Success" response for ' + local_filename, file=LOG_OBJECT)
             exception_thrown = True
             errors = True
         # If the upload fails, try to extract the error message
         if exception_thrown:
             try:
                 print('Error info:', data['error']['info'])
-                error_log += 'Error info:' + data['error']['info'] + '\n'
-                print('Error info:', data['error']['info'], file=log_object)
+                ERROR_LOG += 'Error info:' + data['error']['info'] + '\n'
+                print('Error info:', data['error']['info'], file=LOG_OBJECT)
             except:
                 pass
 
     return errors, commons_filename
 
-def structured_data_upload(image_metadata, work_metadata, config_values, commons_login):
+def structured_data_upload(image_metadata: Dict, work_metadata: Dict, config_values: Dict, commons_login) -> Tuple[bool, str]:
     """Assemble medata for and upload Commons structured data using the Wikibase API wbeditentity method.
     
     Parameters
@@ -1220,7 +1226,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     commons_login : Wikimedia_api_login object
         Needed to supply the session and csrftoken attributes needed for authentication during upload.
     """
-    global error_log
+    global ERROR_LOG
     # Intro on structured data: https://commons.wikimedia.org/wiki/Commons:Structured_data
     # See also this on GLAM https://commons.wikimedia.org/wiki/Commons:Structured_data/GLAM
     
@@ -1315,8 +1321,8 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
     if get_id_response == '-1': # returns an error
         mid = 'error'
         print('Could not find Commons page ID. Will not upload structured data!')
-        error_log += 'Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'] + '\n'
-        print('Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'], file=log_object)
+        ERROR_LOG += 'Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'] + '\n'
+        print('Could not find Commons page ID for ' + work_metadata['work_qid'] + ': ' + image_metadata['commons_filename'], file=LOG_OBJECT)
         errors = True
     else:
         mid = "M" + get_id_response
@@ -1332,13 +1338,13 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
                 print('API reports success')
             else:
                 print('API reports failure')
-                error_log += 'API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
-                print('API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
+                ERROR_LOG += 'API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
+                print('API reports failure of structured data upload for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=LOG_OBJECT)
                 errors = True
         except:
             print('API did not respond with "Success"')
-            error_log += 'Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
-            print('Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=log_object)
+            ERROR_LOG += 'Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename + '\n'
+            print('Structured data upload failed with no "Success" response for ' + work_metadata['work_qid'] + ': ' + commons_filename, file=LOG_OBJECT)
             errors = True
             no_success = True
         # Try to capture the error message
@@ -1346,8 +1352,8 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
             try:
                 error_message = response['error']['info']
                 print('Error message:', error_message)
-                error_log += 'Error message:', error_message + '\n'
-                print('Error message:', error_message, file=log_object)
+                ERROR_LOG += 'Error message:', error_message + '\n'
+                print('Error message:', error_message, file=LOG_OBJECT)
             except:
                 print(response)
             
@@ -1358,7 +1364,7 @@ def structured_data_upload(image_metadata, work_metadata, config_values, commons
 
     return errors, mid
 
-def upload_image_to_iiif(image_metadata, config_values):
+def upload_image_to_iiif(image_metadata: Dict, config_values: Dict) -> None:
     """Upload image to IIIF server S3 bucket.
     
     Parameters
@@ -1404,7 +1410,7 @@ def upload_image_to_iiif(image_metadata, config_values):
     # the IIIF URL would be https://iiif.library.vanderbilt.edu/iiif/3/gallery%2F1979%2F1979.0264P.tif/full/max/0/default.jpg
     print(config_values['iiif_server_url_root'] + config_values['s3_iiif_project_directory'] + '%2F' + subdirectory_escaped + urllib.parse.quote(local_filename) + '/full/1000,/0/default.jpg')
     
-def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
+def generate_iiif_canvas(index_string: str, manifest_iri: str, image_metadata: Dict, label: str) -> Dict:
     """Generate the canvas dictionary for a particular image.
     
     Parameters
@@ -1465,7 +1471,7 @@ def generate_iiif_canvas(index_string, manifest_iri, image_metadata, label):
                 }
     return canvas_dict
 
-def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
+def upload_iiif_manifest_to_s3(canvases_list: List[Dict], work_metadata: Dict, config_values: Dict) -> None:
     """Generate and write IIIF manifest to S3 bucket using canvases for all images of an artwork.
     
     Parameters
@@ -1564,17 +1570,7 @@ def upload_iiif_manifest_to_s3(canvases_list, work_metadata, config_values):
 # Body of main script
 # ---------------------------
 
-# This section contains configuration information and performs necessary logins
-# No writing is done, so it's "safe" to run any time
-
-# This section needs to be run prior to running any code that interacts with the Commons API
-# It generates the CSRF token required to post to the API on behalf of the user whose username and pwd are being used
-
 print('Loading data')
-
-# Load configuration values
-with open('commonstool_config.yml', 'r') as file:
-    config_values = yaml.safe_load(file)
 
 if config_values['working_directory_path'] != '':
     # Change working directory to image upload directory
@@ -1585,9 +1581,12 @@ for category in config_values['public_domain_categories']:
     pd_categories.append(category['reason'])
         
 # Error log should be saved in current working directory
-# The log_object is a global variable so that it can be accessed in all functions.
+# The LOG_OBJECT is a global variable so that it can be accessed in all functions.
 log_path = 'error_log.txt'
-log_object = open(log_path, 'wt', encoding='utf-8')
+LOG_OBJECT = open(log_path, 'wt', encoding='utf-8')
+
+# Errors is a local variable in the main script. It also exists as a local variable in functions, where
+# it gets returned if there is an error in the function.
 errors = False
 
 
@@ -1611,39 +1610,8 @@ existing_images = pd.read_csv(config_values['existing_uploads_file'], na_filter=
 
 if config_values['perform_commons_upload']:
     if not(config_values['suppress_media_upload_to_commons'] and config_values['suppress_uploading_structured_data_to_commons']):
-        # ---------------------------
-        # Commons API Post Authentication (create session and generate CSRF token)
-        # ---------------------------
-
         print('Authenticating')
-
-        # This is the format of the credentials file. 
-        # Username and password are for a bot that you've created.
-        # The file must be plain text. It is recommended to place in your home directory so that you don't accidentally
-        # include it when sharing this script and associated data files. This is the default unless changed when
-        # instantiating a Wikimedia_api_login object.
-        # NOTE: because this script is idiosyncratic to Wikimedia Commons, the endpoint URL is hard-coded. So the
-        # endpointUrl value given in the credentials file is ignored. It is retained for consistency with other 
-        # scripts that use credentials like this (e.g. VanderBot).
-
-        '''
-        endpointUrl=https://test.wikidata.org
-        username=User@bot
-        password=465jli90dslhgoiuhsaoi9s0sj5ki3lo
-        '''
-
-        # If credentials file location is in a subfolder, include subfolders through file name 
-        # with no leading slash and set as the path argument.
-        # Example: myproj/credentials/commons_credentials.txt
-        # [Need to give example for absolute path on Windows - use Unix forward slashes?]
-        # If credentials file is in current working directory or home directory, only filename is necessary.
-        # Omit to use "commons_credentials.txt" as the path argument.
-
-        # If the credentials file location is relative to the working directory or an absolute path, 
-        # set the relative_to_home argument to False. Set to True or omit if relative to the home directory.
-
         commons_login = Wikimedia_api_login(config_values)
-
 
 print('Beginning uploads')
 print()
@@ -1732,14 +1700,14 @@ for index, work in works_metadata.iterrows():
                 if int(image_to_upload['height']) * int(image_to_upload['width']) < config_values['minimum_pixel_squared']:
                     if config_values['verbose']:
                         print('Image size', int(image_to_upload['height']) * int(image_to_upload['width']), ' square pixels too small for', image_to_upload['local_filename'])
-                    print('Inadequate pixel squared for', image_to_upload['local_filename'], file=log_object)
+                    print('Inadequate pixel squared for', image_to_upload['local_filename'], file=LOG_OBJECT)
                     errors = True
                     all_good = False
             elif config_values['size_filter'] == 'filesize':
                 if int(image_to_upload['kilobytes']) < config_values['minimum_filesize']:
                     if config_values['verbose']:
                         print('Image too small.')
-                    print('Inadequate file size', int(image_to_upload['kilobytes']), 'kb for', image_to_upload['local_filename'], file=log_object)
+                    print('Inadequate file size', int(image_to_upload['kilobytes']), 'kb for', image_to_upload['local_filename'], file=LOG_OBJECT)
                     errors = True
                     all_good = False
             else: # don't apply a size filter
@@ -1749,7 +1717,7 @@ for index, work in works_metadata.iterrows():
             if int(image_to_upload['kilobytes']) > 102400:
                 if config_values['verbose']:
                     print('Warning: image size exceeds 100 Mb!')
-                print('Image size exceeds 100 Mb for ' + image_to_upload['local_filename'], file=log_object)
+                print('Image size exceeds 100 Mb for ' + image_to_upload['local_filename'], file=LOG_OBJECT)
                 errors = True
                 all_good = False
         
@@ -1767,8 +1735,8 @@ for index, work in works_metadata.iterrows():
         if query_error:
             if config_values['verbose']:
                 print('Failed find creator string in Wikidata with error:', response_string)
-            #error_log += 'Failed find creator string in Wikidata for ' + index + ' with error:' + response_string + '\n'
-            print('Failed find creator string in Wikidata for ', index, ' with error:', response_string, file=log_object)
+            #ERROR_LOG += 'Failed find creator string in Wikidata for ' + index + ' with error:' + response_string + '\n'
+            print('Failed find creator string in Wikidata for ', index, ' with error:', response_string, file=LOG_OBJECT)
             errors = True
             #continue
             artist_name_string = ''
@@ -1903,7 +1871,7 @@ for index, work in works_metadata.iterrows():
                 # file. Just log the error and go on.
                 if upload_error:
                     errors = True
-                    print('Image upload to Commons failed for', index, file=log_object)
+                    print('Image upload to Commons failed for', index, file=LOG_OBJECT)
                     continue
                 else:
                     image_metadata['commons_filename'] = commons_filename
@@ -1944,8 +1912,8 @@ for index, work in works_metadata.iterrows():
         # So don't continue to the next iteration. But do skip the IIIF upload if a Commons upload fails.
         if config_values['perform_commons_upload'] and upload_error: # Note: due to "and short circuit", upload_error won't be evaluated if no commons upload
             errors = True
-            error_log += 'Structured data for Commons upload failed for' + index + '\n'
-            print('Structured data for Commons upload failed for', index, file=log_object)
+            ERROR_LOG += 'Structured data for Commons upload failed for' + index + '\n'
+            print('Structured data for Commons upload failed for', index, file=LOG_OBJECT)
         else:
             if config_values['perform_iiif_upload']:
                 # NOTE: the S3 bucket uploads don't seem to ever fail and there isn't an easy way to detect it,
@@ -2030,10 +1998,10 @@ for index, work in works_metadata.iterrows():
 print(artwork_items_uploaded, 'items uploaded.')
 if not errors:
     print('All files uploaded.')
-    print('All files uploaded.', file=log_object)
-if error_log == '':
+    print('All files uploaded.', file=LOG_OBJECT)
+if ERROR_LOG == '':
     print('No errors logged.')
 else:
-    print(error_log)
-log_object.close()
+    print(ERROR_LOG)
+LOG_OBJECT.close()
 print('done')
