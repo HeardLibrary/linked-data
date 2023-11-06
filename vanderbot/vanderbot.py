@@ -137,7 +137,10 @@ created = '2023-02-08'
 # Version 1.9.6 change notes (2023-02-11)
 # Add special little hack to handle responses from the Structured Data on Commons API (https://commons.wikimedia.org).
 #       Their response JSON uses the key "statements" instead of "claims" for no apparent reason.
-
+# ----------------------------------------
+# Version 1.9.7 change notes (2023-11-06)
+# Minor bug fix: Write error message to log when value doesn't appear in API response. This is a rare case that can happen when the Commons API
+#       changes a file name from the putitive name that was uploaded (e.g. removing double spaces).
 
 import json
 import requests
@@ -2230,7 +2233,8 @@ for table in tables:  # The script can handle multiple tables
                     # Print this error message only if there is not match to any of the values after looping through all of the matching properties
                     # This should never happen because this code is only executed when the statement doesn't have a UUID (i.e. not previously written)
                     if count == 0:
-                        print('did not find', tableData[rowNumber][propertiesColumnList[statementIndex]])
+                        print('Did not find in API response:', tableData[rowNumber][propertiesColumnList[statementIndex]], file=log_object)
+                        error_log += 'Did not find in API response: ' + tableData[rowNumber][propertiesColumnList[statementIndex]]  + '\n'
         
             # Replace the table with a new one containing any new IDs
             # Note: I'm writing after every line so that if the script crashes, no data will be lost

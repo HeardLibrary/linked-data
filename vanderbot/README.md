@@ -31,7 +31,7 @@ The Python script [VanderDeleteBot](vanderdeletebot.py) can be used to perform m
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/vanderbot.py>
 
-Current version: v1.9.6
+Current version: v1.9.7
 
 Written by Steve Baskauf 2020-23.
 

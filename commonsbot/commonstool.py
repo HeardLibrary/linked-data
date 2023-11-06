@@ -3,8 +3,8 @@
 # (c) 2023 Vanderbilt University. This program is released under a GNU General Public License v3.0 http://www.gnu.org/licenses/gpl-3.0
 # Author: Steve Baskauf
 
-script_version = '1.0.0'
-version_modified = '2023-11-05'
+script_version = '1.0.1'
+version_modified = '2023-11-06'
 
 # -----------------------------------------
 # Version 0.4 change notes: 
@@ -60,7 +60,9 @@ version_modified = '2023-11-05'
 # - enable specifying the configuration file location as a command line option
 # - specify the credentials path in the configuration file instead of hard-coding it
 # - cosmetic cleanup of code
-
+# -----------------------------------------
+# Version 1.0.1 change notes: 2023-11-06
+# - correct bug when truncating long labels would result in a trailing space, which when followed by another space would be converted to a single space by the API
 
 # Generic Commons API reference: https://commons.wikimedia.org/w/api.php
 
@@ -721,6 +723,9 @@ def generate_commons_filename(label: str, local_filename: str, filename_institut
         file_prefix = clean_label
     else:
         file_prefix = clean_label.encode("utf8")[:byte_limit].decode('utf8')
+        # Fix special case where truncating results in a trailing space. This would result in double spaces, which the API replaces with single spaces.
+        if file_prefix[-1] == ' ':
+            file_prefix = file_prefix[:-1]
 
     # Set commons_filename (can include spaces). The API will substitute underscores as it likes.
     # For file naming conventions, see: https://commons.wikimedia.org/wiki/Commons:File_naming
