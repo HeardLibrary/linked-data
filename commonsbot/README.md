@@ -32,7 +32,7 @@ The behavior of the script is primarily controlled by values in a YAML configura
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commonstool.py>
 
-Current version: v1.0.0
+Current version: v1.0.1
 
 Written by Steve Baskauf 2023.
 
