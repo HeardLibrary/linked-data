@@ -1,6 +1,8 @@
 # Scripts and information for interacting with Wikimedia Commons
 
-This directory contains scripts for retrieving data from Commons and for writing to the Commons API. Some of these scripts are ad hoc and still under development. The CommonsTool script is potentially useable, although it's still under testing.
+A short link to this page is <http://vanderbi.lt/commonstool>.
+
+This directory contains scripts for retrieving data from Commons and for writing to the Commons API. 
 
 There is also information comparing the different templates that are available for writing to the Mediawiki HTML pages for Commons items. The `Artwork` and `Information` templates seem to be in common use, and the `Art Photo` template is useful with 3D artworks.
 
@@ -9,6 +11,16 @@ There is also information comparing the different templates that are available f
 CommonsTool is a command-line Python tool for uploading images to Wikimedia Commons whose metadata are already in Wikidata. By default, it is configured for uploading images of two- or three-dimensional artwork, although it can be modified for other purposes.
 
 There are two additional optional features of the tool. It can also be used to upload images to an AWS S3 bucket to feed a Cantaloupe IIIF image server and generate a manifest for displaying those images. The output of the script is saved in a table, which can be used to link the Commons image identifier and IIIF manifest URL to the item for the work using the [VanderBot](http://vanderbi.lt/vanderbot) tool. See the description of `tranfer_to_vanderbot.py` in the `Other scripts` section below.
+
+For a presentation about CommonsTool at the LD4 Art and Design Affinity Group, see the slides at <https://doi.org/10.6084/m9.figshare.24570859>.
+
+Guidelines for providing Structured Data on Commons for artwork followed by the script are at <https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks>
+
+To enable the embedded Mirador IIIF viewer within Wikidata item pages, add the following line to your `common.js` page in your user space on Wikidata:
+
+```
+mw.loader.load( '//www.wikidata.org/w/index.php?title=User:Btwashburn/iiif-mirador.js&action=raw&ctype=text/javascript' );
+
 
 ## How it works
 
@@ -165,4 +177,4 @@ NOTE: because the CommonsTool script links Commons media files with Wikidata rec
 `art_photo`, `artwork.json`, `information.json`, and `photograph.json` same as above, but with fields restricted to a particular template
 
 ----
-Last modified: 2023-11-03
+Last modified: 2023-11-15
