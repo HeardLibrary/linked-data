@@ -12,7 +12,7 @@ CommonsTool is a command-line Python tool for uploading images to Wikimedia Comm
 
 There are two additional optional features of the tool. It can also be used to upload images to an AWS S3 bucket to feed a Cantaloupe IIIF image server and generate a manifest for displaying those images. The output of the script is saved in a table, which can be used to link the Commons image identifier and IIIF manifest URL to the item for the work using the [VanderBot](http://vanderbi.lt/vanderbot) tool. See the description of `tranfer_to_vanderbot.py` in the `Other scripts` section below.
 
-For a presentation about CommonsTool at the LD4 Art and Design Affinity Group, see the slides at <https://doi.org/10.6084/m9.figshare.24570859>.
+For a presentation about CommonsTool at the 2023-11-15 LD4 Art and Design Affinity Group call, see the [video of the presentation](https://drive.google.com/file/d/1n_Sf9w-IN54ooFSfmoDTnQdTkndVYzCu/view?usp=drive_link) and the [presentation slides](https://doi.org/10.6084/m9.figshare.24570859).
 
 Guidelines for providing Structured Data on Commons for artwork followed by the script are at <https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Visual_artworks>
 
