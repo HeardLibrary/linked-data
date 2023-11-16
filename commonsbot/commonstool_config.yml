@@ -82,7 +82,7 @@ artwork_items_metadata_file: artwork_metadata.csv
 # Some of these data can be extracted automatically from the EXIF data of the file in a pre-prossing step.
 image_metadata_file: images.csv
 
-# Output file for record keeping of Commons uploads. It isn't necessarily needed as input to any other script.
+# Output file for record keeping of Commons uploads. It is used as input for the transfer_to_vanderbot.py script.
 # It is also opened at the start and used to determine which images have already been uploaded.
 existing_uploads_file: commons_images.csv
 
