@@ -20,7 +20,7 @@ To enable the embedded Mirador IIIF viewer within Wikidata item pages, add the f
 
 ```
 mw.loader.load( '//www.wikidata.org/w/index.php?title=User:Btwashburn/iiif-mirador.js&action=raw&ctype=text/javascript' );
-
+```
 
 ## How it works
 
