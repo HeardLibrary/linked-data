@@ -158,7 +158,13 @@ If any of the following fields already have values the `transfer_to_vanderbot.py
 
 [convert_to_pyramidal_tiled_tiff.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/convert_to_pyramidal_tiled_tiff.ipynb) Python Jupyter notebook for converting raw TIFF images to tiled pyramidal TIFFs.
 
-[extract_image_metadata.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.ipynb) Python Jupyter notebook for extracting image size, dimensions, and created date from the file.
+[extract_image_metadata.py](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.py) More general Python script for extracting image size, dimensions, and created date from the file.
+
+[extract_image_metadata.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/extract_image_metadata.ipynb) Python Jupyter notebook for extracting image size, dimensions, and created date from the file. Contains some ideosyncratic code specific for the Vanderbilt Fine Arts Gallery dataset.
+
+[convert_tiff_to_smaller.py](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/convert_tiff_to_smaller.py) A Python script for re-sizing TIFF files to a smaller size.
+
+[convert_dng_to_tiff.py](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/convert_dng_to_tiff.py) A Python script for converting digital negative (DNG) files to TIFF files.
 
 [commons_data.ipynb](https://github.com/HeardLibrary/linked-data/blob/master/commonsbot/commons_data.ipynb) Python Jupyter notebook with code for scraping Commons file MediaWiki HTML tables. There is also some code for acquiring technical metadata and some metadata about the file from the Commons API, although for the non-technical metadata, the quality of data retrieved from scraping the page is better.
 
@@ -177,4 +183,4 @@ NOTE: because the CommonsTool script links Commons media files with Wikidata rec
 `art_photo`, `artwork.json`, `information.json`, and `photograph.json` same as above, but with fields restricted to a particular template
 
 ----
-Last modified: 2023-11-15
+Last modified: 2023-12-04
