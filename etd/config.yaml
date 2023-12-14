@@ -1,7 +1,7 @@
 # For details on setting up this file, see https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
 
 # Set the data_path value to the directory where the item_pattern_file and item_source_csv are located (if applicable).
-# The path will also set the location of the output files. An empty value will used the current working directory.
+# The path will also set the location of the output files. An empty value will use the current working directory.
 data_path: ''
 
 # One of item_pattern_file or item_source_csv must be set. The other should have an empty string as its value.
