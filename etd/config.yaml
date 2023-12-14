@@ -1,0 +1,127 @@
+# For details on setting up this file, see https://github.com/HeardLibrary/linked-data/blob/master/vanderbot/convert-config.md
+
+# Set the data_path value to the directory where the item_pattern_file and item_source_csv are located (if applicable).
+# The path will also set the location of the output files. An empty value will used the current working directory.
+data_path: ''
+
+# One of item_pattern_file or item_source_csv must be set. The other should have an empty string as its value.
+# These values are only used when downloading existing data from Wikidata. For uploads, they are ignored.
+item_pattern_file: graph_pattern.txt
+item_source_csv: ''
+
+# You can have multiple values for outfiles if you want to generate several related CSV files to be uploaded at once.
+outfiles:
+
+# Label and description columns will be created for each language in the list. At least one should be specified.
+- label_description_language_list:
+  - en
+
+  # Set to false if you only want to display labels to make it easier for humans to understand what the subject is.
+  # Set to true if you want to actually manage both labels and descriptions as part of the upload process.
+  manage_descriptions: true
+
+  # This is the filename for the CSV to be used by VanderBot. It will be created in the data_path directory.
+  output_file_name: theses.csv
+
+  # Each listed property will be used to generate a set of related columns in the spreadsheet. If statements made
+  # using the property do not have qualifiers or references, an empty array should be used for those values.
+  prop_list:
+
+  # Wikidata property ID to be used for statements
+  - pid: P31
+    # variable is the root name for the columns related to that property.
+    variable: instance_of
+    # value_type must be one of: item, date, quantity, globecoordinate, monolingualtext, uri, or string.
+    # If the value_type is monolingualtext, the language must be specified using a language key
+    # with a value that's a standard two-letter language code.
+    value_type: item
+    qual: []
+    ref: []
+
+  - pid: P1184 # In this example, a Handle is the persistent identifier for the article. Alternatively, you could use a DOI.
+    variable: handle
+    value_type: string
+    qual: []
+    # Although references in Wikidata can have multiple values, in this schema only one reference is supported.
+    # However, that reference can include multiple properties.
+    ref:
+    # The key: value pairs for references follow the same patterns as for statements.
+    # Since the Handle is a dereferenceable link to the thesis, it isn't necessary to supply a reference URL.
+    - pid: P813
+      variable: retrieved
+      value_type: date
+
+  - pid: P953 # Assuming the thesis is available as full text, this will be populated with the DOI, Handle, or other URL.
+    variable: full_text_available
+    value_type: uri
+    qual: []
+    ref:
+    - pid: P813
+      variable: retrieved
+      value_type: date
+
+  - pid: P2093
+    variable: author_string
+    value_type: string
+    qual: []
+    ref:
+    # The referenceUrl will be populated by the DOI, Handle, or other URL that is used in other statements above.
+    - pid: P854
+      variable: referenceUrl
+      value_type: uri
+    - pid: P813
+      variable: retrieved
+      value_type: date
+
+  - pid: P577
+    variable: published
+    value_type: date
+    qual: []
+    ref:
+    - pid: P854
+      variable: referenceUrl
+      value_type: uri
+    - pid: P813
+      variable: retrieved
+      value_type: date
+
+# Generally, the title will be the same as the label if they are both in the same language. However, there may be multiple
+# labels in different languages, while there should only be a single title for the thesis.
+  - pid: P1476
+    variable: title
+    value_type: monolingualtext
+    # The two-letter language code must be supplied using the language key if the value_type is monolingualtext.
+    language: en
+    qual: []
+    ref:
+    - pid: P854
+      variable: referenceUrl
+      value_type: uri
+    - pid: P813
+      variable: retrieved
+      value_type: date
+
+  - pid: P407
+    variable: language
+    value_type: item
+    qual: []
+    ref:
+    - pid: P854
+      variable: referenceUrl
+      value_type: uri
+    - pid: P813
+      variable: retrieved
+      value_type: date
+    
+  - pid: P4101
+    variable: dissert_submit_to
+    value_type: item
+    qual: []
+    ref:
+    - pid: P854
+      variable: referenceUrl
+      value_type: uri
+    - pid: P813
+      variable: retrieved
+      value_type: date
+    
