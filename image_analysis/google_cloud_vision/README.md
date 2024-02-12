@@ -58,7 +58,7 @@ You MUST provide a CSV file with a column of image filenames. That column MUST b
 
 ## Output files
 
-The script create four types of CSV files that correspond to the four feature options.
+The script create four types of CSV files that correspond to the four feature options. The anslysis was done on [this image](https://commons.wikimedia.org/wiki/File:Interchurch_World_Movement_-_Vanderbilt_Fine_Arts_Gallery_-_1979.1140P.tif).
 
 [face_detection.csv](face_detection.csv)
 
