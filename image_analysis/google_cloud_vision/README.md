@@ -58,7 +58,7 @@ You MUST provide a CSV file with a column of image filenames. That column MUST b
 
 ## Output files
 
-The script create four types of CSV files that correspond to the four feature options. The examples below contain the output of analysis of about 1500 gallery images.
+The script create four types of CSV files that correspond to the four feature options.
 
 [face_detection.csv](face_detection.csv)
 
