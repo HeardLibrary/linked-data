@@ -1,0 +1,27 @@
+[
+  {
+    "column_header": "sd:name",
+    "object_type": "iri"
+  },
+  {
+    "column_header": "dcterms:issued",
+    "object_type": "literal",
+    "datatype": "xsd:date"
+  },
+  {
+    "column_header": "dc:publisher",
+    "object_type": "literal"
+  },
+  {
+    "column_header": "rdf:type",
+    "object_type": "curie"
+  },
+  {
+    "column_header": "dcterms:isPartOf",
+    "object_type": "iri"
+  },
+  {
+    "column_header": "tdwgutility:status",
+    "object_type": "literal"
+  }
+]

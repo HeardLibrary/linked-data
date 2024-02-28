@@ -1,0 +1,11 @@
+s,p,o
+http://rs.tdwg.org/format/values/e005,http://purl.org/dc/terms/isPartOf,http://rs.tdwg.org/format/values/
+http://rs.tdwg.org/format/values/e005,http://rs.tdwg.org/dwc/terms/attributes/decision,http://rs.tdwg.org/decisions/decision-2020-10-13_29
+http://rs.tdwg.org/format/values/m015,http://purl.org/dc/terms/isPartOf,http://rs.tdwg.org/format/values/
+http://rs.tdwg.org/format/values/m015,http://rs.tdwg.org/dwc/terms/attributes/decision,http://rs.tdwg.org/decisions/decision-2020-10-13_29
+http://rs.tdwg.org/format/values/m033,http://purl.org/dc/terms/isPartOf,http://rs.tdwg.org/format/values/
+http://rs.tdwg.org/format/values/m033,http://rs.tdwg.org/dwc/terms/attributes/decision,http://rs.tdwg.org/decisions/decision-2020-10-13_29
+http://rs.tdwg.org/format/values/e034,http://purl.org/dc/terms/isPartOf,http://rs.tdwg.org/format/values/
+http://rs.tdwg.org/format/values/e034,http://rs.tdwg.org/dwc/terms/attributes/decision,http://rs.tdwg.org/decisions/decision-2020-10-13_29
+http://rs.tdwg.org/format/values/e037,http://purl.org/dc/terms/isPartOf,http://rs.tdwg.org/format/values/
+http://rs.tdwg.org/format/values/e037,http://rs.tdwg.org/dwc/terms/attributes/decision,http://rs.tdwg.org/decisions/decision-2020-10-13_29
