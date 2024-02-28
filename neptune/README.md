@@ -45,7 +45,9 @@ Script location: <https://github.com/HeardLibrary/linked-data/blob/master/neptun
 
 Current version: v0.1.1
 
-Written by Steve Baskauf 2024.
+Date of most current version: 2024-02-28
+
+Written by Steve Baskauf
 
 Copyright 2024 Vanderbilt University. This program is released under a [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0).
 
