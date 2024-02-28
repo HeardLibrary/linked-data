@@ -1,10 +1,10 @@
 # Scripts and information for interacting with AWS Neptune
 
-This directory contains scripts for interacting with an AWS Neptune instance. It was specifically developed for use with the Vanderbilt Neptune instance whose endpoint is at https://sparql.vanderbilt.edu/sparql .  
+This directory contains scripts for interacting with an AWS Neptune instance. It was specifically developed for use with the Vanderbilt Neptune instance whose endpoint is at `https://sparql.vanderbilt.edu/sparql` .  
 
-# neptune_loader.py
+# load_neptune.py
 
-neptune_loader.py is a Python script for loading data into an AWS Neptune instance from an S3 bucket. It also can be used to drop named graphs from the Neptune instance.
+load_neptune.py is a Python script for loading data into an AWS Neptune instance from an S3 bucket. It also can be used to drop named graphs from the Neptune instance.
 
 As a management policy, no data should be loaded into the triplestore without explicitly being associated with a named graph. The software ensures this by requiring associations between the RDF data files and named graphs to be made in CSV files. By associating RDF datasets with particular named graphs, it is possible to drop and reload the data for a particular project without affecting other projects. It also ensures that conflicting data from other projects does not influence the outcome of queries, since only data from specified named graphs will be considered in a query.
 
@@ -35,13 +35,13 @@ optional {?NamedGraph <http://rs.tdwg.org/dwc/terms/attributes/status> ?status.}
 order by desc(?issued)
 ```
 
-This query (and any other query) can be made to the https://sparql.vanderbilt.edu/sparql endpoint using a graphical interface at <https://sparql.replit.app/>.
+This query (and any other query) can be made to the `https://sparql.vanderbilt.edu/sparql` endpoint using a graphical interface at <https://sparql.replit.app/>.
 
-NOTE: the query above will retrieve only named graphs that have been linked to the SPARQL Service resource. It is possible to have named graphs in the triplestore that are not linked to the SPARQL Service resource if they were loaded by means other than the neptune_loader.py script, which automatically makes those links.
+NOTE: the query above will retrieve only named graphs that have been linked to the SPARQL Service resource. It is possible to have named graphs in the triplestore that are not linked to the SPARQL Service resource if they were loaded by means other than the ;load_neptune.py script, which automatically makes those links.
 
 # Script details
 
-Script location: <https://github.com/HeardLibrary/linked-data/blob/master/neptune/neptune_loader.py>
+Script location: <https://github.com/HeardLibrary/linked-data/blob/master/neptune/load_neptune.py>
 
 Current version: v0.1.1
 
@@ -125,7 +125,7 @@ If the `object_type` value is `literal` and the column contains *plain literals*
 
 **TODO: create a load operation that suppressess dropping the named graph. This would be important if multiple files are associated with a named graph and the load process fails for one of the files.**
 
-Initiation of the lambda function containing the script is triggered by a file DROP operation on the data S3 bucket whose name is hard-coded as a global variable at the top of the script. The file that is dropped MUST be a plain text file named `trigger.txt`. It MUST contain a single text string which contains the name of the operation to be performed. The file is deleted after the operation is completed. 
+Initiation of the lambda function containing the script is triggered by a file DROP operation on the data S3 bucket whose name is hard-coded as a global variable at the top of the script. The file that is dropped MUST be a plain text file named `trigger.txt` ([example](trigger.txt)). It MUST contain a single text string which contains the name of the operation to be performed. The file is deleted after the operation is completed. 
 
 The script can perform three operations identified by these strings: `initialize`, `load`, and `drop`. The `initialize` operation creates metadata about the SPARQL Service resource and the GraphCollection instance. It SHOULD only be done once at the initial setup of the triplestore. The `load` operation loads RDF data from files into named graphs. The `drop` operation removes named graphs and their associated metadata from the triplestore.
 
@@ -157,6 +157,8 @@ The status of the operations is logged in two ways.
 For all operations, the script writes to a log file named `log.txt` that is placed in the root directory of the S3 data bucket. The log is written to the file at each stage in the operation, so that if the operation is interrupted (either through an error or by timing out), the log can be used to help determine the cause of the failure and to restart the operation at the point of failure. The log file is also useful for monitoring the progress of the operation. While in the S3 portion of the AWS Management Console, navigate to the log file and click on the `Open` button to view the log in a new tab. Once you are viewing the log tab, you can just refresh the page to see more recent log entries.
 
 For the `load` and `drop` operations, entries are made in rows of the CSV tables that are associated with the operation. The `load_status` column of the `named_graphs.csv` file and the `graph_load_status` column of the `graph_file_associations.csv` file are used to record the status of the operations as they are carried out. These columns SHOULD be empty initially, otherwise statuses recorded in previous operations will make interpretation of the progress difficult.
+
+**TODO: add AWS configuration information needed for the lambda to run, including the timeout value.**
 
 ----
 Last modified: 2024-02-28
