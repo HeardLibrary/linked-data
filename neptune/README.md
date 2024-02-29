@@ -4,7 +4,7 @@ This directory contains scripts for interacting with an AWS Neptune instance. It
 
 # load_neptune.py
 
-load_neptune.py is a Python script for loading data into an AWS Neptune instance from an S3 bucket. It also can be used to drop named graphs from the Neptune instance.
+load_neptune.py is a Python script for loading data into an AWS Neptune instance from an S3 bucket via a lambda function. It also can be used to drop named graphs from the Neptune instance.
 
 As a management policy, no data should be loaded into the triplestore without explicitly being associated with a named graph. The software ensures this by requiring associations between the RDF data files and named graphs to be made in CSV files. By associating RDF datasets with particular named graphs, it is possible to drop and reload the data for a particular project without affecting other projects. It also ensures that conflicting data from other projects does not influence the outcome of queries, since only data from specified named graphs will be considered in a query.
 
