@@ -160,5 +160,14 @@ For the `load` and `drop` operations, entries are made in rows of the CSV tables
 
 **TODO: add AWS configuration information needed for the lambda to run, including the timeout value.**
 
+## Development notes
+
+I learned several important things about the AWS Lambda environment while developing this script. 
+
+1. The timeout needs to be increased to a long enough time that the script can finish. The default 3 seconds cause the script to time out and throw errors that weren't actually errors -- the timeout setting just wasn't long enough. I wasted a lot of time trying to debug when there actually was nothing wrong with the code.
+2. I used the `typing` module to define the types of the function arguments and return values. AWS Lambda enforces the declared types very strictly. So for example, if an argument is an ordered dictionary and you declare the type to be Dict, the script will fail because the types don't match. This is way more strict than the normal Python environment that you run from the command line on your computer or a Jupyter notebook. So I did stuff like just declare `List` rather than `List[Dict]` if the list contained objects that weren't vanilla dictionaries.
+3. This may seem obvious, but permissions need to be set for S3 access or the Lambda can't read from them, even if they are set to be Public.
+4. Once the Lambda is assigned to the a VPC (i.e. the same one as Neptune), it can't access the Internet. So testing that I was doing by using HTTP GET to acquire data for testing stopped working as soon as the Lambda was in the VPC. 
+
 ----
 Last modified: 2024-02-28
