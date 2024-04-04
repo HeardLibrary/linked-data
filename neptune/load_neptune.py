@@ -22,6 +22,10 @@
 # - generate column header string for named_graphs_df_fields from the config_data.
 # - added support for "initialize" operation to initialize the graph of graphs and service metadata.
 # - added support for "drop" operation to drop listed named graphs and their metadata.
+# -----------------------------------------
+# Version 0.1.2 change notes (2024-04-03):
+# - deleted trigger.txt file immediately after loading since if the script timed out, it would be triggered again,
+#   causing an infinite loop.
 
 # ----------------
 # Configuration
@@ -50,7 +54,7 @@ loader_endpoint_url = 'https://triplestore1.cluster-cml0hq81gymg.us-east-1.neptu
 reader_endpoint_url = 'https://sparql.vanderbilt.edu/sparql'
 s3_bucket_name = 'triplestore-upload'
 utc_offset = '-05:00'
-graph_file_associations_df_fields = ['sd:name', 'sd:graph', 'filename', 's3_upload_status', 'graph_load_status']
+graph_file_associations_df_fields = ['sd:name', 'sd:graph', 'filename', 'elapsed_time', 'graph_load_status']
 
 # ----------------
 # Function definitions
@@ -465,7 +469,11 @@ def lambda_handler(event, context):
     s3 = boto3.resource('s3')
     trigger_file = s3.Object(s3_bucket_name, 'trigger.txt')
     trigger_text = trigger_file.get()['Body'].read().decode('utf-8').strip() # Remove leading/trailing whitespace or newline
-    
+
+    # Delete the trigger file
+    # Note: must delete the trigger file immediately to prevent an infinite loop if the script times out.
+    s3.Object(s3_bucket_name, 'trigger.txt').delete()    
+
     upload_start_time = datetime.datetime.now()
     log_string = 'started at ' + upload_start_time.isoformat() + utc_offset + '''
 
@@ -568,10 +576,6 @@ graph <https://sparql.vanderbilt.edu/graphs> {
 '''
         save_string_to_file_in_bucket(log_string, 'log.txt', bucket = s3_bucket_name, content_type = 'text/plain')
 
-        # Delete the trigger file
-        s3 = boto3.resource('s3')
-        s3.Object(s3_bucket_name, 'trigger.txt').delete()    
-
         return log_string
 
     # If the operation is not drop, execution continues here for the load operation.
@@ -639,6 +643,7 @@ graph <https://sparql.vanderbilt.edu/graphs> {\n'''
             data = neptune.load(matching_file['filename'], named_graph_iri, s3=s3_bucket_name, verbose=False)
             elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
             update_upload_status(i, graph_file_associations_df, 'graph_load_status', 'graph_file_associations.csv', 'load complete in ' + str(elapsed_time) + 's', graph_file_associations_df_fields)
+            update_upload_status(i, graph_file_associations_df, 'elapsed_time', 'graph_file_associations.csv', str((datetime.datetime.now() - upload_start_time).total_seconds()), graph_file_associations_df_fields)
             if print_dump:
                 print(json.dumps(data, indent=2))
                 print()
@@ -758,10 +763,6 @@ graph <https://sparql.vanderbilt.edu/graphs> {\n'''
 Elapsed time (s):''' + str(elapsed_time) + '''
 
 '''
-    save_string_to_file_in_bucket(log_string, 'log.txt', bucket = s3_bucket_name, content_type = 'text/plain')
-    
-    # Delete the trigger file
-    s3 = boto3.resource('s3')
-    s3.Object(s3_bucket_name, 'trigger.txt').delete()    
+    save_string_to_file_in_bucket(log_string, 'log.txt', bucket = s3_bucket_name, content_type = 'text/plain')  
     
     return log_string

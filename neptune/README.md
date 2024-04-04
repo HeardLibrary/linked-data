@@ -43,9 +43,9 @@ NOTE: the query above will retrieve only named graphs that have been linked to t
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/neptune/load_neptune.py>
 
-Current version: v0.1.1
+Current version: v0.1.2
 
-Date of most current version: 2024-02-28
+Date of most current version: 2024-04-03
 
 Written by Steve Baskauf
 
@@ -65,7 +65,7 @@ The script receives input from some CSV files present in the S3 bucket.
 
 The first file, `named_graphs.csv` MUST be present for all functions except `initialize`. This file describes the metadata properties of each of the named graphs to be uploaded. The file MUST be in the root directory of the S3 data bucket. It contains a REQUIRED column `sd:name` that provides the IRI of the named graph and a REQUIRED column `load_status` that SHOULD be empty initially and is used to record the status of the load or drop operations as they are carried out. The `load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. All other columns are OPTIONAL and are used to provide metadata about the named graph. An [example named_graphs.csv file](named_graphs.csv) is provided in the repository.
 
-The second file, `graph_file_associations.csv` is REQUIRED only for the `load` function. It is used to associate the named graphs with the files that contain the RDF data to be loaded. If present, the file MUST be in the root directory of the S3 data bucket. It contains four REQUIRED columns. The `sd:name` column provides the IRI of the named graph. It serves as a foreign key associating rows with the primary key (`sd:name`) in the `named_graphs.csv` file. The `sd:graph` column contains an IRI distinguishing the subgraph of the named graph whose triples are contained in the RDF data file to be uploaded. The `sd:graph` IRI MUST NOT be the same as the `sd:name` IRI. If a named graph contains only a single subgraph, the two IRIs MAY be differentiated using a fragment identifier. The filename column contains the name of the file in the S3 bucket that contains the RDF data to be loaded. The `graph_load_status` column SHOULD be empty initially and is used to record the status of the load operation as it is carried out. The `graph_load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. An [example graph_file_associations.csv file](graph_file_associations.csv) is provided in the repository.
+The second file, `graph_file_associations.csv` is REQUIRED only for the `load` function. It is used to associate the named graphs with the files that contain the RDF data to be loaded. If present, the file MUST be in the root directory of the S3 data bucket. It contains five REQUIRED columns. The `sd:name` column provides the IRI of the named graph. It serves as a foreign key associating rows with the primary key (`sd:name`) in the `named_graphs.csv` file. The `sd:graph` column contains an IRI distinguishing the subgraph of the named graph whose triples are contained in the RDF data file to be uploaded. The `sd:graph` IRI MUST NOT be the same as the `sd:name` IRI. If a named graph contains only a single subgraph, the two IRIs MAY be differentiated using a fragment identifier. The filename column contains the name of the file in the S3 bucket that contains the RDF data to be loaded. The `graph_load_status` column SHOULD be empty initially and is used to record the status of the load operation as it is carried out. The `graph_load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. The `elapsed_time` column SHOULD be empty initially and is used to record the cumulative elapsed time after each file is uploaded. An [example graph_file_associations.csv file](graph_file_associations.csv) is provided in the repository.
 
 ### Strategies for associating named graphs with files
 
@@ -125,7 +125,7 @@ If the `object_type` value is `literal` and the column contains *plain literals*
 
 **TODO: create a load operation that suppressess dropping the named graph. This would be important if multiple files are associated with a named graph and the load process fails for one of the files.**
 
-Initiation of the lambda function containing the script is triggered by a file DROP operation on the data S3 bucket whose name is hard-coded as a global variable at the top of the script. The file that is dropped MUST be a plain text file named `trigger.txt` ([example](trigger.txt)). It MUST contain a single text string which contains the name of the operation to be performed. The file is deleted after the operation is completed. 
+Initiation of the lambda function containing the script is triggered by a file DROP operation on the data S3 bucket whose name is hard-coded as a global variable at the top of the script. The file that is dropped MUST be a plain text file named `trigger.txt` ([example](trigger.txt)). It MUST contain a single text string which contains the name of the operation to be performed. The file is deleted after the operation is initiated. 
 
 The script can perform three operations identified by these strings: `initialize`, `load`, and `drop`. The `initialize` operation creates metadata about the SPARQL Service resource and the GraphCollection instance. It SHOULD only be done once at the initial setup of the triplestore. The `load` operation loads RDF data from files into named graphs. The `drop` operation removes named graphs and their associated metadata from the triplestore.
 
