@@ -1,2 +1,12 @@
 sd:name,sd:graph,filename,elapsed_time,graph_load_status
-https://spear-prosop.org,https://spear-prosop.org#data,allSPEAR.ttl,,load complete in 8.211422s
+http://vocab.getty.edu/aat/msc/,http://AATOut_Notations,AATOut_Notations.nt,18.781338,load complete in 3.012247s
+http://vocab.getty.edu/aat/msc/,http://AATOut_LCSHAlignment,AATOut_LCSHAlignment.nt,30.521203,load complete in 5.642851s
+http://vocab.getty.edu/aat/msc/,http://AATOut_Lang_sameAs,AATOut_Lang_sameAs.nt,40.061934,load complete in 3.388141s
+http://vocab.getty.edu/aat/msc/,http://AATOut_Contribs,AATOut_Contribs.nt,49.596593,load complete in 3.450805s
+http://vocab.getty.edu/aat/msc/,http://AATOut_ObsoleteSubjects,AATOut_ObsoleteSubjects.nt,61.051823,load complete in 3.587236s
+http://vocab.getty.edu/aat/msc/,http://AATOut_OrderedCollections,AATOut_OrderedCollections.nt,75.883127,load complete in 8.774357s
+http://vocab.getty.edu/aat/msc/,http://AATOut_WikidataCoref,AATOut_WikidataCoref.nt,94.34295,load complete in 12.295558s
+http://vocab.getty.edu/aat/msc/,http://AATOut_AssociativeRels,AATOut_AssociativeRels.nt,140.766459,load complete in 40.110157s
+http://vocab.getty.edu/aat/msc/,http://AATOut_SemanticLinks,AATOut_SemanticLinks.nt,206.142259,load complete in 59.189885s
+http://vocab.getty.edu/aat/msc/,http://AATOut_HierarchicalRels,AATOut_HierarchicalRels.nt,261.286129,load complete in 48.995635s
+http://vocab.getty.edu/aat/msc/,http://AATOut_Sources,AATOut_Sources.nt,409.531723,load complete in 141.691312s

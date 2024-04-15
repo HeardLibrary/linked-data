@@ -37,15 +37,15 @@ order by desc(?issued)
 
 This query (and any other query) can be made to the `https://sparql.vanderbilt.edu/sparql` endpoint using a graphical interface at <https://sparql.replit.app/>.
 
-NOTE: the query above will retrieve only named graphs that have been linked to the SPARQL Service resource. It is possible to have named graphs in the triplestore that are not linked to the SPARQL Service resource if they were loaded by means other than the ;load_neptune.py script, which automatically makes those links.
+NOTE: the query above will retrieve only named graphs that have been linked to the SPARQL Service resource. It is possible to have named graphs in the triplestore that are not linked to the SPARQL Service resource if they were loaded by means other than the load_neptune.py script, which automatically makes those links.
 
 # Script details
 
 Script location: <https://github.com/HeardLibrary/linked-data/blob/master/neptune/load_neptune.py>
 
-Current version: v0.1.2
+Current version: v0.1.3
 
-Date of most current version: 2024-04-03
+Date of most current version: 2024-04-12
 
 Written by Steve Baskauf
 
@@ -57,23 +57,23 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 
 ## Modules required
 
-In order to avoid the necessity of uploading custom layers, the script limites the imported modules to those that are included automatically in the AWS Lambda Python environment.
+In order to avoid the necessity of uploading custom layers, the script limits the imported modules to those that are included automatically in the AWS Lambda Python environment.
 
 ## Source data CSV files
 
 The script receives input from some CSV files present in the S3 bucket. 
 
-The first file, `named_graphs.csv` MUST be present for all functions except `initialize`. This file describes the metadata properties of each of the named graphs to be uploaded. The file MUST be in the root directory of the S3 data bucket. It contains a REQUIRED column `sd:name` that provides the IRI of the named graph and a REQUIRED column `load_status` that SHOULD be empty initially and is used to record the status of the load or drop operations as they are carried out. The `load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. All other columns are OPTIONAL and are used to provide metadata about the named graph. An [example named_graphs.csv file](named_graphs.csv) is provided in the repository.
+The first file, `named_graphs.csv` MUST be present for all operations except `initialize`. This file describes the metadata properties of each of the named graphs to be uploaded. The file MUST be in the root directory of the S3 data bucket. It contains a REQUIRED column `sd:name` that provides the IRI of the named graph and a REQUIRED column `load_status` that SHOULD be empty initially and is used to record the status of the load or drop operations as they are carried out. The `load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. All other columns are OPTIONAL and are used to provide metadata about the named graph. An [example named_graphs.csv file](named_graphs.csv) is provided in the repository.
 
-The second file, `graph_file_associations.csv` is REQUIRED only for the `load` function. It is used to associate the named graphs with the files that contain the RDF data to be loaded. If present, the file MUST be in the root directory of the S3 data bucket. It contains five REQUIRED columns. The `sd:name` column provides the IRI of the named graph. It serves as a foreign key associating rows with the primary key (`sd:name`) in the `named_graphs.csv` file. The `sd:graph` column contains an IRI distinguishing the subgraph of the named graph whose triples are contained in the RDF data file to be uploaded. The `sd:graph` IRI MUST NOT be the same as the `sd:name` IRI. If a named graph contains only a single subgraph, the two IRIs MAY be differentiated using a fragment identifier. The filename column contains the name of the file in the S3 bucket that contains the RDF data to be loaded. The `graph_load_status` column SHOULD be empty initially and is used to record the status of the load operation as it is carried out. The `graph_load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. The `elapsed_time` column SHOULD be empty initially and is used to record the cumulative elapsed time after each file is uploaded. An [example graph_file_associations.csv file](graph_file_associations.csv) is provided in the repository.
+The second file, `graph_file_associations.csv` is REQUIRED only for the `load` and `metadata` operations. It is used to associate the named graphs with the files that contain the RDF data to be loaded. If present, the file MUST be in the root directory of the S3 data bucket. It contains five REQUIRED columns. The `sd:name` column provides the IRI of the named graph. It serves as a foreign key associating rows with the primary key (`sd:name`) in the `named_graphs.csv` file. The `sd:graph` column contains an IRI distinguishing the subgraph of the named graph whose triples are contained in the RDF data file to be uploaded. The `sd:graph` IRI MUST NOT be the same as the `sd:name` IRI. If a named graph contains only a single subgraph, the two IRIs MAY be differentiated using a fragment identifier. The filename column contains the name of the file in the S3 bucket that contains the RDF data to be loaded. The `graph_load_status` column SHOULD be empty initially and is used to record the status of the load operation as it is carried out. The `graph_load_status` column makes it possible to determine what stage of the operation was in operation when the script was interrupted or timed out. The `elapsed_time` column SHOULD be empty initially and is used to record the cumulative elapsed time after each file is uploaded. An [example graph_file_associations.csv file](graph_file_associations.csv) is provided in the repository.
 
 ### Strategies for associating named graphs with files
 
 There are two main strategies for associating named graphs with files. 
 
-The first is to have a single file for each named graph. This is the simplest strategy and is the one used in the example file. This is a useful strategy if it is likely that queries will often use only part of the information from a project. It is also useful in the case where the data files are very large, since the script drops the entire named graph before loading the new data. If several large files were included in a single named graph, the drop operation would take a long time and all of the data files would need to be reloaded even if only one of them had changed. This strategy is illustrated in the syriaca.org part of the Service Description Model diagram above. The disadvantage of this strategy is that each of the named graphs must be specified in the query.
+The first is to have a single file for each named graph. This is the simplest strategy and is a useful strategy if it is likely that queries will often use only part of the information from a project. It is also useful in the case where the data files are very large, since the script drops the entire named graph before loading the new data. If several large files were included in a single named graph, the drop operation would take a long time and all of the data files would need to be reloaded even if only one of them had changed. This strategy is illustrated in the syriaca.org part of the Service Description Model diagram above. The disadvantage of this strategy is that each of the named graphs must be specified in the query.
 
-The second strategy is to have several files for each named graph, each with a distinct `sd:graph` IRI. This strategy is useful if the data files are generated separately but are small. If it is likely that queries will often use the entire set of data from a project, this strategy requires specifying only a single named graph in the query. This strategy is illustrated in the rs.tdwg.org part of the Service Description Model diagram above. The disadvantage of this strategy is that all of the files must be dropped and reloaded if any of them change, although this is trivial if the files are small.
+The second strategy is to have several files for each named graph, each with a distinct `sd:graph` IRI. This strategy is used in the example file and is useful if the data files are generated separately but are small. If it is likely that queries will often use the entire set of data from a project, this strategy requires specifying only a single named graph in the query. This strategy is illustrated in the rs.tdwg.org part of the Service Description Model diagram above. The disadvantage of this strategy is that all of the files must be dropped and reloaded if any of them change, although this is trivial if the files are small.
 
 ## Configuration files
 
@@ -123,16 +123,15 @@ If the `object_type` value is `literal` and the column contains *plain literals*
 
 ## Initiating the script and operations options
 
-**TODO: create a load operation that suppressess dropping the named graph. This would be important if multiple files are associated with a named graph and the load process fails for one of the files.**
-
 Initiation of the lambda function containing the script is triggered by a file DROP operation on the data S3 bucket whose name is hard-coded as a global variable at the top of the script. The file that is dropped MUST be a plain text file named `trigger.txt` ([example](trigger.txt)). It MUST contain a single text string which contains the name of the operation to be performed. The file is deleted after the operation is initiated. 
 
-The script can perform three operations identified by these strings: `initialize`, `load`, and `drop`. The `initialize` operation creates metadata about the SPARQL Service resource and the GraphCollection instance. It SHOULD only be done once at the initial setup of the triplestore. The `load` operation loads RDF data from files into named graphs. The `drop` operation removes named graphs and their associated metadata from the triplestore.
+The script can perform four operations identified by these strings: `initialize`, `load`, `metadata`, and `drop`. The `initialize` operation creates metadata about the SPARQL Service resource and the GraphCollection instance. It SHOULD only be done once at the initial setup of the triplestore. The `load` operation loads RDF data from files into named graphs. The `metadata` operation records the same metadata about graphs as the load operation, but without actually loading the data. It is useful in cases where graphs are loaded successfully, but the metadata is not loaded (see the "Loading time and file size" section below for situations where this might occur). The `drop` operation removes named graphs and their associated metadata from the triplestore.
 
 | operation | required CSVs | notes |
 | --------- | ---------- | ------ |
 | initialize | none | used once at the initial setup of the triplestore |
 | load | `named_graphs.csv` and `graph_file_associations.csv` | drops previous versions of the named graphs and loads the new data |
+| metadata | `named_graphs.csv` and `graph_file_associations.csv` | loads metadata about the named graphs into the triplestore without actually loading data into the graphs |
 | drop | `named_graphs.csv` | drops named graphs listed in `sd:name` column of the CSV and ignores data in any other column |
 
 Because the data files to be loaded may be large, they can be uploaded to the S3 bucket before a `load` operation is initiated. The `load` operation triggered by dropping the `trigger.txt` file in the S3 bucket will begin almost immediately since the text file is small.
@@ -160,7 +159,46 @@ For the `load` and `drop` operations, entries are made in rows of the CSV tables
 
 **TODO: add AWS configuration information needed for the lambda to run, including the timeout value.**
 
-## Development notes
+# Loading time and file size
+
+The script works well when loading a few small files. However, if many small files are loaded, or if files containing many triples are loaded, then you need to pay attention to the following details to prevent timeouts or deal with situations where Neptune completes the task but does not respond to the loader script.
+
+## Time to load big files
+
+The load time for files seems to depend primarily on the number of triples to be loaded.
+
+![Load time vs. triples plot](load_time.jpg)
+
+For unknown reasons, Neptune does not respond to the client when loading files larger than about a million triples (load time about 350 s), even though it completes the load as long as its load time does not exceed the Neptune timeout setting. So it is not possible to know when the load has completed by viewing the log file, since it is updated when a response is received from the server. An alternative way to check if the graph has completed its loading is to perform a SPARQL query to list existing named graphs:
+
+```
+SELECT DISTINCT ?g 
+WHERE {
+  GRAPH ?g { ?s ?p ?o }
+}
+```
+
+If the graph IRI is returned in the query results, then the graph has been loaded. NOTE: this presupposes that either the graph is new, or that it was successfully deleted prior to updating it with new data.
+
+With a timeout setting of 15 minutes (900 s), Neptune should be able to load files containing up to a little fewer than 2.5 million triples. This is consistent with empirical data showing that files containing 2.35 million triples did not load, while files containing 1.62 million triples and 1.41 million triples did load. 
+
+## Time to drop graphs
+
+The time to drop graphs seems to be linear with the number of triples in the graph and is very similar to the load time. So it takes roughly as long to drop a graph as it does to load it.
+
+![Drop time vs. triples plot](drop_time.jpg)
+
+## Practical implications of load and drop times
+
+Because AWS Lambda functions have a maximum execution time of 15 minutes, the cumulative load times for all graphs is limited. If the graphs already exist and must first be dropped before the updated graphs are loaded, then the cumulative load time can't be longer than about 7 minutes (there is also some overtime for writing files and additional triples). If the graphs are new and no pre-existing graphs need to be dropped, then the cumulative load time can't be longer than about 14 minutes.
+
+Any individual files containing more than about 700 000 triples should be loaded separately, since the script will not be able to proceed with loading additional files without a response from Neptune. Because a lack of response from Neptune prevents the generation of metadata about the loaded graph, after loading larger files, the script should be re-run with the same `graph_file_associations.csv` and `named_graphs.csv` files using the `metadata` command to generate the metadata triples. 
+
+Files larger than about 700 000 triples that are replacing previously loaded graphs must be dropped as a separate operation prior to loading the new graphs, since the drop time is too long to get a response from Neptune and the script will not be able to proceed with loading the new file. Performing a drop-only operation can be done using the `drop` command.
+
+If extremely large datasets should be loaded with caution. If the triples are serialized in n-triples or n-quads format, the input file can be broken up into several smaller files relatively easily since each triple is on a separate line in the file. Each separate file could then be loaded into the same named graph. This is not currently supported in the script since graphs are dropped prior to loading new data into the graph. However, the script could be hacked to suppress dropping. However, keep in mind that dropping a graph takes as long as loading a graph, so the time to drop the graph would roughly be the sum of the load times of all of the individual files. Thus it would be possible to create a very large graph whose drop time exceeds the timeout time for Neptune, i.e. creating a graph in multiple loads that is too large to drop without increasing the timeout value.
+
+# Development notes
 
 I learned several important things about the AWS Lambda environment while developing this script. 
 
@@ -170,4 +208,4 @@ I learned several important things about the AWS Lambda environment while develo
 4. Once the Lambda is assigned to the a VPC (i.e. the same one as Neptune), it can't access the Internet. So testing that I was doing by using HTTP GET to acquire data for testing stopped working as soon as the Lambda was in the VPC. 
 
 ----
-Last modified: 2024-03-18
+Last modified: 2024-04-15
