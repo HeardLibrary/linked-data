@@ -198,6 +198,17 @@ Files larger than about 700 000 triples that are replacing previously loaded gra
 
 If extremely large datasets should be loaded with caution. If the triples are serialized in n-triples or n-quads format, the input file can be broken up into several smaller files relatively easily since each triple is on a separate line in the file. Each separate file could then be loaded into the same named graph. This is not currently supported in the script since graphs are dropped prior to loading new data into the graph. However, the script could be hacked to suppress dropping. However, keep in mind that dropping a graph takes as long as loading a graph, so the time to drop the graph would roughly be the sum of the load times of all of the individual files. Thus it would be possible to create a very large graph whose drop time exceeds the timeout time for Neptune, i.e. creating a graph in multiple loads that is too large to drop without increasing the timeout value.
 
+# Debugging
+
+It is very difficult to determine the cause of errors when the Lambda is running after being triggered by the bucket drop. An alternative method is to hack the script to ignore the `trigger.txt` file and just launch the Lambda using the `test` button in the web interface. To do this:
+
+1. Comment out [the lines that read from and delete the `trigger.txt` file](https://github.com/HeardLibrary/linked-data/blob/984e67d1634a6da2e122db5b9e583f02df904ceb/neptune/load_neptune.py#L474:L480).
+2. Add a line that hard codes the value for `trigger_text` to initiate the operation you desire. For example, to do the load operation, add this line after the lines you commented out:
+
+```
+trigger_text = 'load'
+```
+
 # Development notes
 
 I learned several important things about the AWS Lambda environment while developing this script. 
